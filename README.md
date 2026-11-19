@@ -3,7 +3,7 @@
 Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
 ## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 33 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Deployment, live wallet/browser verification, mobile checks, and public full-loop evidence remain pending. M1 is open.
+The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 33 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. One real ETH deposit-to-Reactive-to-confirmation callback flow is independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDC live verification, USDT provenance/support, full browser/mobile checks and recovery remain pending. M1 is open.
 
 Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
