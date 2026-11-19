@@ -5,13 +5,21 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './style.css';
-import { asQuote, configured, errorMessage, escrowAddress, explorer, readContract, walletContract } from './chain';
+import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract } from './chain';
+import { ensureBaseSepolia } from './wallet';
+import { decodePending, pendingReceipt } from './pending';
 import { assets, knownAsset, displayAmount as amount } from './assets';
 import { decodeTerms, encodeTerms, matchesQuote, termsHash, type Quote, type Terms } from './terms';
 
 const statuses = ['Missing', 'Awaiting deposit', 'Confirming booking', 'Confirmed', 'Refund pending', 'Refunded', 'Expired', 'Released'];
 const short = (address: string) => address.slice(0, 6) + '…' + address.slice(-4);
 const date = (seconds: bigint | number) => new Date(Number(seconds) * 1000).toLocaleString();
+const pendingKey = () => 'settlio:pending:84532:' + escrowAddress;
+const draftKey = (hash: string) => 'settlio:terms:84532:' + escrowAddress + ':' + hash;
+function pendingHash(): string {
+  try { return decodePending(localStorage.getItem(pendingKey()), escrowAddress)?.hash || ''; }
+  catch { return ''; }
+}
 const cacheKey = (id: bigint) => 'settlio:84532:' + escrowAddress + ':' + id;
 function loadTerms(id: bigint): Terms | null {
   try {
@@ -30,7 +38,9 @@ function App() {
   const transactionLock = useRef(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [transaction, setTransaction] = useState('');
+  const [transaction, setTransaction] = useState(pendingHash);
+  const [pending, setPending] = useState(pendingHash);
+  const [unresolved, setUnresolved] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const params = new URLSearchParams(route.split('#')[0]);
   const quoteParam = params.get('quote');
@@ -71,30 +81,65 @@ function App() {
     if (!window.ethereum) { setError('Install a browser wallet to connect, or open this page in your wallet browser.'); return; }
     try {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const chain = BigInt(await window.ethereum.request({ method: 'eth_chainId' }) as string);
-      if (chain !== 84532n) {
-        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x14a34' }] });
-      }
+      await ensureBaseSepolia(window.ethereum);
       setAccount(await (await new BrowserProvider(window.ethereum).getSigner()).getAddress());
     } catch (failure) { setError(errorMessage(failure)); }
   }
   async function transact(send: () => Promise<TransactionResponse>, after?: (receipt: TransactionReceipt) => void) {
-    if (transactionLock.current) return;
+    if (transactionLock.current || pending) return;
     transactionLock.current = true;
     setBusy(true); setError(''); setMessage('Review this action in your wallet.'); setTransaction('');
     try {
       const tx = await send();
       setTransaction(tx.hash);
+      setPending(tx.hash); setUnresolved(false);
+      try { localStorage.setItem(pendingKey(), JSON.stringify({ hash: tx.hash, escrow: escrowAddress })); } catch { /* In-memory recovery still works for this session. */ }
       setMessage('Transaction sent. Waiting for the Base Sepolia receipt.');
       const receipt = await tx.wait(1, 120000);
       if (!receipt || receipt.status !== 1) throw new Error('No successful receipt was found. Check the transaction before trying again.');
+      setPending(''); setUnresolved(false);
+      try { localStorage.removeItem(pendingKey()); } catch { /* Receipt remains authoritative. */ }
       setMessage('Transaction confirmed on Base Sepolia.');
       after?.(receipt);
       setRefresh(value => value + 1);
     } catch (failure) {
+      const failedReceipt = (failure as { receipt?: TransactionReceipt }).receipt;
+      if (failedReceipt?.status === 0) { setPending(''); try { localStorage.removeItem(pendingKey()); } catch {} }
       setError(errorMessage(failure));
       setMessage('');
     } finally { transactionLock.current = false; setBusy(false); }
+  }
+  async function checkPending() {
+    if (transactionLock.current || !pending) return;
+    transactionLock.current = true; setBusy(true); setError('');
+    try {
+      const receipt = await pendingReceipt(reader, pending);
+      if (!receipt) { setUnresolved(true); setMessage('No receipt yet. The transaction may still be pending or dropped. Check its explorer page before sending anything again.'); return; }
+      setPending(''); setUnresolved(false);
+      try { localStorage.removeItem(pendingKey()); } catch {}
+      if (receipt.status !== 1) { setError('This transaction failed on-chain. Refresh the quote before trying again.'); return; }
+      setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
+      setRefresh(value => value + 1);
+      for (const log of receipt.logs) {
+        if (log.address.toLowerCase() !== escrowAddress.toLowerCase()) continue;
+        const parsed = quoteInterface.parseLog(log);
+        if (parsed?.name !== 'QuoteCreated') continue;
+        const encoded = localStorage.getItem(draftKey(parsed.args.termsHash as string));
+        if (encoded) {
+          const terms = decodeTerms(encoded);
+          if (termsHash(terms).toLowerCase() !== String(parsed.args.termsHash).toLowerCase()) throw new Error('Saved quote terms do not match the creation receipt.');
+          const id = parsed.args.quoteId as bigint;
+          try { localStorage.setItem(cacheKey(id), encoded); } catch {}
+          navigate('?quote=' + id + '#terms=' + encoded);
+        } else setMessage('Quote created. Open it from your quote list. The original service terms were not saved in this browser.');
+      }
+    } catch (failure) { setError(errorMessage(failure)); }
+    finally { transactionLock.current = false; setBusy(false); }
+  }
+  function stopTracking() {
+    setPending(''); setUnresolved(false);
+    try { localStorage.removeItem(pendingKey()); } catch {}
+    setMessage('Local tracking stopped. This does not cancel the transaction. Check your wallet and quote before submitting another action.');
   }
   return <div className="app">
     {!quoteParam && <aside className="sidebar"><a className="wordmark" href={location.pathname} onClick={event => { event.preventDefault(); navigate(''); }}>Settlio</a>
@@ -105,11 +150,12 @@ function App() {
       <header className="topbar"><span>{quoteParam ? 'Settlio / Shared quote' : 'Your workspace'}</span><button className="secondary" disabled={busy} onClick={connect}>{account ? short(account) : 'Connect wallet'}</button></header>
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       <div className="build-note">Test funds only. This build covers quote, deposit, and confirmation. Automatic refunds and expiry processing are still being integrated.</div>
+      {pending && <section className="notice" role="status"><strong>A transaction still needs a receipt check</strong><p>Payments and quote creation are paused to prevent accidental repeats. Check the existing transaction first.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check transaction status</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
       {error && <p role="alert" className="error">{error}</p>}
       {message && <p role="status" className="notice">{message}</p>}
       {transaction && <a className="tx-link" href={explorer + '/tx/' + transaction} target="_blank" rel="noreferrer">View submitted transaction</a>}
-      {quoteParam ? quoteId ? <QuoteView key={route} id={quoteId} account={account} busy={busy} refresh={refresh} transact={transact} connect={connect}/> : <section><h1>Invalid quote link</h1><p>Ask the merchant to send the complete quote link.</p></section> :
-      creating ? <CreateQuote account={account} busy={busy} transact={transact} navigate={navigate} connect={connect}/> :
+      {quoteParam ? quoteId ? <QuoteView key={route} id={quoteId} account={account} busy={busy || !!pending} refresh={refresh} transact={transact} connect={connect}/> : <section><h1>Invalid quote link</h1><p>Ask the merchant to send the complete quote link.</p></section> :
+      creating ? <CreateQuote account={account} busy={busy || !!pending} transact={transact} navigate={navigate} connect={connect}/> :
       <QuoteList account={account} refresh={refresh} navigate={navigate} connect={connect}/>}
       <footer>Settlio · Quotes and bookings · <a href="https://github.com/0xaje/Settlio" target="_blank" rel="noreferrer">View source</a></footer>
     </main>
@@ -189,6 +235,7 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
         options.push({ asset: assets[1].address, total: stableTotal.toString(), deposit: stableDeposit.toString() });
       }
       const terms: Terms = { version: 2, options, service: service.trim(), description: description.trim(), merchant: getAddress(account), customer, total: totalWei.toString(), deposit: depositWei.toString(), expiresAt, refundCutoff };
+      try { localStorage.setItem(draftKey(termsHash(terms)), encodeTerms(terms)); } catch { /* Existing share-link flow still works without local storage. */ }
       await transact(async () => {
         const contract = await walletContract(account);
         return contract.createQuoteWithOptions(customer, options, expiresAt, refundCutoff, termsHash(terms));
