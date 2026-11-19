@@ -4,7 +4,7 @@
     "@foundry-rs/forge": "^1.7.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "solc": "^0.8.29",
+    "solc": "0.8.29",
     "typescript": "^7.0.2",
     "vite": "^8.3.8"
   },
@@ -30,5 +30,10 @@
   "type": "module",
   "engines": {
     "node": ">=22.18.0"
+  },
+  "overrides": {
+    "solc": {
+      "tmp": "0.2.7"
+    }
   }
 }
