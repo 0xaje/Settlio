@@ -32,6 +32,11 @@ async function main() {
     if (await base.getCode(proxy) === '0x' || await lasna.getCode(system) === '0x') {
       throw new Error('Protocol contract bytecode missing.');
     }
+    const usdcAddress = '0x036CbD53842c5426634e7929541eC2318f3dCF7e';
+    const usdc = new Contract(usdcAddress, ['function decimals() view returns(uint8)', 'function symbol() view returns(string)'], base);
+    if (await base.getCode(usdcAddress) === '0x' || await usdc.decimals() !== 6n || await usdc.symbol() !== 'USDC') {
+      throw new Error('Protocol contract or USDC metadata check failed.');
+    }
     const baseSigner = new Wallet(process.env.DEPLOYER_PRIVATE_KEY, base);
     const reactiveSigner = new Wallet(process.env.DEPLOYER_PRIVATE_KEY, lasna);
     const journal = fs.existsSync(journalPath) ? JSON.parse(fs.readFileSync(journalPath)) : {
@@ -84,6 +89,8 @@ async function main() {
         await callback._CALLBACK_SENDER() !== await reactive.getAddress()) {
       throw new Error('Deployment wiring mismatch.');
     }
+    journal.paymentAssets = { ETH: ZeroAddress, USDC: usdcAddress };
+    journal.paymentOptionsVersion = 2;
     journal.wiringVerified = true;
     journal.verifiedAt = new Date().toISOString();
     save();
