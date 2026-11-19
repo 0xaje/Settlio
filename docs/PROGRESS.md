@@ -146,3 +146,15 @@ Integration: token deposit-to-confirmation works through isolated protocol fixtu
 Usefulness: implements the user's payment-choice request for ETH/USDC; demand and usability remain unvalidated, and USDT is blocked.
 Craft: reproducible builds, 33 passing local checks, bounded approvals and clearer asset handling; browser/mobile, live recovery and bundle optimisation remain pending.
 M1 stays open. Next: rerun updated checks/preflight in WSL, resolve the USDT network/address requirement, and obtain genuine testnet payment/callback evidence without publishing keys.
+
+## M1 first live ETH loop · 19 November 2026
+User completed deployment and a two-wallet quote/payment journey, supplied a confirmed screenshot and the origin transaction. Read-only RPC verification independently established all three successful transaction receipts, the exact origin-log fingerprint in the reactive event, the requested and delivered callback payloads (including rewritten reactive sender), BookingConfirmed(1), current status 3, and custody balance equal to native liability.
+
+Full addresses, hashes, blocks, linkage and limitations are recorded in [ONCHAIN-EVIDENCE.md](../ONCHAIN-EVIDENCE.md). The optional getCallbacks index returned an empty array; no index result is fabricated. These receipts are real public testnet evidence, separate from the local fixtures. No implementation changed and no tests were rerun in this evidence-only step.
+
+Judging review:
+Execution now has one independently verified live ETH origin/Reactive/callback loop.
+Integration now has live subscriber-triggered authenticated booking confirmation.
+Usefulness has a builder-run merchant/customer journey, not independent customer validation.
+Craft adds reproducible public evidence; USDC, USDT support/provenance, browser/mobile checks, recovery and subsequent automation still need work.
+M1 remains open. Next action: the real USDC approval/payment/confirmation journey within M1. Do not begin M2 yet.
