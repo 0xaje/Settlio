@@ -3,7 +3,7 @@
 Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
 ## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 17 local contract tests pass. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Deployment, frontend, and public full-loop evidence remain pending. M1 is open.
+The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 21 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Deployment, live wallet/browser verification, mobile checks, and public full-loop evidence remain pending. M1 is open.
 
 Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
@@ -35,3 +35,42 @@ The script only accepts the two test chains. It deploys the subscriber, deploys 
 Full live execution and interrupted-run recovery are pending validation. A successful deployment still needs a real customer deposit and independently verified callback. The M1 receiver supports confirmation only. Expiry/refund routing follows in M2.
 
 MIT licensed for Settlio source. Upstream dependencies retain their own licensing.
+
+## Run the frontend
+Use Node.js 22.18 or later. From the repository root run npm ci, npm run setup:reactive, npm run build:web, and npm run dev.
+
+After testnet deployment, create apps/web/.env.local using the actual escrow address returned by the callback receiver. Restart the dev server after setting it.
+
+```dotenv
+VITE_ESCROW_ADDRESS=
+VITE_BASE_SEPOLIA_RPC=https://sepolia.base.org
+```
+
+The empty configuration shows deployment instructions and disables transactions. It never supplies fabricated history.
+
+## Next local deployment step
+In an Ubuntu/WSL terminal, from your existing repository checkout, update main and run the checks.
+
+```sh
+git pull --ff-only origin main
+npm ci
+npm run setup:reactive
+npm run build:contracts
+npm test
+npm run preflight
+```
+
+Use a dedicated testnet wallet funded with Base Sepolia ETH and Lasna lREACT. Enter its key privately at the terminal prompt, which hides the input.
+
+```sh
+read -r -s -p "Testnet deployer private key: " DEPLOYER_PRIVATE_KEY
+export DEPLOYER_PRIVATE_KEY
+npm run deploy:testnet
+unset DEPLOYER_PRIVATE_KEY
+```
+
+Keep deployments/testnet.json to resume safely and share its public addresses and transaction hashes for verification. Do not share a key or an environment file.
+
+The script's full deployment and restart recovery still require a funded live run. Check the transaction journal before retrying after any interruption.
+
+The first UI currently supports quote creation, deposit, and confirmation. Refund/expiry routing and the marketing hero follow in later milestones. Terms in share links are readable by anyone with the link. The recipient must use the designated wallet.
