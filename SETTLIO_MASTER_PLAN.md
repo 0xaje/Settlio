@@ -17,12 +17,12 @@ Repository inspection on 19 November returned an empty repository. Foundation wo
 - Begin with independent service providers serving customers already comfortable with wallet payments. This is a starting audience hypothesis, not validated demand.
 - Display the actual payment asset and units. Dollar amounts in design images are illustrative and do not establish an exchange rate.
 - Product statuses distinguish unpaid, deposit received, confirming, confirmed, cancellation requested, refund pending, refunded, expired, and released where applicable. A transaction submission is not proof of confirmation.
-- Refund policy proposal is full refund for customer cancellation before an explicit cutoff, with funds reserved until eligibility ends. This remains a proposal until its exact asset, deadline rules, merchant release, and cancellation permissions are resolved and recorded.
+- Initial engineering defaults selected under the user's build authorisation are native Base Sepolia test ETH, an exact deposit amount, a designated customer wallet, and customer cancellation strictly before refundCutoff. Enforce now < expiresAt <= refundCutoff at creation. Payment requires now < expiresAt. The designated customer may request a full refund while DepositReceived or Confirmed before the cutoff. Recording an eligible request immediately reserves the refund, even if delivery arrives after the cutoff. Merchant release becomes available at now >= refundCutoff only for confirmed quotes with no pending cancellation. The refundable principal cannot fund automation. These defaults are reversible before deployment and must be disclosed to the user.
 - Objective contract rules cover payment and cancellation eligibility. Service quality and disputed delivery require a separately defined process beyond the initial scope.
 - Current Omni documentation and reactive-lib-omni supersede legacy RVM tutorials.
 
 ## Milestones and acceptance gates
-M0 foundation and execution policy is active. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Close only when unresolved policy and tool prerequisites are resolved.
+M0 foundation and execution policy is active. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults are recorded. Tool validation and live integration preparation remain open.
 M1 quote and deposit to booking. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
 M2 unattended policies. Scheduled unpaid expiry, authenticated eligible cancellation/refund, merchant release, custody accounting, repeated delivery, deadline races, and recovery all verified.
 M3 complete approved interface. Connect the six surfaces to real state, accessible hero motion, responsive layouts, and independent user journeys.
@@ -34,7 +34,7 @@ The old calendar is superseded by these gates. Deadline remains December 5. Targ
 - Repository contents API returned “This repository is empty” on 19 November.
 - No deployment addresses or transaction hashes verified.
 - No build or test pass claimed.
-- Next action is resolve M0 policy details and tool access before M1.
+- Next action is validate the Solidity toolchain and current Omni interfaces before M1.
 
 ## Original planning baseline
 The following preserves version 1 requirements and context. Where it conflicts with the amendments above, version 2 decisions take precedence. Historical dates and original design tables are retained for provenance.
