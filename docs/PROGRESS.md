@@ -41,3 +41,27 @@ https://github.com/Reactive-Network/reactive-lib-omni
 Foundation history
 AGENTS.md, master plan version 2, MIT licence and honest README were committed before contract implementation.
 Node/npm, compiler, and local Anvil runtime validated. Full deployment preparation is tracked within M1.
+
+## M1 integration update on 19 November 2026
+Implemented SettlioReactive and SettlioCallback. The receiver creates its immutable escrow, authenticates the proxy and the originating Reactive address, and funds protocol fees separately. The subscriber can be configured once by its deployer, subscribes to deposits and confirmation retries, validates event shape and origin, suppresses duplicate logs, and requests the current Omni callback API.
+
+The official reactive-lib-omni dependency is fetched at commit 3ade0dcf1d27e67e5783ef807e73a1b9e0c0cce8. Dependency source is installed under ignored lib/ and retains its upstream licensing. Settlio's MIT licence covers its own source.
+
+Verification completed
+- Dependency setup command fetched the pinned sources successfully.
+- All three contracts compiled with solc 0.8.29.
+- 17 local tests passed, zero failures. Local protocol fixtures model the system and proxy. Actual Reactive delivery remains unverified.
+- Live read-only preflight verified chain IDs and nonempty protocol bytecode on Base Sepolia and Lasna.
+- Deployment script syntax checked. Its missing-key guard was exercised and stopped before transactions.
+- Full deployment script execution and journal recovery remain unverified.
+- A test fixture payable-address conversion initially failed compilation and was corrected before the passing run.
+
+Judging review
+Execution remains unverified on public networks.
+Integration has compiled subscriber/receiver code and local boundary checks; live proof pending.
+Usefulness has no new user validation.
+Craft adds reproducible dependency setup, integration checks, read-only preflight, secret-free deployment configuration, and a resumable deployment journal.
+M1 remains open. Scheduled expiry/refund network routing belongs to M2 and has not been implemented in the receiver or subscriber yet.
+
+Live deployment boundary
+No funded signing account is configured in this environment. Deploy from a local environment with a testnet wallet funded on both chains. Never send its key in chat. Next verify deployment, then build/verify the M1 customer UI and live deposit-to-callback trace before closing M1.
