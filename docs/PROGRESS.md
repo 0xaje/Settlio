@@ -89,3 +89,20 @@ M1 stays open. The complete marketing landing page and rotating hero remain in M
 
 Next action
 Deploy using the local testnet-wallet setup in README, configure apps/web/.env.local with the deployed escrow address, then create a genuine quote and pay from a distinct customer wallet. Record the origin, Reactive, callback transactions and resulting state before closing M1.
+
+## M1 local setup repair on 19 November 2026
+The user's WSL run compiled all contracts but failed both local Anvil suites: RPC signing reported an invalid signer chain and the second node did not become ready. Preflight was not reached. This is a reported failure; its exact environment-specific cause was not established.
+
+Acceptance for this repair: isolate each test chain, verify chain/account identity, avoid RPC-managed signing, pass the complete suite and both builds, and resolve the reported dependency audit findings.
+
+Replaced fixed ports with OS-assigned ephemeral ports, explicit chain ID 31337, private startup-output handling, fresh fixture accounts, local transaction signing, and process-group cleanup. These accounts exist only for local fixtures. Pinned solc to 0.8.29 and scoped its tmp dependency override to 0.2.7.
+
+Actual checks in the development environment:
+- All 21 local tests passed, zero failures.
+- Both chain suites also passed (17 tests) while the previous ports 18545 and 18546 were occupied by controlled dummy listeners.
+- All three contracts compiled.
+- TypeScript and frontend production build passed; existing large-chunk warning remains.
+- npm audit reported zero known vulnerabilities.
+- The user's WSL rerun remains pending. No new public-network transactions or deployment evidence were produced.
+
+Judging: Execution and Integration still need live origin-to-Reactive-to-callback proof; Usefulness has no new independent validation; Craft improves reproducible local verification and dependency hygiene. M1 remains open. Next action is the user's updated setup/test/preflight run, then funded testnet deployment and genuine flow evidence.
