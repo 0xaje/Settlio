@@ -22,8 +22,8 @@ Repository inspection on 19 November returned an empty repository. Foundation wo
 - Current Omni documentation and reactive-lib-omni supersede legacy RVM tutorials.
 
 ## Milestones and acceptance gates
-M0 foundation and execution policy is active. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults are recorded. Tool validation and live integration preparation remain open.
-M1 quote and deposit to booking. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
+M0 foundation and execution policy is complete for local implementation. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults, local compiler, Anvil runtime, and current Omni source interfaces are checked. Deployment preparation continues within M1.
+M1 quote and deposit to booking is active. Escrow compiles and 9 local tests pass. Subscriber, callback receiver, UI, and live evidence remain pending. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
 M2 unattended policies. Scheduled unpaid expiry, authenticated eligible cancellation/refund, merchant release, custody accounting, repeated delivery, deadline races, and recovery all verified.
 M3 complete approved interface. Connect the six surfaces to real state, accessible hero motion, responsive layouts, and independent user journeys.
 M4 release and submission. Security/reliability review, reproducible public source, licence, deployments, several full-loop proofs, and public video under three minutes.
