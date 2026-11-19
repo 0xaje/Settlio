@@ -41,14 +41,15 @@ export function asQuote(id: bigint, value: Record<string, unknown>): Quote {
     id, merchant: value.merchant as string, customer: value.customer as string,
     total: BigInt(value.total as bigint), deposit: BigInt(value.deposit as bigint),
     expiresAt: BigInt(value.expiresAt as bigint), refundCutoff: BigInt(value.refundCutoff as bigint),
-    termsHash: value.termsHash as string, status: Number(value.status)
+    termsHash: value.termsHash as string, status: Number(value.status),
+    asset: value.asset as string, selectedOption: Number(value.selectedOption)
   };
 }
 
 export function errorMessage(error: unknown): string {
   const value = error as { code?: string | number; shortMessage?: string; message?: string };
   if (value.code === 4001 || value.code === 'ACTION_REJECTED') return 'You declined the wallet request. You can try again.';
-  if (value.code === 'INSUFFICIENT_FUNDS') return 'Your wallet needs enough test ETH for the deposit and gas.';
+  if (value.code === 'INSUFFICIENT_FUNDS') return 'Your wallet needs enough of the selected payment token, plus test ETH for gas.';
   if (value.code === 'CALL_EXCEPTION') return 'The contract rejected this action. Refresh the quote and check the amount, wallet, and deadline.';
   return value.shortMessage || value.message || 'This action could not be completed. Please try again.';
 }
