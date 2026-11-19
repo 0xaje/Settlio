@@ -1,7 +1,10 @@
 import { getAddress, keccak256, toUtf8Bytes } from 'ethers';
 
+export type PaymentOption = { asset: string; total: string; deposit: string };
+
 export type Terms = {
-  version: 1;
+  version: 1 | 2;
+  options?: PaymentOption[];
   service: string;
   description: string;
   merchant: string;
@@ -22,11 +25,14 @@ export type Quote = {
   refundCutoff: bigint;
   termsHash: string;
   status: number;
+  asset?: string;
+  selectedOption?: number;
+  options?: PaymentOption[];
 };
 
 export function serializeTerms(terms: Terms): string {
   return JSON.stringify({
-    version: 1, service: terms.service, description: terms.description,
+    version: terms.version, ...(terms.version === 2 ? { options: terms.options?.map(option => ({ asset: getAddress(option.asset), total: option.total, deposit: option.deposit })) } : {}), service: terms.service, description: terms.description,
     merchant: getAddress(terms.merchant), customer: getAddress(terms.customer),
     total: terms.total, deposit: terms.deposit,
     expiresAt: terms.expiresAt, refundCutoff: terms.refundCutoff
@@ -48,12 +54,24 @@ export function decodeTerms(encoded: string): Terms {
   const value: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   if (typeof value !== 'object' || value === null) throw new Error('Invalid quote terms.');
   const terms = value as Terms;
-  if (terms.version !== 1 || typeof terms.service !== 'string' || !terms.service.trim() ||
+  if ((terms.version !== 1 && terms.version !== 2) || typeof terms.service !== 'string' || !terms.service.trim() ||
       terms.service.length > 120 || typeof terms.description !== 'string' || terms.description.length > 2000 ||
       typeof terms.total !== 'string' || !/^\d+$/.test(terms.total) ||
       typeof terms.deposit !== 'string' || !/^\d+$/.test(terms.deposit) ||
       !Number.isSafeInteger(terms.expiresAt) || !Number.isSafeInteger(terms.refundCutoff)) {
     throw new Error('Invalid quote terms.');
+  }
+  if (terms.version === 2) {
+    if (!Array.isArray(terms.options) || terms.options.length < 1 || terms.options.length > 3) throw new Error('Invalid payment options.');
+    const assets = new Set();
+    for (const option of terms.options) {
+      const asset = getAddress(option.asset);
+      if (assets.has(asset) || typeof option.total !== 'string' || !/^\d+$/.test(option.total) ||
+          typeof option.deposit !== 'string' || !/^\d+$/.test(option.deposit) || BigInt(option.deposit) <= 0n ||
+          BigInt(option.total) < BigInt(option.deposit)) throw new Error('Invalid payment option.');
+      assets.add(asset);
+    }
+    if (terms.options[0].total !== terms.total || terms.options[0].deposit !== terms.deposit) throw new Error('Invalid primary payment option.');
   }
   serializeTerms(terms);
   return terms;
@@ -64,7 +82,20 @@ export function matchesQuote(terms: Terms, quote: Quote): boolean {
     return termsHash(terms).toLowerCase() === quote.termsHash.toLowerCase() &&
       getAddress(terms.merchant) === getAddress(quote.merchant) &&
       getAddress(terms.customer) === getAddress(quote.customer) &&
-      BigInt(terms.total) === quote.total && BigInt(terms.deposit) === quote.deposit &&
+      (terms.version === 1 ? (!quote.options || (quote.options.length === 1 && quote.options[0].asset === '0x0000000000000000000000000000000000000000')) && BigInt(terms.total) === quote.total && BigInt(terms.deposit) === quote.deposit : matchesOptions(terms, quote)) &&
       BigInt(terms.expiresAt) === quote.expiresAt && BigInt(terms.refundCutoff) === quote.refundCutoff;
   } catch { return false; }
+}
+
+function matchesOptions(terms: Terms, quote: Quote): boolean {
+  const choices = terms.options;
+  if (!choices || !quote.options || choices.length !== quote.options.length) return false;
+  if (!choices.every((choice, index) => {
+    const recorded = quote.options![index];
+    return getAddress(choice.asset) === getAddress(recorded.asset) && BigInt(choice.total) === BigInt(recorded.total) &&
+      BigInt(choice.deposit) === BigInt(recorded.deposit);
+  })) return false;
+  const selected = choices[quote.status === 1 ? 0 : quote.selectedOption ?? -1];
+  return !!selected && getAddress(selected.asset) === getAddress(quote.asset!) &&
+    BigInt(selected.total) === quote.total && BigInt(selected.deposit) === quote.deposit;
 }
