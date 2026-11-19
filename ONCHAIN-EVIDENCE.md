@@ -31,3 +31,24 @@ Origin block hash: `0x49ef06b489db48cf8af06cd90cadeb86d3fcdf2d28ff8a19a31c312140
 - User supplied the deployment journal and a confirmed-page screenshot. The transaction trail and current escrow state were independently read via RPC.
 - This proves one ETH deposit/confirmation flow. USDC live payment, USDT provenance/support, browser/mobile review, expiry/refund automation and recovery remain pending. M1 is still open.
 - No code changes or new test run were required for this evidence-only verification.
+
+## M1 · Quote #2 · USDC approval, deposit and confirmation
+Verified on 20 November 2026 (Nigeria date) via read-only Base Sepolia and Lasna RPC queries. The screenshot showed quote 2 with a 1 USDC deposit. The user repeated the quote-1 ETH hash; the correct USDC trail below was discovered independently from escrow/token and reactive logs.
+
+| Stage | Network | Transaction |
+|---|---|---|
+| Exact deposit approval | Base Sepolia | [0xbcd77c0570c6d92f62eda63cf76866a57ba775929df3185c5b3a401ee6c44ce2](https://sepolia.basescan.org/tx/0xbcd77c0570c6d92f62eda63cf76866a57ba775929df3185c5b3a401ee6c44ce2) |
+| USDC deposit | Base Sepolia | [0x1b410e4e98859bc8bce93bbe7a9beb93b5ac3bc67c25ececeed2b77ba75f290f](https://sepolia.basescan.org/tx/0x1b410e4e98859bc8bce93bbe7a9beb93b5ac3bc67c25ececeed2b77ba75f290f) |
+| Reactive request | Lasna | [0x187fc2615773c9725f7d1a7882709a21a1f16102b6bf0cfadba3fd271eaad6d5](https://lasna.reactscan.net/tx/0x187fc2615773c9725f7d1a7882709a21a1f16102b6bf0cfadba3fd271eaad6d5) |
+| Confirmation callback | Base Sepolia | [0xb66ec4bc2398038d7f5a9b90746a419e00d43b2ed67fe2ccf551c215edb844b6](https://sepolia.basescan.org/tx/0xb66ec4bc2398038d7f5a9b90746a419e00d43b2ed67fe2ccf551c215edb844b6) |
+
+Verified details:
+- Circle-listed token 0x036CbD53842c5426634e7929541eC2318f3dCF7e emitted Approval(customer, escrow, 1000000) in the approval transaction. Its mined log was checked; the approval receipt was not separately fetched.
+- Origin receipt status 1, block 61037024; token Transfer(customer, escrow, 1000000) and escrow DepositReceived(2, customer, 1000000), log index 3. AssetSelected locks option 1, USDC.
+- Origin block hash `0x13edc949226ad4101e10f8b7684a66835ca524e9cf1f02d1fec3a60574ad13f4`.
+- The computed origin-log fingerprint `0xd30625332200f46c0c7af291e43cf872cc79a3bc12ed574723029acc16f54a22` matches ConfirmationCallbackRequested(2, originLog) in Lasna receipt status 1, block 8765638.
+- The same Lasna receipt requests chain 84532, receiver 0xAa6126962C923F242ffd01A6736B8d34b310Bfe5, gas 1000000, confirmBooking(address(0),2).
+- Callback receipt status 1, block 61037031; transaction targets proxy 0x476F44b11F5C942c58f4c8E3d0300E5710743585. Its input contains the intended receiver and confirmBooking(0xd106C554567470b5a8a0894b3A210D175d4fD7BA,2) payload. The escrow emits BookingConfirmed(2).
+- Fresh getQuote(2): status 3, selectedOption 1, total 3000000 units (3 USDC), deposit 1000000 units (1 USDC), designated customer 0xe84A1B8C20b1E33Fc1D6dD4650Af53783F2911eD.
+- At verification: escrow USDC balance = USDC liability = 1000000; ETH balance = native liability = 100000000000000. Customer's current token allowance to escrow = 0. The two assets remain separately backed.
+- This proves the USDC deposit/confirmation flow, not automatic refund, expiry, remaining-balance collection or mainnet readiness. USDT and remaining M1 checks stay open. No code changes or test rerun in this verification step.
