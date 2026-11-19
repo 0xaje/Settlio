@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
-const { spawn } = require('node:child_process');
+const startLocalChain = require('./helpers/local-chain.cjs');
 const { test } = require('node:test');
-const { JsonRpcProvider, ContractFactory, Contract, keccak256, toUtf8Bytes, parseEther, AbiCoder, ZeroAddress } = require('ethers');
+const { ContractFactory, Contract, keccak256, toUtf8Bytes, parseEther, AbiCoder, ZeroAddress } = require('ethers');
 const compile = require('../script/compile.cjs');
 
 const fixtures = {
@@ -34,18 +34,8 @@ contract ProtocolFixture {
 };
 
 test('local protocol fixture validates M1 subscription and callback boundaries', async t => {
-  const child = spawn(process.execPath, ['node_modules/@foundry-rs/anvil/bin.mjs', '--port', '18546', '--silent'], { stdio: 'ignore' });
-  const provider = new JsonRpcProvider('http://127.0.0.1:18546', undefined, { cacheTimeout: -1 });
-  t.after(() => { provider.destroy(); child.kill(); });
-  let ready = false;
-  for (let attempt = 0; attempt < 50; attempt++) {
-    try { await provider.getBlockNumber(); ready = true; break; }
-    catch { await new Promise(resolve => setTimeout(resolve, 100)); }
-  }
-  assert.ok(ready);
-  const owner = await provider.getSigner(0);
-  const customer = await provider.getSigner(1);
-  const stranger = await provider.getSigner(2);
+  const { provider, signers } = await startLocalChain(t);
+  const [owner, customer, stranger] = signers;
   async function deploy(name, args = [], value = 0n) {
     const artifact = compile(name, fixtures);
     const contract = await new ContractFactory(artifact.abi, artifact.evm.bytecode.object, owner).deploy(...args, { value });
