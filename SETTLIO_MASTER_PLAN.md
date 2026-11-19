@@ -3,7 +3,7 @@ Version 2.0 · 19 November 2026
 
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
-Repository inspection on 19 November returned an empty repository. Foundation work begins now. No contracts, running app, live loop, or earned judging score is verified.
+Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 17 passing local tests. No public deployment, running app, live callback loop, or earned judging score is verified.
 
 ## Approved decisions replacing version 1
 - Work directly on main in https://github.com/0xaje/Settlio. Preserve concurrent changes and never rewrite history.
@@ -23,7 +23,7 @@ Repository inspection on 19 November returned an empty repository. Foundation wo
 
 ## Milestones and acceptance gates
 M0 foundation and execution policy is complete for local implementation. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults, local compiler, Anvil runtime, and current Omni source interfaces are checked. Deployment preparation continues within M1.
-M1 quote and deposit to booking is active. Escrow compiles and 9 local tests pass. Subscriber, callback receiver, UI, and live evidence remain pending. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
+M1 quote and deposit to booking is active. Escrow, subscriber, and callback receiver compile and 17 local tests pass. Live read-only network preflight passed. Deployment, UI, and live callback evidence remain pending. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
 M2 unattended policies. Scheduled unpaid expiry, authenticated eligible cancellation/refund, merchant release, custody accounting, repeated delivery, deadline races, and recovery all verified.
 M3 complete approved interface. Connect the six surfaces to real state, accessible hero motion, responsive layouts, and independent user journeys.
 M4 release and submission. Security/reliability review, reproducible public source, licence, deployments, several full-loop proofs, and public video under three minutes.
