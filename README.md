@@ -1,20 +1,29 @@
 # Settlio
 
-Settlio is being built to help service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process policy-eligible refunds.
+Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
-## Current status
-Foundation stage. No contract deployment, working application, or successful live Reactive loop has been verified. Design images are illustrative.
+## Current build
+The escrow contract is implemented. Compilation and 9 local contract tests pass. The Reactive subscriber, authenticated callback receiver, deployment, frontend, and public full-loop evidence remain pending. M1 is open.
 
-Read [the master plan](SETTLIO_MASTER_PLAN.md) and [project instructions](AGENTS.md) before contributing. All authorised work goes directly to main.
+Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
-## First build milestone
-A merchant creates a quote, a designated customer pays the exact deposit in native Base Sepolia test ETH, Lasna processes the deposit event, and an authenticated callback confirms the booking. Collect origin, Reactive, and callback transaction hashes and verify the final state.
+## Run contract checks
+Requires Node.js 22 or later and npm. The test harness starts a local Anvil EVM on port 18545.
 
-## Initial policy
-Payment must arrive before quote expiry. Customer cancellation before the agreed refund cutoff reserves the full deposit for refund. Funds remain protected while that request is pending. Merchant withdrawal becomes available after the cutoff for confirmed quotes without pending cancellation. Refundable principal is separate from automation gas funds. These are engineering defaults recorded in the master plan.
+```sh
+npm ci
+npm run build:contracts
+npm test
+```
 
-## Judging and release
-Execution, Integration, Usefulness, and Craft are equally weighted. A public open-source repository, deployed addresses, several verified full-loop traces, and a public video under three minutes are required for submission. Evidence is collected as development proceeds.
+Local tests exercise actual escrow bytecode, using a local signer as callback receiver. They do not prove a live Reactive integration.
 
-## Verification
-Node and npm are available. npm package registry access was checked successfully. Foundry is not currently installed in the active workspace. Compilation and tests are pending.
+## Initial payment policy
+Use native Base Sepolia test ETH with exact deposits and a designated customer wallet. Customers accept the immutable terms fingerprint when paying. Eligible cancellation before refundCutoff reserves a full refund. Merchant release is available after that cutoff for confirmed quotes without pending cancellation. The escrow holds customer principal separately from callback gas funding.
+
+The example prices in approved design images are illustrative.
+
+## Submission
+Target track is Set It and Forget It. Execution, Integration, Usefulness, and Craft have equal weight. Required submission evidence includes public open-source code, deployed addresses, several verified full-loop traces, and a public video under three minutes.
+
+MIT licensed.
