@@ -8,3 +8,4 @@ cache/
 lib/
 deployments/.deploy.lock
 deployments/*.tmp
+apps/web/dist/
