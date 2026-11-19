@@ -3,12 +3,12 @@
 Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
 ## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 21 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Deployment, live wallet/browser verification, mobile checks, and public full-loop evidence remain pending. M1 is open.
+The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 32 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Deployment, live wallet/browser verification, mobile checks, and public full-loop evidence remain pending. M1 is open.
 
 Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
 ## Run contract checks
-Requires Node.js 22 or later and npm. The test harness starts a local Anvil EVM on port 18545.
+Requires Node.js 22.18 or later and npm. Each test suite starts an isolated Anvil EVM on an OS-assigned port, verifies its chain/accounts, and signs locally.
 
 ```sh
 npm ci
@@ -20,9 +20,9 @@ npm test
 Local tests exercise actual contract bytecode with isolated protocol fixtures. They do not prove live Reactive delivery. The pinned official dependency is installed separately under lib/ with its original licensing.
 
 ## Initial payment policy
-Use native Base Sepolia test ETH with exact deposits and a designated customer wallet. Customers accept the immutable terms fingerprint when paying. Eligible cancellation before refundCutoff reserves a full refund. Merchant release is available after that cutoff for confirmed quotes without pending cancellation. The escrow holds customer principal separately from callback gas funding.
+Merchants can offer native Base Sepolia test ETH and an optional USDC price on the same quote. Each price and deposit is set independently; no exchange rate is assumed. The designated customer selects one option. The first successful deposit locks its asset and amount. Token payments use an exact-amount approval followed by a separate payment transaction. Approval alone is not a deposit. Test ETH is still required for gas. Customers accept the immutable terms fingerprint when paying. Eligible cancellation before refundCutoff reserves a full refund. Merchant release is available after that cutoff for confirmed quotes without pending cancellation. The escrow tracks liabilities per asset, holds customer principal separately from callback gas funding, and returns the deposited asset on refund or release. Failed transfers revert the state change and preserve the claim. Fee-on-transfer/rebasing assets are unsupported; merchant-created custom token contracts are not vetted by the escrow, and the UI only enables the issuer-listed USDC address and ETH.
 
-The example prices in approved design images are illustrative.
+USDC on Base Sepolia uses Circle's documented address `0x036CbD53842c5426634e7929541eC2318f3dCF7e` (6 decimals). Source: https://developers.circle.com/stablecoins/usdc-contract-addresses . Test USDC: https://faucet.circle.com/ (select Base Sepolia). Preflight now also checks the token's code and metadata.\n\nUSDT remains an approved requirement but is not enabled: an official Base Sepolia USDT deployment has not been verified. No arbitrary test token is presented as Tether. The three-asset local tests use explicitly isolated adversarial fixtures and do not prove issuer integration.\n\nThe example prices in approved design images are illustrative.
 
 ## Submission
 Target track is Set It and Forget It. Execution, Integration, Usefulness, and Craft have equal weight. Required submission evidence includes public open-source code, deployed addresses, several verified full-loop traces, and a public video under three minutes.
@@ -32,7 +32,7 @@ Run npm run preflight first. Fund a dedicated testnet wallet on Base Sepolia and
 
 The script only accepts the two test chains. It deploys the subscriber, deploys a receiver that creates its escrow, configures subscriptions once, and records public addresses and hashes in deployments/testnet.json. Existing journal entries are reused after confirmation and source-fingerprint checks. Keep that journal if retrying. A stale deployment lock requires checking that the previous process has stopped.
 
-Full live execution and interrupted-run recovery are pending validation. A successful deployment still needs a real customer deposit and independently verified callback. The M1 receiver supports confirmation only. Expiry/refund routing follows in M2.
+Payment-options version 2 changes creation bytecode. The deployment journal records its version and enabled assets. Do not delete an existing journal to bypass a source-fingerprint mismatch; inspect its recorded deployments first.\n\nFull live execution and interrupted-run recovery are pending validation. A successful deployment still needs a real customer deposit and independently verified callback. The M1 receiver supports confirmation only. Expiry/refund routing follows in M2.
 
 MIT licensed for Settlio source. Upstream dependencies retain their own licensing.
 
