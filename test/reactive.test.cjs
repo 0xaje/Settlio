@@ -11,6 +11,15 @@ pragma solidity 0.8.29;
 import {IReactive} from "@reactive/src/interfaces/IReactive.sol";
 import {ISystemContract} from "@reactive/src/interfaces/ISystemContract.sol";
 interface IReceiver { function confirmBooking(address sender, uint256 id) external; function pay(uint256 amount) external; }
+contract PaymentTokenFixture {
+    mapping(address=>uint256) public balanceOf;
+    mapping(address=>mapping(address=>uint256)) public allowance;
+    function mint(address to,uint256 amount) external { balanceOf[to]+=amount; }
+    function approve(address to,uint256 amount) external returns(bool) { allowance[msg.sender][to]=amount;return true; }
+    function transferFrom(address from,address to,uint256 amount) external returns(bool) {
+        allowance[from][msg.sender]-=amount;balanceOf[from]-=amount;balanceOf[to]+=amount;return true;
+    }
+}
 contract ProtocolFixture {
     bool public failRequests;
     function setFailRequests(bool value) external { failRequests = value; }
@@ -120,4 +129,31 @@ test('local protocol fixture validates M1 subscription and callback boundaries',
     await (await system.forward(await reactive.getAddress(),failed)).wait();
     assert.equal(await reactive.processed(key), true);
   });
+  await t.test('token deposit event traverses subscriber and authenticated confirmation without moving principal', async () => {
+    const token = await deploy('PaymentTokenFixture');
+    await (await token.mint(await customer.getAddress(), 1000000n)).wait();
+    await (await token.connect(customer).approve(await escrow.getAddress(), 1000000n)).wait();
+    await (await escrow.createQuoteWithOptions(await customer.getAddress(), [
+      { asset: ZeroAddress, total: parseEther('0.3'), deposit: parseEther('0.1') },
+      { asset: await token.getAddress(), total: 3000000n, deposit: 1000000n }
+    ], now+1000, now+2000, terms)).wait();
+    const id = await escrow.quoteCount();
+    const tokenReceipt = await (await escrow.connect(customer).payDepositOption(id, 1, terms)).wait();
+    const depositLog = tokenReceipt.logs.find(item => item.topics[0] === escrow.interface.getEvent('DepositReceived').topicHash);
+    const tokenRecord = { ...record, topic1: BigInt(depositLog.topics[1]), topic2: BigInt(depositLog.topics[2]),
+      data: depositLog.data, blockNumber: tokenReceipt.blockNumber, blockHash: BigInt(tokenReceipt.blockHash),
+      txHash: BigInt(tokenReceipt.hash), logIndex: depositLog.index };
+    const before = await system.requestCount();
+    await (await system.forward(await reactive.getAddress(), tokenRecord)).wait();
+    assert.equal(await system.requestCount(), before+1n);
+    const decoded = receiver.interface.decodeFunctionData('confirmBooking', await system.lastPayload());
+    assert.equal(decoded[1], id);
+    await (await proxy.deliver(await receiver.getAddress(), await reactive.getAddress(), id)).wait();
+    assert.equal((await escrow.getQuote(id)).status, 3n);
+    assert.equal((await escrow.getQuote(id)).asset, await token.getAddress());
+    assert.equal(await token.balanceOf(await escrow.getAddress()), 1000000n);
+    assert.equal(await escrow.liability(await token.getAddress()), 1000000n);
+    assert.equal(await escrow.totalLiability(), parseEther('0.2'));
+  });
+
 });
