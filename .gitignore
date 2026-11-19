@@ -5,3 +5,6 @@ cache/
 .env
 .env.*
 !.env.example
+lib/
+deployments/.deploy.lock
+deployments/*.tmp
