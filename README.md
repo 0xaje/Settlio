@@ -3,7 +3,7 @@
 Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
 ## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 33 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Real ETH and USDC deposit-to-Reactive-to-confirmation callback flows are independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDT provenance/support, full browser/mobile checks and recovery remain pending. M1 is open.
+The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 42 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Real ETH and USDC deposit-to-Reactive-to-confirmation callback flows are independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDT provenance/support, full browser/mobile checks and recovery remain pending. M1 is open.
 
 Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
@@ -74,3 +74,18 @@ Keep deployments/testnet.json to resume safely and share its public addresses an
 The script's full deployment and restart recovery still require a funded live run. Check the transaction journal before retrying after any interruption.
 
 The first UI currently supports quote creation, deposit, and confirmation. Refund/expiry routing and the marketing hero follow in later milestones. Terms in share links are readable by anyone with the link. The recipient must use the designated wallet.
+
+## Wallet and receipt recovery
+Connecting requests Base Sepolia and offers to add its official network details if the wallet reports error 4902. A declined network request is not bypassed. The selected network is rechecked before connection completes.
+
+Submitted transaction hashes are saved locally per escrow. If the page reloads before a receipt arrives, a receipt-check banner pauses new submissions. Check the existing transaction before retrying. Successful creation can recover its share link when the browser saved its terms. Approval receipts do not establish payment or booking confirmation.
+
+If no receipt is found, the outcome stays unknown. After checking the explorer and wallet, a user may stop local tracking; this neither cancels nor reverses the transaction and never automatically resubmits it. Replaced/dropped transactions still require manual diagnosis. Receipt recovery depends on browser storage and RPC availability. Cross-tab coordination and real wallet timeout/reload recovery have not been verified.
+
+Run the read-only deployment health check from the checkout containing deployments/testnet.json:
+```sh
+npm run healthcheck
+```
+It checks network identity, immutable callback/provider wiring, ETH/USDC custody coverage, and separate automation balance/debt/reserves. It never reads a key or sends a transaction. A nonzero exit means a failed check, an unavailable RPC, or funding needing attention; inspect its output before any recovery transfer. The development-environment run timed out, so a successful live run remains pending.
+
+The updated UI passed TypeScript/build and isolated wallet/receipt tests. Mobile visual checks and browser-based reload verification remain open because the test preview could not be reached. No redeployment is required for these frontend and read-only tooling changes.
