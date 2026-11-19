@@ -1,23 +1,12 @@
 const assert = require('node:assert/strict');
-const { spawn } = require('node:child_process');
+const startLocalChain = require('./helpers/local-chain.cjs');
 const { test } = require('node:test');
-const { JsonRpcProvider, ContractFactory, keccak256, toUtf8Bytes, parseEther } = require('ethers');
+const { ContractFactory, keccak256, toUtf8Bytes, parseEther } = require('ethers');
 const compile = require('../script/compile.cjs');
 
 test('escrow payment, permissions, deadline races and principal accounting', async t => {
-  const anvil = spawn(process.execPath, ['node_modules/@foundry-rs/anvil/bin.mjs', '--port', '18545', '--silent'], { stdio: 'ignore' });
-  const provider = new JsonRpcProvider('http://127.0.0.1:18545', undefined, { cacheTimeout: -1 });
-  t.after(() => { provider.destroy(); anvil.kill(); });
-  let ready = false;
-  for (let attempt = 0; attempt < 50; attempt++) {
-    try { await provider.getBlockNumber(); ready = true; break; }
-    catch { await new Promise(resolve => setTimeout(resolve, 100)); }
-  }
-  assert.ok(ready, 'local test node starts');
-  const merchant = await provider.getSigner(0);
-  const customer = await provider.getSigner(1);
-  const receiver = await provider.getSigner(2);
-  const stranger = await provider.getSigner(3);
+  const { provider, signers } = await startLocalChain(t);
+  const [merchant, customer, receiver, stranger] = signers;
   const artifact = compile();
   const escrow = await new ContractFactory(artifact.abi, artifact.evm.bytecode.object, merchant).deploy(await receiver.getAddress());
   await escrow.waitForDeployment();
