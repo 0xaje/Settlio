@@ -21,6 +21,18 @@ Repository inspection on 19 November returned an empty repository. Contract impl
 - Objective contract rules cover payment and cancellation eligibility. Service quality and disputed delivery require a separately defined process beyond the initial scope.
 - Current Omni documentation and reactive-lib-omni supersede legacy RVM tutorials.
 
+## Approved payment amendment · 19 November 2026
+This amendment supersedes the native-ETH-only engineering default. The user requires customer payment selection among ETH, USDC and USDT. Implementation is pending within M1; do not deploy the old ETH-only contracts as the completed payment upgrade.
+
+Acceptance conditions:
+- Customer can select among merchant-authorised asset/amount options before depositing. A single fixed-asset quote is not sufficient to claim this requirement is met.
+- Quote terms bind the allowed token addresses and exact amounts. No implicit 1:1 conversion between ETH and stablecoins, and no unapproved price-oracle dependency.
+- The first successful authorised deposit locks the selected asset and amount; all later payment attempts fail.
+- Refund and release return the deposited asset and amount. Liabilities are accounted separately per asset and cannot fund automation.
+- Token deposits require exact receipt, safe token transfers, correct decimals, bounded approvals, permission checks, reentrancy protection and failure rollback.
+- Verify official deployment provenance and obtain genuine testnet integration evidence for each advertised asset. USDT on Base Sepolia is not yet verified; do not relabel an arbitrary test token as official USDT.
+- Update shared terms, frontend, ABI, deployment scripts and regression tests together before deployment. Existing 21 test passes cover the prior ETH-only implementation, not this upgrade.
+
 ## Milestones and acceptance gates
 M0 foundation and execution policy is complete for local implementation. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults, local compiler, Anvil runtime, and current Omni source interfaces are checked. Deployment preparation continues within M1.
 M1 quote and deposit to booking is active. Escrow, subscriber, and callback receiver compile and 21 local tests pass. Initial merchant/customer UI typechecks and builds, with limited desktop browser verification. Live read-only network preflight passed. Deployment and full live UI/callback evidence remain pending. Real Base Sepolia quote, second-wallet payment, Lasna processing, authenticated callback, correct UI states, and verified full-loop evidence.
