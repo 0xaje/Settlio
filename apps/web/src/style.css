@@ -5,3 +5,29 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 select{font:inherit;width:100%;border:1px solid #c5d2c9;background:#fff;border-radius:6px;padding:.7rem .8rem;color:#162322}select:focus-visible{outline:3px solid #c46a19;outline-offset:4px}input[type=checkbox]{width:auto;margin-right:.5rem}
+
+/* Keep content within its grid tracks instead of clipping it at the page edge. */
+.app{width:100%;min-width:0}
+main,.list-panel,.editor-layout,.form-panel,.preview,.quote-columns,.payment-summary,.table-scroll{min-width:0}
+input,textarea,select{min-width:0;max-width:100%}
+.topbar>span{min-width:0;overflow-wrap:anywhere}
+.topbar>button{flex-shrink:0}
+.mobile-quotes{display:none}
+@media(max-width:1000px){
+  .editor-layout,.quote-columns{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:650px){
+  .sidebar{position:sticky;top:0;z-index:20;flex-wrap:wrap}
+  .sidebar nav{min-width:0;flex-wrap:wrap}
+  .quote-table{display:none}
+  .mobile-quotes{display:grid;padding:1rem;gap:1rem}
+  .mobile-quote{min-width:0;padding:1rem;border:1px solid #dce3df;border-radius:8px}
+  .mobile-quote-heading{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem}
+  .mobile-quote h3{font-size:1.2rem;margin:0}
+  .mobile-quote dd{overflow-wrap:anywhere}
+  .mobile-quote .wide{margin-top:0}
+  input,textarea,select{font-size:1rem;min-height:44px}
+  input[type=checkbox]{min-height:0;width:20px;height:20px;vertical-align:middle}
+  button{min-height:44px}
+  .document-header{scroll-margin-top:5rem}
+}
