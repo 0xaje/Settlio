@@ -6,6 +6,7 @@ import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './style.css';
 import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract } from './chain';
+import { createdQuoteFromReceipt } from './recovery';
 import { ensureBaseSepolia } from './wallet';
 import { decodePending, pendingReceipt } from './pending';
 import { assets, knownAsset, displayAmount as amount } from './assets';
@@ -41,6 +42,7 @@ function App() {
   const [transaction, setTransaction] = useState(pendingHash);
   const [pending, setPending] = useState(pendingHash);
   const [unresolved, setUnresolved] = useState(false);
+  const [recoveryHash, setRecoveryHash] = useState('');
   const [refresh, setRefresh] = useState(0);
   const params = new URLSearchParams(route.split('#')[0]);
   const quoteParam = params.get('quote');
@@ -121,20 +123,36 @@ function App() {
       if (receipt.status !== 1) { setError('This transaction failed on-chain. Refresh the quote before trying again.'); return; }
       setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
       setRefresh(value => value + 1);
-      for (const log of receipt.logs) {
-        if (log.address.toLowerCase() !== escrowAddress.toLowerCase()) continue;
-        const parsed = quoteInterface.parseLog(log);
-        if (parsed?.name !== 'QuoteCreated') continue;
-        const encoded = localStorage.getItem(draftKey(parsed.args.termsHash as string));
-        if (encoded) {
-          const terms = decodeTerms(encoded);
-          if (termsHash(terms).toLowerCase() !== String(parsed.args.termsHash).toLowerCase()) throw new Error('Saved quote terms do not match the creation receipt.');
-          const id = parsed.args.quoteId as bigint;
-          try { localStorage.setItem(cacheKey(id), encoded); } catch {}
-          navigate('?quote=' + id + '#terms=' + encoded);
-        } else setMessage('Quote created. Open it from your quote list. The original service terms were not saved in this browser.');
-      }
+      restoreCreatedQuote(receipt);
     } catch (failure) { setError(errorMessage(failure)); }
+    finally { transactionLock.current = false; setBusy(false); }
+  }
+  function restoreCreatedQuote(receipt: TransactionReceipt): boolean {
+    const created = createdQuoteFromReceipt(receipt, escrowAddress);
+    if (!created) return false;
+    let encoded: string | null = null;
+    try { encoded = localStorage.getItem(draftKey(created.termsHash)) || localStorage.getItem(cacheKey(created.id)); } catch {}
+    if (encoded) {
+      const terms = decodeTerms(encoded);
+      if (termsHash(terms).toLowerCase() !== created.termsHash.toLowerCase()) throw new Error('Saved quote terms do not match the creation receipt.');
+      try { localStorage.setItem(cacheKey(created.id), encoded); } catch {}
+      navigate('?quote=' + created.id + '#terms=' + encoded);
+    } else {
+      navigate('?quote=' + created.id);
+      setMessage('Quote found, but its original service terms are not saved in this browser. Open the original complete share link to restore them.');
+    }
+    return true;
+  }
+  async function recoverCreatedQuote(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (transactionLock.current || pending) return;
+    transactionLock.current = true; setBusy(true); setError(''); setMessage('Checking the existing transaction. No wallet signature or payment is needed.');
+    try {
+      const receipt = await pendingReceipt(reader, recoveryHash.trim());
+      if (!receipt) throw new Error('No receipt is available yet. Check this transaction in your wallet or explorer; do not create the quote again.');
+      if (receipt.status !== 1) throw new Error('This transaction failed on-chain and did not create a quote.');
+      if (!restoreCreatedQuote(receipt)) throw new Error('This transaction has no quote-creation event from the configured Settlio escrow. Use the creation hash, not a payment or approval hash.');
+    } catch (failure) { setMessage(''); setError(errorMessage(failure)); }
     finally { transactionLock.current = false; setBusy(false); }
   }
   function stopTracking() {
@@ -152,6 +170,7 @@ function App() {
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       <div className="build-note">Test funds only. This build covers quote, deposit, and confirmation. Automatic refunds and expiry processing are still being integrated.</div>
       {pending && <section className="notice" role="status"><strong>A transaction still needs a receipt check</strong><p>Payments and quote creation are paused to prevent accidental repeats. Check the existing transaction first.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check transaction status</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
+      {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button></fieldset></form></details>}
       {error && <p role="alert" className="error">{error}</p>}
       {message && <p role="status" className="notice">{message}</p>}
       {transaction && <a className="tx-link" href={explorer + '/tx/' + transaction} target="_blank" rel="noreferrer">View submitted transaction</a>}
