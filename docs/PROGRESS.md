@@ -215,3 +215,31 @@ M1 remains open for mobile/browser checks, full recovery and USDT resolution. M2
 Photon sources:
 https://photon.codes/docs/beta/photon
 https://photon.codes/platform/whatsapp
+
+## M1 user mobile recording review · 20 November 2026
+Reviewed the full 14.6-second user recording through extracted frames at one-second intervals. Chrome responsive mode shows 390 x 600. The clip covers the quote list and quote editor, vertical scrolling and navigation between them; it does not show the confirmed customer quote page or a physical-phone test.
+
+Observed:
+- Long content scrolls vertically and navigation scrolls away. Route changes did not explicitly reset scroll position in source.
+- The quote list retains a desktop-width table with horizontal scrolling.
+- Editor controls stack and customer preview appears below the form.
+- Connected account is the customer from the live flows; merchant-only history can be empty for this wallet.
+- Console reports a MetaMask global-provider conflict with another wallet extension. This is an observed extension error, not evidence of a React layout failure.
+
+Acceptance for this fix: avoid the wide history table on small screens, retain reachable mobile navigation, start explicit navigation at the top, keep grid/form controls within their tracks and avoid sub-16px mobile input focus zoom.
+
+Changed:
+- Real quote history uses stacked cards below 650px; desktop keeps its table.
+- Mobile navigation is sticky and wraps when needed.
+- Explicit route navigation resets horizontal/vertical scroll without animation.
+- Grid tracks and controls can shrink; no page-level overflow hiding was used to conceal content.
+- Mobile inputs/selects/textarea use 16px text with minimum touch sizes.
+- Empty history explains that it displays quotes created by the connected merchant wallet.
+
+Verification: frontend TypeScript and production build passed after final edits. Existing bundle-size warning remains (about 515 kB raw, 172 kB gzip). No contract, payment, dependency or deployment change; no new transaction. The unchanged 42-test contract/terms/wallet suite was not rerun for these reversible presentation edits.
+
+Limitations: no independent post-fix browser/mobile rendering pass is claimed. A new 390px recording and confirmed Quote #2 view remain needed. The extension conflict was not fixed by these layout changes and multi-wallet discovery/selection remains pending. Physical-device and reload/replacement recovery remain unverified. M1 is open.
+
+Design: approved green/orange palette, Georgia headings, Inter interface text, six surfaces and rotating professional hero remain authoritative. This is an early functional build; the complete M3 interface has not been delivered or replaced with a new design.
+
+Judging: Execution/Integration retain existing ETH/USDC live proofs with no new chain evidence. Usefulness addresses observed mobile friction. Craft gains a passing build and targeted responsive fixes; visual recheck and independent user testing remain pending. Next: pull main, restart preview and review the updated 390px quote list/editor and confirmed customer quote page.
