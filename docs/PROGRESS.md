@@ -195,3 +195,23 @@ https://docs.usdt0.to/technical-documentation/deployments
 Official USDT/USDT0 provenance on Base Sepolia is still unverified; USDT remains disabled.
 
 Next: update WSL main, run tests/build/healthcheck, then verify mobile layout and browser recovery. Stay in M1.
+
+## Core-first amendment and evidence reproduction · 20 November 2026
+User approved adding the optional messaging concept to the master plan while reaffirming the core Set It and Forget It goal. Recorded WhatsApp Business/iMessage via Photon as later convenience channels, other channels deferred, wallet-authorised actions and receipt-based notifications. Already-configured on-chain automation must continue if chat is offline. No messaging integration started.
+
+Official Photon docs rechecked: one Photon API may avoid our own Meta adapter, but WhatsApp Business still uses Meta Cloud API/business-account provisioning. Consumer WhatsApp is separately forthcoming; the user's actual subscription entitlements remain unverified.
+
+Recorded user-supplied WSL output: 42 tests and frontend build passed; live healthcheck verified two quotes, exact ETH/USDC custody coverage, wiring, zero debt and nonzero separate funding.
+
+Continued M1 with script/verify-quote.cjs and npm run verify:quote:
+- Syntax and missing-argument guard checked.
+- Real public RPC runs reproduced both ETH quote-1 and USDC quote-2 origin/Reactive/callback trails and generated the committed snapshots.
+- Negative run with quote-1 deposit supplied for quote 2 failed specifically at the missing deposit/asset event and preserved the prior evidence file.
+- No contract, frontend or dependency changes and no new on-chain transaction. The unchanged 42-test suite was not rerun for this script/documentation slice.
+
+Judging: Execution/Integration retain two independently reproduced live confirmation loops. Usefulness remains a builder-run journey without independent validation. Craft gains reproducible evidence and honest optional-feature boundaries. Unattended expiry/refund proof is still required.
+M1 remains open for mobile/browser checks, full recovery and USDT resolution. M2 and chat integration have not started. Next user-side input: mobile screenshots of Create quote and confirmed quote #2 from the running site.
+
+Photon sources:
+https://photon.codes/docs/beta/photon
+https://photon.codes/platform/whatsapp
