@@ -3,7 +3,7 @@ Version 2.0 · 19 November 2026
 
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
-Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 42 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
+Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 45 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
 
 ## Approved decisions replacing version 1
 - Work directly on main in https://github.com/0xaje/Settlio. Preserve concurrent changes and never rewrite history.
@@ -509,3 +509,6 @@ The user reaffirmed the previously approved design. Current functional screens a
 
 ## Mobile acceptance update · 20 November 2026
 The user confirms the updated responsive view works. Targeted mobile fixes have user-reported acceptance. Independent physical-device coverage remains a later full-interface verification task; no such pass is claimed. Continue M1 with a genuine receipt-recovery/reload check. Do not close M1 while recovery or approved payment requirements remain unresolved.
+
+## Receipt recovery acceptance update · 20 November 2026
+Quote #3 creation is verified, and its video shows a normal already-loaded unpaid quote. Interrupted-pending recovery remains unverified. Added manual read-only recovery from a genuine creation receipt, with saved-terms fingerprint checking; TypeScript/build and 45 local tests pass. The new browser control still needs user verification. It does not require another transaction or deposit and does not replace the interrupted-pending test. Stay in M1.
