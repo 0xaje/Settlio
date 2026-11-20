@@ -3,7 +3,7 @@
 Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
 
 ## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 46 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Real ETH and USDC deposit-to-Reactive-to-confirmation callback flows are independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDT provenance/support, full browser/mobile checks and recovery remain pending. M1 is open.
+The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 46 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Real ETH and USDC deposit-to-Reactive-to-confirmation callback flows are independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDT is deferred as Coming soon by user approval; full browser/device coverage and recovery still require completion. M1 is open.
 
 Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
 
@@ -112,3 +112,6 @@ Expand Recover a created quote, paste its Base Sepolia creation transaction hash
 Original service terms can be restored only if this browser saved them, or through the original complete share link. The fingerprint must match the receipt. A payment or approval hash is not a creation hash. This manual recovery control is distinct from automatic restoration after reloading during a pending transaction; the latter remains unverified in a real browser. The control's event checks have local tests; its live/browser check is pending.
 
 Manual quote recovery with matching saved terms is now user-confirmed. A local EVM test also verifies genuinely pending creation across a reader restart with no second submission. It uses an explicitly isolated chain configured with the Base Sepolia chain ID to preserve the frontend network guard; it is not public-network evidence. Live browser interruption remains unverified.
+
+## Approved payment scope · 20 November 2026
+Current hackathon delivery supports ETH and USDC. The user approved deferring USDT and labelling it Coming soon. It is shown as a disabled option, with no token address, payment path or promised availability date. This supersedes earlier references to USDT as a required current-release asset. No redeployment is needed.
