@@ -20,7 +20,8 @@
     "dev": "vite apps/web --host 0.0.0.0",
     "build:web": "node script/export-abi.cjs && tsc -p apps/web/tsconfig.json && vite build apps/web",
     "preview:web": "vite preview apps/web --host 0.0.0.0",
-    "healthcheck": "node script/healthcheck.cjs"
+    "healthcheck": "node script/healthcheck.cjs",
+    "verify:quote": "node script/verify-quote.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
