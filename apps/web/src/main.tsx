@@ -137,6 +137,7 @@ function App() {
       if (termsHash(terms).toLowerCase() !== created.termsHash.toLowerCase()) throw new Error('Saved quote terms do not match the creation receipt.');
       try { localStorage.setItem(cacheKey(created.id), encoded); } catch {}
       navigate('?quote=' + created.id + '#terms=' + encoded);
+      setMessage('Recovered existing quote #' + created.id + ' from its successful creation receipt. Its saved service terms match. No new transaction was sent.');
     } else {
       navigate('?quote=' + created.id);
       setMessage('Quote found, but its original service terms are not saved in this browser. Open the original complete share link to restore them.');
