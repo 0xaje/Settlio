@@ -1,6 +1,11 @@
 # Settlio master build plan
 Version 2.0 · 19 November 2026
 
+## Current payment scope · approved 20 November 2026
+The user explicitly approved proceeding with ETH and USDC, with USDT marked Coming soon. This supersedes the earlier requirement to enable all three currencies for the current hackathon delivery and resolves the pending scope proposal below. USDT is a future integration, not an active M1 release blocker. No availability date or official deployment is promised.
+
+Only ETH and the verified Base Sepolia USDC address are enabled in the interface. USDT may be displayed as a disabled Coming soon option; it cannot be quoted, approved or paid through that option. Generic token accounting remains, but no new token address or contract deployment is introduced by this amendment. Remaining M1 recovery gates stay open.
+
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
 Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 46 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
