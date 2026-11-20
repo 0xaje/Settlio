@@ -501,3 +501,8 @@ been deployed. Revisit technical parameters against live official documentation 
 Added Base Sepolia add/switch handling and pending-receipt recovery without changing deployed contracts. TypeScript/build and 42 local tests pass. These new wallet responses and recovery cases are isolated tests, not additional live wallet evidence. The read-only health check was implemented but its live run timed out.
 
 The extension browser was unavailable and the cloud browser could not reach the preview. Mobile rendering and browser reload recovery are explicitly unverified. USDT remains an approved but blocked requirement; official Tether/USDT0 source review did not verify Base Sepolia deployment provenance. Do not substitute an arbitrary token or silently change the approved scope. M1 remains open. Next gates are a successful health check from WSL, browser/mobile review, and resolving the USDT requirement.
+
+## Mobile review status · 20 November 2026
+User supplied a 390 x 600 Chrome responsive-mode recording of quote list/editor. Mobile history cards, sticky navigation, explicit scroll reset, shrinkable form grids and 16px mobile inputs were implemented; TypeScript/production build passed. Post-fix visual confirmation, confirmed customer quote view and physical-phone testing remain open. The recording also shows a wallet-extension provider conflict, still unresolved. M1 is not closed.
+
+The user reaffirmed the previously approved design. Current functional screens are incomplete implementation; the approved palette, typography, surfaces and rotating professional hero remain the M3 source of truth. No redesign or messaging work began in this fix.
