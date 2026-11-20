@@ -33,6 +33,22 @@ Acceptance conditions:
 - Verify official deployment provenance and obtain genuine testnet integration evidence for each advertised asset. USDT on Base Sepolia is not yet verified; do not relabel an arbitrary test token as official USDT.
 - Update shared terms, frontend, ABI, deployment scripts and regression tests together before deployment. Existing 21 test passes cover the prior ETH-only implementation, not this upgrade.
 
+## Approved core-first priority and optional messaging · 20 November 2026
+The user reaffirmed Set It and Forget It as the core value. Finish and prove the core website, unattended confirmation, scheduled unpaid expiry, eligible refunds, custody and recovery before messaging integration. Existing sequential milestone gates remain in force. A messaging-service outage must not stop already-configured on-chain automation. Demonstrate automation after the initiating website/chat session is closed; manual retry is recovery evidence, not proof of unattended success.
+
+Optional extension approved for planning after core completion:
+- Prefer WhatsApp Business and iMessage through Photon. Start with the actually provisioned channel, verify its real conversation-to-booking journey, then add the second. Other channels remain deferred. Do not advertise a channel as working before verification.
+- Conversational quote drafting collects the customer wallet, allowed assets and exact amounts, exact deadline/cutoff dates and time zone. Review the draft, use wallet-signed creation/payment, return a direct quote/checkout link and send notifications based on verified on-chain results.
+- Keep one Settlio product and a fully usable website. Chat is optional; no forced social-platform selection before payment.
+- Photon provides message transport. A runtime model may draft validated fields but cannot establish payment success or bypass wallet/contract authorization. No key collection, unrestricted transfers or chat-only spending authority.
+- Use a persistent backend with authenticated webhooks, replay protection, idempotent processing and retryable notifications. Bind chat identities to wallets through explicit wallet authentication, not names or phone-number assumptions.
+- Use the Photon API version matching the user's actual account. Subscription coverage, channel provisioning and credentials remain unverified. No secrets in chat.
+- Photon can avoid a separate hand-built Meta adapter. Its documented WhatsApp Business channel still uses Meta Cloud API and business account/number provisioning. Consumer WhatsApp is separately listed as forthcoming; do not promise personal-account support.
+- Implement only after core acceptance and with enough time to test and demonstrate it. No messaging code has started.
+Sources checked: https://photon.codes/docs/beta/photon and https://photon.codes/platform/whatsapp .
+
+Subsequent user WSL evidence passed all 42 tests, frontend build and read-only healthcheck: matching ETH/USDC custody, correct wiring, zero debt and nonzero automation balances. Browser/mobile, full recovery and USDT remain open within M1.
+
 ## Milestones and acceptance gates
 M0 foundation and execution policy is complete for local implementation. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults, local compiler, Anvil runtime, and current Omni source interfaces are checked. Deployment preparation continues within M1.
 M1 quote and deposit to booking is active. Escrow, subscriber, and callback receiver compile and 42 local tests pass. Initial merchant/customer UI typechecks and builds, with limited desktop browser verification. Live read-only network preflight passed. One real Base Sepolia ETH quote, second-wallet payment, Lasna processing and authenticated confirmation callback are verified in ONCHAIN-EVIDENCE.md, with a user-provided confirmed UI screenshot. Live USDC approval/deposit/confirmation is also verified. USDT provenance/support and remaining journey checks remain open.
