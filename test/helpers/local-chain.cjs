@@ -4,11 +4,12 @@ const path = require('node:path');
 const { JsonRpcProvider, Wallet, HDNodeWallet, NonceManager } = require('ethers');
 
 /// Starts an isolated local fixture. These ephemeral accounts never receive public-network funds.
-module.exports = async function startLocalChain(t) {
+module.exports = async function startLocalChain(t, { chainId = 31337 } = {}) {
+  if (!Number.isSafeInteger(chainId) || chainId <= 0) throw new Error('Invalid fixture chain ID.');
   const mnemonic = Wallet.createRandom().mnemonic.phrase;
   const child = spawn(process.execPath, [
     path.join(__dirname, '../../node_modules/@foundry-rs/anvil/bin.mjs'),
-    '--host', '127.0.0.1', '--port', '0', '--chain-id', '31337', '--mnemonic', mnemonic
+    '--host', '127.0.0.1', '--port', '0', '--chain-id', String(chainId), '--mnemonic', mnemonic
   ], { stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
   let provider;
   let exited = false;
@@ -51,7 +52,7 @@ module.exports = async function startLocalChain(t) {
     child.once('exit', stopped);
   });
   provider = new JsonRpcProvider(url, undefined, { cacheTimeout: -1 });
-  if (BigInt(await provider.send('eth_chainId', [])) !== 31337n) throw new Error('Unexpected local chain identity.');
+  if (BigInt(await provider.send('eth_chainId', [])) !== BigInt(chainId)) throw new Error('Unexpected local chain identity.');
   const accounts = await provider.send('eth_accounts', []);
   const wallets = Array.from({ length: 4 }, (_, index) =>
     HDNodeWallet.fromPhrase(mnemonic, undefined, "m/44'/60'/0'/0/" + index).connect(provider));
