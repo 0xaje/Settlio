@@ -1,0 +1,37 @@
+{
+  "verifiedAt": "2026-11-19T23:43:34.727Z",
+  "readOnly": true,
+  "quoteId": "2",
+  "contracts": {
+    "escrow": "0xfD09cf3bfd3aD13a03Cfb499ec18D97d79748c83",
+    "reactive": "0xd106C554567470b5a8a0894b3A210D175d4fD7BA",
+    "receiver": "0xAa6126962C923F242ffd01A6736B8d34b310Bfe5"
+  },
+  "origin": {
+    "hash": "0x1b410e4e98859bc8bce93bbe7a9beb93b5ac3bc67c25ececeed2b77ba75f290f",
+    "block": 61037024,
+    "blockHash": "0x13edc949226ad4101e10f8b7684a66835ca524e9cf1f02d1fec3a60574ad13f4",
+    "logIndex": 3,
+    "status": 1
+  },
+  "reactive": {
+    "hash": "0x187fc2615773c9725f7d1a7882709a21a1f16102b6bf0cfadba3fd271eaad6d5",
+    "block": 8765638,
+    "originLog": "0xd30625332200f46c0c7af291e43cf872cc79a3bc12ed574723029acc16f54a22",
+    "status": 1
+  },
+  "callback": {
+    "hash": "0xb66ec4bc2398038d7f5a9b90746a419e00d43b2ed67fe2ccf551c215edb844b6",
+    "block": 61037031,
+    "status": 1
+  },
+  "quote": {
+    "customer": "0xe84A1B8C20b1E33Fc1D6dD4650Af53783F2911eD",
+    "merchant": "0xbf6301D7bca9F23A63A2d1Ed513d5120Dbb2288E",
+    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "deposit": "1000000",
+    "total": "3000000",
+    "currentStatus": "3"
+  },
+  "note": "Receipts prove a historical deposit/confirmation loop. Current quote status may have changed since confirmation. This does not prove refunds, expiry, mainnet readiness or future delivery."
+}
