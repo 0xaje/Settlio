@@ -3,7 +3,7 @@ Version 2.0 · 19 November 2026
 
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
-Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 45 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
+Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 46 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
 
 ## Approved decisions replacing version 1
 - Work directly on main in https://github.com/0xaje/Settlio. Preserve concurrent changes and never rewrite history.
@@ -512,3 +512,8 @@ The user confirms the updated responsive view works. Targeted mobile fixes have 
 
 ## Receipt recovery acceptance update · 20 November 2026
 Quote #3 creation is verified, and its video shows a normal already-loaded unpaid quote. Interrupted-pending recovery remains unverified. Added manual read-only recovery from a genuine creation receipt, with saved-terms fingerprint checking; TypeScript/build and 45 local tests pass. The new browser control still needs user verification. It does not require another transaction or deposit and does not replace the interrupted-pending test. Stay in M1.
+
+## Recovery status and payment-scope decision · 20 November 2026
+Manual Quote #3 browser recovery is user-confirmed. A real local pending-transaction/reader-restart integration check passes as part of 46 local tests. It does not count as public-browser interruption proof, which remains unverified. M1 stays open.
+
+Proposal awaiting user decision: constrain hackathon live payment scope to the already verified ETH/USDC flows and retain USDT as a later supported-network integration. Official Base Sepolia USDT provenance remains unverified. The earlier approved three-currency requirement is still active until the user explicitly approves a scope amendment. No substitute USDT or new payment integration is authorised by this proposal.
