@@ -506,3 +506,6 @@ The extension browser was unavailable and the cloud browser could not reach the 
 User supplied a 390 x 600 Chrome responsive-mode recording of quote list/editor. Mobile history cards, sticky navigation, explicit scroll reset, shrinkable form grids and 16px mobile inputs were implemented; TypeScript/production build passed. Post-fix visual confirmation, confirmed customer quote view and physical-phone testing remain open. The recording also shows a wallet-extension provider conflict, still unresolved. M1 is not closed.
 
 The user reaffirmed the previously approved design. Current functional screens are incomplete implementation; the approved palette, typography, surfaces and rotating professional hero remain the M3 source of truth. No redesign or messaging work began in this fix.
+
+## Mobile acceptance update · 20 November 2026
+The user confirms the updated responsive view works. Targeted mobile fixes have user-reported acceptance. Independent physical-device coverage remains a later full-interface verification task; no such pass is claimed. Continue M1 with a genuine receipt-recovery/reload check. Do not close M1 while recovery or approved payment requirements remain unresolved.
