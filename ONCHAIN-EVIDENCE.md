@@ -52,3 +52,8 @@ Verified details:
 - Fresh getQuote(2): status 3, selectedOption 1, total 3000000 units (3 USDC), deposit 1000000 units (1 USDC), designated customer 0xe84A1B8C20b1E33Fc1D6dD4650Af53783F2911eD.
 - At verification: escrow USDC balance = USDC liability = 1000000; ETH balance = native liability = 100000000000000. Customer's current token allowance to escrow = 0. The two assets remain separately backed.
 - This proves the USDC deposit/confirmation flow, not automatic refund, expiry, remaining-balance collection or mainnet readiness. USDT and remaining M1 checks stay open. No code changes or test rerun in this verification step.
+
+## Reproducible verifier · 20 November 2026
+script/verify-quote.cjs successfully reproduced both historical confirmation trails through read-only public RPC calls. Machine-readable snapshots are committed at deployments/evidence/quote-1.json and quote-2.json. The mismatched ETH deposit was rejected for quote 2 and the existing verified snapshot remained unchanged.
+
+This step sent no transaction. Browser-closed unattended expiry/refund and full recovery evidence remain pending.
