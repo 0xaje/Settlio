@@ -6,6 +6,19 @@ The user explicitly approved proceeding with ETH and USDC, with USDT marked Comi
 
 Only ETH and the verified Base Sepolia USDC address are enabled in the interface. USDT may be displayed as a disabled Coming soon option; it cannot be quoted, approved or paid through that option. Generic token accounting remains, but no new token address or contract deployment is introduced by this amendment. Remaining M1 recovery gates stay open.
 
+## Automatic deposit release · approved 21 November 2026
+The user approved the recommendation to add automatic release after the agreed full-refund cutoff. This supersedes merchant-only manual release for newly created quotes explicitly accepting the new policy. Existing deployed quotes retain their original contract and terms.
+
+- Merchant authorises automatic release when creating the quote; the customer reviews the same immutable policy before paying. Bind the release policy, asset amounts and timestamps into shared terms and the on-chain fingerprint.
+- At or after refundCutoff, an authenticated scheduled callback may release the exact deposited asset and amount to the recorded merchant only if the quote is Confirmed and no eligible cancellation has reserved a refund. Cutoff eligibility does not attest service delivery or settle service-quality disputes.
+- A cancellation accepted strictly before refundCutoff reserves the customer's full deposit immediately. A later callback must honour that reservation even after cutoff; release cannot consume it.
+- Base block.timestamp and current escrow state are authoritative. Scheduling delay may postpone execution but must never enable early release or reopen expired payment. Repeated, stale and out-of-order callbacks must not duplicate transfers.
+- Use official network CRON events with bounded due-job processing, isolated job failures, controlled retries and idle unsubscribe. Track successful destination outcomes rather than treating callback requests as completion. Verify live Lasna CRON delivery before calling scheduling operational.
+- Maintain separate automation funding, visible funding/debt status and recovery. No customer principal funds network fees. Do not promise exact-second execution or perpetual operation without funding.
+- New callback entry points, policy events and immutable wiring require a new deployment version. Preserve all old quote links, addresses and principal; no implicit upgrade or migration.
+- This is M2 scope. M1 browser-interruption verification remains open; implementation starts only after its acceptance. M2 acceptance includes genuine unattended release and expiry, ETH/USDC same-asset refunds, deadline races, failed delivery/retry, no duplicate transfers, and origin/CRON/Reactive/callback evidence with both browser sessions closed.
+- Documentation approval is not deployed functionality, a new test pass or a completed milestone.
+
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
 Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 46 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
