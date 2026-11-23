@@ -1,6 +1,6 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / LIVE DEPLOYMENT CHECKS COMPLETE / POLICY EXECUTION PENDING / NOT ACCEPTED**, started 23 November 2026.
+Status: **IN PROGRESS / LIVE QUOTE REGISTRATION BLOCKED / NOT ACCEPTED**, started 23 November 2026.
 M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
@@ -178,3 +178,22 @@ Judging: Execution has verified deployment prerequisites but no live M2 policy c
 | Correct empty-queue idle CRON state | COMPLETE — CURRENT OBSERVATION | quoteCount 0, activeJobs 0, paused false, cronActive false; dynamic activation/delivery still pending |
 | Custody coverage and separate fee funding | COMPLETE — CURRENT OBSERVATION | Both asset liabilities/balances zero; fee accounts funded with no observed debt; not proof of payment/refund or future fee sufficiency |
 | Unattended expiry/refund/release and complete browser journeys | PENDING — M2 ACCEPTANCE BLOCKER | Requires actual origin/CRON-to-Reactive-to-destination execution, balances/states, failure recovery and public evidence |
+
+
+
+## M2 Quote 1 registration blocked — official live diagnostics · 23 November 2026
+User created the unpaid automatic-expiry quote, creation hash 0x26d54a13b47dafeced742b46ae831140348aa535e7af71e8b35fc547fa1014f6. The supplied 11.67-second video shows M2 localhost:5174 Quote 1, photography automatic-expiry test, Awaiting deposit, 0.0001 ETH deposit/0.0003 total, manual release, deadline 23 November 13:00 WAT and full-refund cutoff 14:30 WAT. It displays “Waiting for the scheduler to observe this quote.” This is user/browser evidence, not callback proof.
+
+User WSL verify:m2 then reports quoteCount 1, activeJobs 0, CRON false, paused false, ten origin subscriptions (filterVersion 12325), empty principal custody and unchanged fee balances with zero debt/reserves. This is not the expected end-to-end registration result, even though the structural verifier's queue/CRON consistency condition passes. Do not mark automation complete from wiringVerified alone.
+
+Reached the public official read-only Reactive MCP at https://mcp.rnk.dev/mcp directly and inspected tool schemas before use. Independent service queries:
+- validate_subscription: OK_VALID / proven for Base 84532, our escrow, exact PolicyRegistered topic 0x507cf77845a76d912db6ba6ca3fe5da2563fb037fbbc870d551aa9e27803e5ef, wildcard indexed quote ID. It reports one recent matching event, one subscriber, rcListed true and rcActive true; filterId 0x74caf4021f8749623cbfe403a6ea636c.
+- trace_origin_event: origin receipt metadata includes our PolicyRegistered log at index 2, two topics, Base block 62555346. Sequence not found / cannot_prove; scanning stopped after 264 blocks at its 300-RPC request budget. This is inconclusive about delivery, not proof that no reaction could exist.
+- get_network_info twice: SEQUENCER_STALLED / likely. First sample advanced Lasna 9052179 -> 9052182 with sequence frontier fixed at 179629726; later sample 9052238 -> 9052241 retained the same frontier. The service flags origin-ingestion stalling. This is a likely external blocker, not a confirmed network-wide outage; public RPC load balancing is an explicit service caveat.
+- get_rc_health: ten active subscriptions, zero debt/reserves, balance 0.1 test REACT, zero observed reverts in 3001 blocks. LOW_RESERVES / likely is a separate heuristic based on ten assumed 60000-gas reactions (0.16 REACT cushion), not measured Settlio gas. Our pinned AbstractPayer source implements pay(), so the tool's conditional exclusion of contract balance must not be interpreted as proof of zero available funds. A larger fee buffer/cost review is still required before relying on repeated timed checks.
+
+Committed labelled [diagnostic evidence](../deployments/evidence/m2/quote-1-registration-diagnostic.json), explicitly not a successful execution trace. Direct Base RPC from this workspace remained unavailable; origin metadata was retrieved through the official service. No source, test, contract, deployment or state-changing operation was modified by this investigation. Prior 86 tests/build results stand; no rerun claimed.
+
+Execution/Integration: live registration, dynamic CRON and policy callbacks BLOCKED / UNVERIFIED. The root cause is not yet exclusively proven; exact filter validity and repeated likely-ingestion-stall observations narrow the investigation. Usefulness is not established by a blocked test. Craft gains source-cross-checked, provenance-labelled service evidence and honest scan limits; missing scheduled-policy verifier, fee buffer, cost/recovery and browser acceptance gates remain open. M2 NOT ACCEPTED.
+
+Keep this quote unpaid and preserve its link/hash. Passing 13:00 WAT is intentional for the expiry test; an overdue deadline alone or a UI label is not proof of an authenticated expiry callback. Once ingestion resumes, recheck this same quote, provision adequate separate fees, and collect the actual origin/CRON -> Reactive -> Base result. No retry, new quote, redeployment, top-up or payment was performed by the assistant. No M3 work began.

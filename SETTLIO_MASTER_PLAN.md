@@ -579,3 +579,7 @@ User WSL reports successful Reactive/callback creation and configuration receipt
 
 ## M2 deployment checkpoints completed · 23 November 2026
 User WSL verify:m2 on 6203604 passed source/runtime/creation/configuration/network/version/wiring, ten exact origin subscriptions, custody and separate funding checks (filter version 12314). Zero quotes/jobs correctly leave CRON inactive while unpaused. Record these deployment checkpoints as complete current observations; dynamic CRON delivery and unattended policy execution are still unverified. Next: separate M2 interface on port 5174 using process-scoped escrow 0x1694e56187f9422e364B42af3185d34a0D4b9bc0, then live policy journeys/evidence. M2 remains NOT ACCEPTED.
+
+
+## M2 first live policy-registration blocker · 23 November 2026
+M2 Quote 1 exists unpaid, but user verification reports zero jobs/CRON off. The official Reactive MCP confirms a valid exact active policy filter and one matching origin event, while two network checks flag likely origin-ingestion stalling. A bounded origin trace is inconclusive after its RPC budget was exhausted. Do not treat deployment/wiring success as automation proof or declare a confirmed network-wide outage. Preserve the same unpaid quote (13:00 WAT deadline, 14:30 cutoff); deadline passage alone is not callback proof. Recheck live registration when ingestion resumes, review/provision separate fee buffer and complete all unattended traces. M2 remains BLOCKED / NOT ACCEPTED; details/provenance are in the acceptance ledger and diagnostic JSON.

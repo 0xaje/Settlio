@@ -1,0 +1,278 @@
+{
+  "recordedAt": "2026-11-23T11:32:41.897840+00:00",
+  "readOnly": true,
+  "evidenceType": "blocked-registration-diagnostic-not-execution-proof",
+  "source": {
+    "kind": "official-public-read-only-MCP",
+    "endpoint": "https://mcp.rnk.dev/mcp",
+    "network": "lasna"
+  },
+  "quote": {
+    "id": "1",
+    "escrow": "0x1694e56187f9422e364B42af3185d34a0D4b9bc0",
+    "reactive": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85",
+    "creationHash": "0x26d54a13b47dafeced742b46ae831140348aa535e7af71e8b35fc547fa1014f6",
+    "paymentDeadlineFromUserVideo": "2026-11-23T13:00:00+01:00",
+    "fullRefundCutoffFromUserVideo": "2026-11-23T14:30:00+01:00"
+  },
+  "userWslObservation": {
+    "quoteCount": "1",
+    "activeJobs": "0",
+    "cronActive": false,
+    "filterVersion": 12325,
+    "paused": false,
+    "custody": {
+      "ETH": {
+        "balance": "0",
+        "liability": "0"
+      },
+      "USDC": {
+        "balance": "0",
+        "liability": "0"
+      }
+    }
+  },
+  "subscriptionValidation": {
+    "tool": "validate_subscription",
+    "network": "lasna",
+    "verdict": "OK_VALID",
+    "confidence": "proven",
+    "summary": "The criteria are well-formed for this network.",
+    "findings": [],
+    "fix": [],
+    "limits": [],
+    "data": {
+      "criteria": {
+        "chain": "Base Sepolia (84532)",
+        "contract": "0x1694e56187f9422e364B42af3185d34a0D4b9bc0",
+        "topic0": "0x507cf77845a76d912db6ba6ca3fe5da2563fb037fbbc870d551aa9e27803e5ef",
+        "topic1": "any",
+        "topic2": "any",
+        "topic3": "any"
+      },
+      "signature": {
+        "name": "PolicyRegistered",
+        "canonical": "PolicyRegistered(uint256,uint64,uint64,bool)",
+        "topic0": "0x507cf77845a76d912db6ba6ca3fe5da2563fb037fbbc870d551aa9e27803e5ef",
+        "indexedCount": 1,
+        "params": [
+          {
+            "name": "quoteId",
+            "type": "uint256",
+            "indexed": true
+          },
+          {
+            "name": "expiresAt",
+            "type": "uint64",
+            "indexed": false
+          },
+          {
+            "name": "refundCutoff",
+            "type": "uint64",
+            "indexed": false
+          },
+          {
+            "name": "automaticRelease",
+            "type": "bool",
+            "indexed": false
+          }
+        ]
+      },
+      "recentEvents": {
+        "blocks": 5000,
+        "count": 1,
+        "perDayEstimate": 86,
+        "perDayApproximate": false,
+        "rateSpan": {
+          "fromBlock": 62553077,
+          "toBlock": 62558076
+        },
+        "capped": false
+      },
+      "filterId": "0x74caf4021f8749623cbfe403a6ea636c",
+      "registered": {
+        "subscribers": 1,
+        "rcListed": true,
+        "rcActive": true
+      },
+      "rpcRequests": 6
+    }
+  },
+  "networkDiagnostic": {
+    "tool": "get_network_info",
+    "verdict": "SEQUENCER_STALLED",
+    "confidence": "likely",
+    "findings": [
+      {
+        "stage": "sequencer",
+        "verdict": "SEQUENCER_STALLED",
+        "confidence": "likely",
+        "summary": "Reactive advanced 9052238 -> 9052241 but the committed sequence frontier stayed at 179629726: origin events are not being ingested right now.",
+        "evidence": [
+          {
+            "kind": "rnk_getCommittedSequenceFrontier",
+            "note": "{\"height\":9052238,\"fromSeq\":179629726,\"toSeq\":179629726} then {\"height\":9052241,\"fromSeq\":179629726,\"toSeq\":179629726}"
+          }
+        ]
+      }
+    ],
+    "limits": [
+      "The public RPC is load-balanced: capabilities such as the archive flag can differ between requests, so treat them as hints."
+    ],
+    "data": {
+      "chainId": 5318007,
+      "head": 9052237,
+      "frontier": {
+        "first": {
+          "height": 9052238,
+          "fromSeq": 179629726,
+          "toSeq": 179629726
+        },
+        "after3s": {
+          "height": 9052241,
+          "fromSeq": 179629726,
+          "toSeq": 179629726
+        }
+      }
+    }
+  },
+  "earlierNetworkSample": {
+    "verdict": "SEQUENCER_STALLED",
+    "confidence": "likely",
+    "first": {
+      "height": 9052179,
+      "fromSeq": 179629726,
+      "toSeq": 179629726
+    },
+    "after3s": {
+      "height": 9052182,
+      "fromSeq": 179629726,
+      "toSeq": 179629726
+    }
+  },
+  "originTrace": {
+    "tool": "trace_origin_event",
+    "network": "lasna",
+    "verdict": "SEQUENCE_NOT_FOUND",
+    "confidence": "cannot_prove",
+    "summary": "Could not locate where the origin block was processed.",
+    "findings": [
+      {
+        "stage": "sequencing",
+        "verdict": "SEQUENCE_NOT_FOUND",
+        "confidence": "cannot_prove",
+        "summary": "Origin block 62555346 was not found in the 264 Reactive block(s) scanned from 9051743 (scan stopped: RPC request budget of 300 reached).",
+        "evidence": []
+      }
+    ],
+    "fix": [],
+    "limits": [
+      "Sequence scan stopped after 264 block(s): RPC request budget of 300 reached",
+      "Increase maxScanBlocks (and RNK_MAX_RPC_REQUESTS), or trace from the Reactive side with trace_reactive_tx if you know the reaction hash."
+    ],
+    "data": {
+      "originLogs": {
+        "items": [
+          {
+            "logIndex": 0,
+            "address": "0x04658B29F6b82ed55274221a06Fc97D318E25416",
+            "topic0": "0x449da07f2c06c9d1a6b19d2454ffe749e8cf991d22f686e076a1a4844c5ff370",
+            "topics": 4
+          },
+          {
+            "logIndex": 1,
+            "address": "0x1694e56187f9422e364B42af3185d34a0D4b9bc0",
+            "topic0": "0xe23b969ed04d667438f602ab58824c7765ba09696829c27029ecb9e3de3e75a9",
+            "topics": 4
+          },
+          {
+            "logIndex": 2,
+            "address": "0x1694e56187f9422e364B42af3185d34a0D4b9bc0",
+            "topic0": "0x507cf77845a76d912db6ba6ca3fe5da2563fb037fbbc870d551aa9e27803e5ef",
+            "topics": 2
+          },
+          {
+            "logIndex": 3,
+            "address": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+            "topic0": "0x40dadaa36c6c2e3d7317e24757451ffb2d603d875f0ad5e92c5dd156573b1873",
+            "topics": 3
+          }
+        ],
+        "total": 4,
+        "truncated": false
+      },
+      "sequenceScan": {
+        "fromBlock": 9051743,
+        "scanned": 264,
+        "maxSeenOriginBlock": -1
+      },
+      "rpcRequests": 302
+    }
+  },
+  "feeDiagnostic": {
+    "tool": "get_rc_health",
+    "network": "lasna",
+    "verdict": "LOW_RESERVES",
+    "confidence": "likely",
+    "summary": "No debt, but total reserves 0 REACT are below 10 reactions (0.16 REACT at about 0.016 REACT each); the next reaction is likely to create debt. The contract balance (0.1 REACT) is not counted unless the contract implements pay().",
+    "findings": [
+      {
+        "stage": "funding",
+        "verdict": "LOW_RESERVES",
+        "confidence": "likely",
+        "summary": "Omni: debt 0 REACT, reserves 0 REACT. Legacy proxy: debt 0 REACT, reserves 0 REACT. Contract balance 0.1 REACT (not counted as funding unless the contract implements pay()).",
+        "evidence": [
+          {
+            "kind": "eth_call",
+            "ref": "0x8888888888888888888888888888888888888888",
+            "note": "debt(address), reserves(address) on the Omni system contract"
+          },
+          {
+            "kind": "eth_call",
+            "ref": "0x0000000000000000000000000000000000ffffff",
+            "note": "debts(address), reserves(address) on the legacy proxy; eth_getBalance on the contract"
+          }
+        ]
+      }
+    ],
+    "fix": [
+      "Top up reserves by at least 0.16 REACT (160000000000000000 wei) to reach a cushion of 10 reactions (0.16 REACT at about 0.016 REACT each): cast send 0x8888888888888888888888888888888888888888 \"depositTo(address)\" 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 --value 160000000000000000 --rpc-url https://lasna-rpc.rnk.dev/"
+    ],
+    "limits": [],
+    "data": {
+      "account": {
+        "debt": "0",
+        "reserves": "0",
+        "legacyDebt": "0",
+        "legacyReserves": "0",
+        "balance": "100000000000000000"
+      },
+      "subscriptions": {
+        "total": 10,
+        "active": 10
+      },
+      "feeModel": {
+        "perReaction": "0.016 REACT",
+        "cushion": "0.16 REACT",
+        "assumedReactGas": "60000",
+        "extraGas": "100000",
+        "coeffPer1000": "1000",
+        "feeParamsLive": true
+      },
+      "revertRate": {
+        "reverts": 0,
+        "windowBlocks": 3001,
+        "perHour": 0,
+        "flagAbovePerHour": 6
+      },
+      "rpcRequests": 12
+    }
+  },
+  "interpretation": [
+    "Active exact subscription and matching origin event are independently reported by the official service.",
+    "The official service flags likely origin-ingestion stalling; this is a diagnostic inference, not a confirmed network-wide outage.",
+    "Trace scanning stopped at its request budget; absence of a located sequence is inconclusive.",
+    "The source inherits AbstractPayer.pay(); the health tool qualifies its balance-exclusion warning on whether pay is implemented. The fee cushion estimate is not measured Settlio execution cost.",
+    "Registration, dynamic CRON activation and successful policy callback remain unverified. No manual retry, top-up, redeployment or payment was performed by these checks."
+  ]
+}

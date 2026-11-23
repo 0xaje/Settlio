@@ -10,7 +10,7 @@ The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requir
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / LIVE DEPLOYMENT CHECKS PASSED / POLICY EXECUTION PENDING:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / LIVE QUOTE REGISTRATION BLOCKED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -159,3 +159,9 @@ VITE_ESCROW_ADDRESS=0x1694e56187f9422e364B42af3185d34a0D4b9bc0 npm run dev -- --
 ```
 
 Open http://localhost:5174 and check the merchant create-quote policy controls before creating a timed test. The process variable takes precedence over dotenv values for this run; no saved configuration or M1 quote is migrated. Do not change old share links to point at the new contract. The full M2 live/browser/evidence gates remain in the acceptance ledger.
+
+
+## First live policy test — currently blocked
+The unpaid M2 Quote 1 was created, but the user observes zero scheduler jobs. Official read-only Reactive diagnostics confirm the exact policy filter is active and a matching origin event exists. Two network checks flag likely origin-ingestion stalling; the bounded origin trace cannot prove delivery because its RPC scan budget was exhausted. These observations do not establish a confirmed network-wide outage or rule out every application defect.
+
+See deployments/evidence/m2/quote-1-registration-diagnostic.json and the acceptance ledger. Keep the quote unpaid. Neither an overdue payment deadline nor a UI expired label proves a successful policy callback. Registration/CRON/callback proof and a sufficient separate fee buffer remain required. M2 is not complete. No repeated quote creation or redeployment is justified by these observations.

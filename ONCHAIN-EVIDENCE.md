@@ -100,3 +100,11 @@ Source 6203604, npm run verify:m2. Provenance: supplied user WSL public-RPC outp
 Custody ETH balance/liability 0/0; USDC 0/0. Reactive fee balance 100000000000000000, callback fee balance 1000000000000000; debt/reserves zero and needsAttention false for both. Addresses/creation/configuration hashes are recorded above. These readings prove the verifier's deployment prerequisites at that observation, not future funding or a successful automated policy callback.
 
 The full deployment/subscription gate is complete with user-verifier provenance. Live dynamic CRON registration/delivery, expiry/refund/release and full merchant/customer browser journeys remain open. No new policy execution JSON or transaction trace is fabricated by this note.
+
+
+## M2 Quote 1 — blocked registration diagnostic, 23 November 2026
+Creation hash: 0x26d54a13b47dafeced742b46ae831140348aa535e7af71e8b35fc547fa1014f6. Video shows unpaid M2 Quote 1, deadline 13:00 WAT and refund cutoff 14:30 WAT on 23 November. User WSL reports one quote, zero jobs and inactive CRON; no principal held.
+
+Independent official Reactive MCP queries confirm the exact PolicyRegistered signature/filter active for our subscriber and one matching origin event. Trace metadata locates that policy event at log index 2 in Base block 62555346. A bounded sequence scan is inconclusive, not a proof of delivery or nondelivery. Two network samples flag SEQUENCER_STALLED / likely with sequence frontier 179629726 unchanged while blocks advance. A separate LOW_RESERVES heuristic requires fee-buffer review; source implements pay(), so zero reserves is not proof of zero available contract funding.
+
+Machine-readable [diagnostic](deployments/evidence/m2/quote-1-registration-diagnostic.json) is explicitly not an origin-to-callback success report. It records source, verdicts, confidence and limits. No registration, CRON wakeup, policy callback or successful expiry is claimed. M2 remains open; previous deployment checkpoints remain completed current observations.
