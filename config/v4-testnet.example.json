@@ -1,0 +1,13 @@
+{
+  "admission": {
+    "maxActive": "6",
+    "maxLifetimeAdmissions": "6",
+    "maxHorizon": "900",
+    "retryInterval": "60",
+    "maxRetries": "1"
+  },
+  "constructorFunding": {
+    "reactive": "100000000000000000",
+    "callback": "1000000000000000"
+  }
+}

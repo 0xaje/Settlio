@@ -38,7 +38,15 @@
     "pause:recovery": "node script/scheduler-recovery.cjs pause",
     "resume:recovery": "node script/scheduler-recovery.cjs resume",
     "build:admission": "node script/compile-admission.cjs",
-    "plan:admission": "node script/admission-budget.cjs"
+    "plan:admission": "node script/admission-budget.cjs",
+    "plan:v4": "node script/v4-deploy.cjs plan",
+    "deploy:v4": "node script/v4-deploy.cjs deploy",
+    "verify:v4": "node script/v4-deploy.cjs verify",
+    "status:v4": "node script/v4-deploy.cjs status",
+    "plan:fund:v4": "node script/v4-fund.cjs plan",
+    "fund:v4": "node script/v4-fund.cjs fund",
+    "grant:v4": "node script/v4-grant.cjs grant",
+    "open:v4": "node script/v4-grant.cjs open"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

@@ -47,7 +47,7 @@ test('V4 actual origin receipts traverse subscriber, indexed CRON and authentica
  await(await system.depositTo(reactive.target,{value:parseEther('100')})).wait();
  await(await base.signers[0].sendTransaction({to:receiver.target,value:parseEther('1')})).wait();
  const budget=require('../script/admission-budget.cjs');
- const fixtureClock=()=>BigInt(Math.max(sourceTime,(Date.now()/1000)|0));
+ const fixtureClock=()=>BigInt(Math.floor(Date.now()/1000)+300);
  // The local RPC has no RNK index: adapt only that method using the fixture's actual subscription storage.
  const indexRPC={send:async(method,args)=>{
   if(method!=='rnk_getFilters')return lasna.provider.send(method,args);

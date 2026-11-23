@@ -38,8 +38,8 @@ No public configuration numbers have been chosen. Tests use small fixture values
 ## Required before public deployment
 
 1. Finalize a finite testnet admission configuration and assess useful booking horizons against real cost.
-2. Implement new-version deployment, source identity, constructor/configuration, journal recovery and subscription checks without touching V3 journals.
-3. Initial read-only sponsor grant planning is implemented and locally verified; see ADMISSION_FUNDING.md. It refuses existing work/grants instead of guessing incremental obligations. Journalled execution, live initial observations and incremental accounting remain pending; never imply an automatic cross-chain guarantee.
+2. New-version deployment, source identity, constructor/configuration, journal recovery and subscription checks are implemented and locally verified; see V4_OPERATIONS.md. Public verification remains pending and V3 journals stay untouched.
+3. Initial read-only sponsor grant planning is implemented and locally verified; see ADMISSION_FUNDING.md. It refuses existing work/grants instead of guessing incremental obligations. Journalled initial execution is now locally verified in V4_OPERATIONS.md. Live observations/execution proof and incremental accounting remain pending; never imply an automatic cross-chain guarantee.
 4. Add V4 terms/version checks and plain-English admission, retry-limit and refund-recovery UI. Current version-3 frontend is not claimed compatible.
 5. Verify new contracts, exact admission/cap boundary, authenticated ETH/USDC outcomes, failed-delivery recovery and source acknowledgement on public testnets. Local fixtures are not these live proofs.
 6. Reconcile every remaining M2 acceptance item before starting M3.

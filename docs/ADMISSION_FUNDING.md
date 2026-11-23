@@ -8,7 +8,7 @@ Run only after a separately verified V4 deployment supplies its public identity:
 npm run plan:admission -- PUBLIC_V4_IDENTITY_JSON MERCHANT_ADDRESS CREDIT_COUNT VALID_SECONDS
 ```
 
-The identity file must contain exactly policyVersion (number 4), escrow, callback, reactive, admission and sponsor (five distinct nonzero public addresses). Do not pass a V3 deployment journal or an environment/key file. No default identity or fallback deployment is assumed. Validity is 30–600 seconds, at most the configured horizon, with at least 15 seconds remaining at calculation.
+The identity file must contain exactly policyVersion (number 4), escrow, callback, reactive, admission and sponsor (five nonzero public addresses; the four Base identities must be distinct, while source/destination addresses can coincide across chains). Do not pass a V3 deployment journal or an environment/key file. No default identity or fallback deployment is assumed. Validity is 30–600 seconds, at most the configured horizon, with at least 15 seconds remaining at calculation.
 
 ## Checks and output
 
@@ -24,7 +24,7 @@ Budget the entire immutable maxLifetimeAdmissions, not only the proposed credits
 
 The model doubles sampled fastest CRON cadence and current gas prices, then applies current source/proxy coefficients and surcharges, 900,000 source gas and the compiled 1,000,000 callback gas configuration. It is a stress allowance, not a protocol charge estimate, a mathematical guarantee under arbitrary delays, or the expected price of one booking. Future price/rate/protocol changes, prolonged delivery, extra traffic or unsafe sponsor actions can invalidate it.
 
-Only source prepaid reserves count toward source readiness. Callback reserves plus its own ETH balance count on Base. Source balance and customer principal are excluded. The sponsor still attests funding; Base does not read Lasna reserves on-chain. Grant signing/recovery and freshness rechecks immediately before broadcast remain required future work.
+Only source prepaid reserves count toward source readiness. Callback reserves plus its own ETH balance count on Base. Source balance and customer principal are excluded. The sponsor still attests funding; Base does not read Lasna reserves on-chain. Grant signing/recovery and freshness rechecks are now implemented separately in V4_OPERATIONS.md, with local verification; public operation remains pending.
 
 ## Actual verification
 
@@ -36,4 +36,4 @@ The same integration carries actual local creation/deposit logs through the real
 
 Final full suite: **141 passed, zero failures/skips/cancellations**; seven focused planner/integration checks passed. No public V4 observation, deployment or transaction was performed.
 
-Public V4 deployment, grant execution, terms/interface integration and fresh public origin-to-callback proof remain pending. M2 stays open; existing V3 public trails remain valid and its uncapped contract remains unchanged.
+Public V4 deployment and grant execution proof, terms/interface integration and fresh public origin-to-callback proof remain pending. Backend execution tooling is locally verified in V4_OPERATIONS.md. M2 stays open; existing V3 public trails remain valid and its uncapped contract remains unchanged.

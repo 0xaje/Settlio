@@ -11,3 +11,5 @@ deployments/*.tmp
 apps/web/dist/
 
 deployments/.deploy-m2.lock
+
+deployments/.deploy-v4.lock
