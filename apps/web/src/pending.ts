@@ -21,3 +21,18 @@ export async function pendingReceipt(
   }
   return receipt;
 }
+
+// Clear tracking only after successful receipt-specific restoration. If reading
+// or restoring throws, retain the original hash so recovery can be retried.
+export async function recoverPendingTransaction(
+  reader: Pick<JsonRpcProvider, 'send' | 'getTransactionReceipt'>,
+  hash: string,
+  restore: (receipt: TransactionReceipt) => unknown,
+  clear: () => void
+): Promise<TransactionReceipt | null> {
+  const receipt = await pendingReceipt(reader, hash);
+  if (!receipt) return null;
+  if (receipt.status === 1) restore(receipt);
+  clear();
+  return receipt;
+}
