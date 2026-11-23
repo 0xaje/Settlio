@@ -12,6 +12,7 @@ contract SettlioReactive is AbstractReactive {
     uint256 public immutable originChain;
     address public originEscrow;
     address public callbackReceiver;
+    uint256 public constant POLICY_VERSION = 3;
     uint64 public constant CALLBACK_GAS_LIMIT = 1_000_000;
     uint256 public constant DEPOSIT_TOPIC = uint256(keccak256("DepositReceived(uint256,address,uint256)"));
     uint256 public constant RETRY_TOPIC = uint256(keccak256("ConfirmationRequested(uint256)"));
