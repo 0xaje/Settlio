@@ -1,0 +1,43 @@
+{
+  "provenance": "Independent RPC reads saved before the user supplied the resume transaction; original collection did not record block tags or timestamp. Not an atomic historical state proof.",
+  "observation": {
+    "receiptStatus": "0x1",
+    "logs": [
+      {
+        "name": "PolicyRegistered",
+        "args": [
+          "7",
+          "1795458600",
+          "1795458900",
+          false
+        ],
+        "fingerprint": "0x6041d374888d4d4f4e90229dcf46e40b727f87dce1618de6ed52c7d1a0efb98a",
+        "processed": true
+      },
+      {
+        "name": "PolicyRequested",
+        "args": [
+          "7"
+        ],
+        "fingerprint": "0xe104ac16245100057869c08398ed1fa164ae66b3dfae8d33e874fc6aa487d774",
+        "processed": true
+      }
+    ],
+    "paused": true,
+    "activeJobs": "1",
+    "job": [
+      "1795458600",
+      "1795458900",
+      "1795458825",
+      "0",
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "cron": false
+  }
+}
