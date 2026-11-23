@@ -84,6 +84,6 @@ Execution: genuine ETH/USDC full loops demonstrated. Integration: authentication
 
 ## Documentation inventory and completion rule
 
-There are now six Markdown documents: README.md, AGENTS.md, SETTLIO_MASTER_PLAN.md, ONCHAIN-EVIDENCE.md, docs/PROGRESS.md and this file. LICENSE is a separate seventh human-readable policy/legal file. Two committed JSON evidence snapshots supplement them.
+At M1 documentation close there were six Markdown documents: README.md, AGENTS.md, SETTLIO_MASTER_PLAN.md, ONCHAIN-EVIDENCE.md, docs/PROGRESS.md and this file. LICENSE is a separate human-readable policy/legal file. M2 subsequently added [its own acceptance ledger](M2_ACCEPTANCE.md), so the current inventory is seven Markdown documents plus LICENSE. Two committed JSON evidence snapshots supplement them.
 
 For each subsequent milestone: mark every accepted requirement complete with source/test/transaction/evidence links, date, execution environment and limits; leave failed/blocked/unverified items open; reconcile current README/master/evidence status; preserve historical logs as history; never mark the whole product complete when only a milestone is accepted.
