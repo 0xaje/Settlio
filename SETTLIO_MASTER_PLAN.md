@@ -547,3 +547,7 @@ Proposal awaiting user decision: constrain hackathon live payment scope to the a
 
 ## M2 policy interface implementation status · 23 November 2026
 Version 3 terms bind automaticRelease. Customer explicit consent is checked by the new payment entry point; legacy entries cannot pay automatic-release quotes. M1 shared links and deployment remain compatible. M2 creation is guarded by version/network/immutable wiring checks; transport errors cannot silently enable policies. Job/funding observations and pending/completed refund/release states are implemented but not yet browser/live verified. Final local checks: contracts/TypeScript/frontend build pass, 69 tests pass. Deployment tooling, new live deployments, browser regression, unattended traces, cost/delay and operational recovery remain open. See docs/M2_ACCEPTANCE.md; M2 is NOT complete.
+
+
+## M2 deployment tooling status · 23 November 2026
+Deployment-state/journal and exact subscription-filter helpers now have five focused checks; the final full local suite passes 74 tests. This component is not yet connected to a deployment CLI. Versioned preflight/CRON observations, source/runtime checks, M2 deployment and evidence commands remain pending. No public broadcast or M2 acceptance. See docs/M2_ACCEPTANCE.md for evidence and limits.
