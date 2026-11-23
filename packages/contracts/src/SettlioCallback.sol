@@ -26,6 +26,12 @@ contract SettlioCallback is AbstractCallback {
         escrow.confirmBooking(quoteId);
     }
 
+    function processPolicy(address reactive, uint256 quoteId)
+        external onlyServiceProvider onlyCallbackSender(reactive)
+    {
+        escrow.processPolicy(quoteId);
+    }
+
     function coverDebt() external {
         _coverDebt();
     }
