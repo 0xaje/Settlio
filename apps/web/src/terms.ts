@@ -3,7 +3,8 @@ import { getAddress, keccak256, toUtf8Bytes } from 'ethers';
 export type PaymentOption = { asset: string; total: string; deposit: string };
 
 export type Terms = {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
+  automaticRelease?: boolean;
   options?: PaymentOption[];
   service: string;
   description: string;
@@ -28,11 +29,13 @@ export type Quote = {
   asset?: string;
   selectedOption?: number;
   options?: PaymentOption[];
+  policyVersion?: number;
+  automaticRelease?: boolean;
 };
 
 export function serializeTerms(terms: Terms): string {
   return JSON.stringify({
-    version: terms.version, ...(terms.version === 2 ? { options: terms.options?.map(option => ({ asset: getAddress(option.asset), total: option.total, deposit: option.deposit })) } : {}), service: terms.service, description: terms.description,
+    version: terms.version, ...(terms.version >= 2 ? { options: terms.options?.map(option => ({ asset: getAddress(option.asset), total: option.total, deposit: option.deposit })) } : {}), ...(terms.version === 3 ? { automaticRelease: terms.automaticRelease } : {}), service: terms.service, description: terms.description,
     merchant: getAddress(terms.merchant), customer: getAddress(terms.customer),
     total: terms.total, deposit: terms.deposit,
     expiresAt: terms.expiresAt, refundCutoff: terms.refundCutoff
@@ -54,14 +57,15 @@ export function decodeTerms(encoded: string): Terms {
   const value: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   if (typeof value !== 'object' || value === null) throw new Error('Invalid quote terms.');
   const terms = value as Terms;
-  if ((terms.version !== 1 && terms.version !== 2) || typeof terms.service !== 'string' || !terms.service.trim() ||
+  if ((terms.version !== 1 && terms.version !== 2 && terms.version !== 3) || typeof terms.service !== 'string' || !terms.service.trim() ||
       terms.service.length > 120 || typeof terms.description !== 'string' || terms.description.length > 2000 ||
       typeof terms.total !== 'string' || !/^\d+$/.test(terms.total) ||
       typeof terms.deposit !== 'string' || !/^\d+$/.test(terms.deposit) ||
       !Number.isSafeInteger(terms.expiresAt) || !Number.isSafeInteger(terms.refundCutoff)) {
     throw new Error('Invalid quote terms.');
   }
-  if (terms.version === 2) {
+  if (terms.version === 3 && typeof terms.automaticRelease !== 'boolean') throw new Error('Invalid automatic release policy.');
+  if (terms.version >= 2) {
     if (!Array.isArray(terms.options) || terms.options.length < 1 || terms.options.length > 3) throw new Error('Invalid payment options.');
     const assets = new Set();
     for (const option of terms.options) {
@@ -79,7 +83,8 @@ export function decodeTerms(encoded: string): Terms {
 
 export function matchesQuote(terms: Terms, quote: Quote): boolean {
   try {
-    return termsHash(terms).toLowerCase() === quote.termsHash.toLowerCase() &&
+    return (terms.version === 3 ? quote.policyVersion === 3 && terms.automaticRelease === quote.automaticRelease : quote.automaticRelease !== true) &&
+      termsHash(terms).toLowerCase() === quote.termsHash.toLowerCase() &&
       getAddress(terms.merchant) === getAddress(quote.merchant) &&
       getAddress(terms.customer) === getAddress(quote.customer) &&
       (terms.version === 1 ? (!quote.options || (quote.options.length === 1 && quote.options[0].asset === '0x0000000000000000000000000000000000000000')) && BigInt(terms.total) === quote.total && BigInt(terms.deposit) === quote.deposit : matchesOptions(terms, quote)) &&
