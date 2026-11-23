@@ -68,10 +68,18 @@ async function runOperation({journal,key,signer,request,chainId,save,timeout=120
   return receipt;
 }
 function assertFilters(result,{reactive,escrow,topics,cronSource,cronTopic,cronExpected}) {
-  check(result && Array.isArray(result.topicFilters),'Reactive filter index schema unavailable; subscriptions are not verified.');
+  // Live Lasna uses PascalCase; the published RPC example uses camelCase.
+  const has=(key)=>result!==null && typeof result==='object' && Object.hasOwn(result,key);
+  const lower=has('topicFilters'),upper=has('TopicFilters');
+  check(lower!==upper,'Reactive filter index schema unavailable or ambiguous; subscriptions are not verified.');
+  const filters=upper?result.TopicFilters:result.topicFilters;
+  check(Array.isArray(filters),'Reactive filter index schema unavailable; subscriptions are not verified.');
+  check(!(has('version')&&has('Version')),'Reactive filter index version is ambiguous; subscriptions are not verified.');
+  const version=(upper?result.Version:result.version)??null;
+  check(version===null || (Number.isSafeInteger(version)&&version>=0),'Reactive filter index version invalid; subscriptions are not verified.');
   const same=(a,b)=>{try{return getAddress(a)===getAddress(b);}catch{return false;}};
   function matches(chain,contract,topic) {
-    return result.topicFilters.some(filter=>{
+    return filters.some(filter=>{
       try {
         return BigInt(filter.ChainId)===BigInt(chain) && same(filter.Contract,contract) &&
           Array.isArray(filter.Topics) && String(filter.Topics[0]).toLowerCase()===topic.toLowerCase() &&
@@ -82,6 +90,6 @@ function assertFilters(result,{reactive,escrow,topics,cronSource,cronTopic,cronE
   }
   for(const topic of topics) check(matches(BASE,escrow,topic),'A required active M2 origin subscription is missing.');
   check(matches(LASNA,cronSource,cronTopic)===cronExpected,'M2 CRON subscription does not match the current runnable/paused state.');
-  return {originSubscriptions:topics.length,cronActive:cronExpected,filterVersion:result.version??null};
+  return {originSubscriptions:topics.length,cronActive:cronExpected,filterVersion:version};
 }
 module.exports={BASE,LASNA,check,paths,newJournal,assertJournal,saveJournal,runOperation,assertFilters};

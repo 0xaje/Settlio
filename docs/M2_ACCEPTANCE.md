@@ -1,7 +1,7 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / DEPLOYMENT ATTEMPT STOPPED / OUTCOME UNVERIFIED / NOT ACCEPTED**, started 23 November 2026.
-M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). M2 deployment outcome is unverified after a stopped user-local attempt; the existing M1 contracts, quote links and principal are unchanged.
+Status: **IN PROGRESS / DEPLOYMENT RECEIPTS REPORTED SUCCESSFUL / VERIFICATION PENDING / NOT ACCEPTED**, started 23 November 2026.
+M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification remains pending; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
 
@@ -136,3 +136,21 @@ Deployment errors now show fixed stage labels and allowlisted codes, including w
 Checks: five focused status/error checks pass, including an actual CLI invalid-key invocation with no secret in output. The local deployment integration also checks real successful saved receipts and journal preservation after a simulated index outage. Final full suite: **85 passed, zero failures/skips/cancellations**. No new contract/frontend build is claimed for this script-only change; previous builds remain the baseline. These are isolated tests, not verification of the user's attempt.
 
 Execution/Integration: public M2 deployment and unattended loops remain unverified. Usefulness: inspect-before-retry prevents confusion around pending deployments. Craft: explicit, secret-free status/errors; actual failure root cause still open. M2 NOT ACCEPTED. Next: user runs status:m2 without a key and supplies its public output; diagnose the demonstrated state before resuming. Keep the existing M1 configuration and preserved deployment records.
+
+
+
+## M2 deployments reported successful; filter wrapper correction · 23 November 2026
+User status:m2 output reports successful current RPC receipts for deployReactive (Lasna nonce 2, block 9050953), deployCallback (Base nonce 112, block 62551090) and configure (Lasna nonce 3, block 9050973). Journal exists, lock absent. These observations establish user-reported successful operations, not a complete milestone or independently re-fetched workspace receipt verification. Preserve these contracts and their journal; no redeployment is required to fix the parser.
+
+Reactive: 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85, creation hash 0x203cb01ad5e88677db960f65a8cb3324d70e0cb9d838036e9c2abfa26eaf0a75.
+Callback: 0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781, creation hash 0xdd859f335b11a37e314661b86cec8c3011452c1e5140947ff427aec6d6985b7c.
+Escrow: 0x1694e56187f9422e364B42af3185d34a0D4b9bc0, reported by the M2 journal/status reader.
+Configuration: 0x139facceb7a833911d42af29fd6bb2f20509da34bc05bea6a5b795fd7b892dd6.
+
+Root cause of verify-deployment failure: the actual rnk_getFilters response has Version and TopicFilters (PascalCase, observed version 12309), while our parser only accepted the documented camelCase version/topicFilters wrapper. Inner ChainId/Contract/Topics/Configs/Active fields match the expected structure. The supplied first 5,000 characters do not include proof of Settlio's own ten subscriptions; complete verification still must query the full response.
+
+Parser now explicitly accepts either top-level convention, preserves version reporting, rejects conflicting/malformed wrappers and invalid versions, and retains exact chain/source/topic/wildcard/subscriber/active checks. It does not guess arbitrary fields, accept inactive subscriptions or convert a schema error into success. Extended tests exercise both conventions and failure boundaries; the full local deployment/verification fixture now returns the observed PascalCase wrapper.
+
+Final full local suite: **86 passed, zero failures/skips/cancellations**. No contract/frontend source, source fingerprint, deployment intent or principal changed. No new build/live verifier pass claimed for this script-only change. Previous contract/frontend builds remain the baseline. No transaction is sent by this correction.
+
+Execution/Integration: successful deployment/configuration receipts are user-reported; complete runtime/wiring/subscription verification and unattended policy traces remain open. Usefulness unchanged. Craft: production-response casing regression fixes another fixture/documentation blind spot; browser, operational fees and recovery coverage remain pending. M2 NOT ACCEPTED. Next: pull main and run verify:m2 only, without a private key. Do not deploy again to clear this parser error.

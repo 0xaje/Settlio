@@ -79,3 +79,16 @@ The planner output is read-only: it establishes creation estimates/source finger
 
 ## M2 deployment attempt — outcome unknown, 23 November 2026
 User output shows deploy:m2 stopped with a generic error after the local hidden-key prompt. No deployment hash/address or receipt was supplied; verify:m2 did not run. Neither complete failure nor absence of a public transaction is established by that output. Inspect the user's preserved M2 journal via status:m2 before retrying. No new public evidence snapshot is accepted by this note.
+
+
+## M2 deployment operations — user WSL receipt observations, 23 November 2026
+
+| Operation | Network | Address | Transaction hash | Block |
+|---|---|---|---|---|
+| Reactive creation | Lasna 5318007 | 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 | 0x203cb01ad5e88677db960f65a8cb3324d70e0cb9d838036e9c2abfa26eaf0a75 | 9050953 |
+| Callback creation | Base Sepolia 84532 | 0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781 | 0xdd859f335b11a37e314661b86cec8c3011452c1e5140947ff427aec6d6985b7c | 62551090 |
+| Configure | Lasna 5318007 | Existing Reactive contract above | 0x139facceb7a833911d42af29fd6bb2f20509da34bc05bea6a5b795fd7b892dd6 | 9050973 |
+
+User status reports state succeeded for all three operations and escrow 0x1694e56187f9422e364B42af3185d34a0D4b9bc0. Journal exists; lock absent. Provenance: supplied status:m2 output, not independently re-fetched workspace receipts. Null contractAddress on the configuration receipt is normal for a non-creation transaction.
+
+The live index response has Version 12309 and TopicFilters, exposing a top-level casing mismatch in the verifier. Parser correction is script-only and requires no redeployment. The truncated response does not establish Settlio's own ten active subscriptions. Full read-only runtime/wiring/subscription verification and origin/CRON-to-Reactive-to-policy-callback evidence remain pending. No M2 execution proof JSON is accepted from these deployment receipts alone.

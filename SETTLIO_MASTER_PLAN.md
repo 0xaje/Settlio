@@ -571,3 +571,7 @@ User WSL output on a3aef74 verifies the indexed CRON100 observation at block 905
 
 ## M2 deployment attempt requires read-only inspection · 23 November 2026
 User-local deploy:m2 stopped with a generic error; partial broadcast/creation cannot yet be excluded. verify:m2 did not run. Preserve all journals; use the new key-free status:m2 command before any retry. Stage-safe errors and read-only receipt checks pass the final 85-test suite. No contract bytecode or source fingerprint changed in this update. Root cause and public deployment outcome remain unverified; M2 NOT ACCEPTED. No M3 work.
+
+
+## M2 deployment receipts and subscription-parser fix · 23 November 2026
+User WSL reports successful Reactive/callback creation and configuration receipts; preserve the M2 contracts/journal. Full verification stopped because live rnk_getFilters uses PascalCase Version/TopicFilters rather than the documented camelCase wrapper. Explicit support for both wrappers retains exact active subscription criteria and passes the final 86-test suite. No contract bytecode/fingerprint changed. Next is key-free verify:m2, not redeployment. Full runtime/wiring/filter report and unattended policy traces remain pending. M2 NOT ACCEPTED.

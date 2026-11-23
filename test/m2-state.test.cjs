@@ -29,13 +29,18 @@ test('M2 subscription validation requires exact active source and scheduler',()=
  const topic='0x'+'ab'.repeat(32),cronTopic='0x'+'cd'.repeat(32);
  const options={reactive,escrow,topics:[topic],cronSource:ZeroAddress,cronTopic,cronExpected:false};
  const filter={ChainId:84532,Contract:escrow,Topics:[topic,null,null,null],Configs:[{Contract:reactive,Active:true}]};
- const result={topicFilters:[filter]};
+ for(const upper of [false,true]) {
+ const wrap=filters=>upper?{Version:12309,TopicFilters:filters}:{version:12309,topicFilters:filters};
+ const result=wrap([filter]);
  assert.equal(assertFilters(result,options).originSubscriptions,1);
+ assert.equal(assertFilters(result,options).filterVersion,12309);
  assert.throws(()=>assertFilters({},options),/schema/);
  assert.throws(()=>assertFilters(result,{...options,cronExpected:true}),/CRON/);
  for(const change of [{ChainId:1},{Contract:reactive},{Topics:[topic,'0x01']},{Configs:[{Contract:reactive,Active:false}]}]) {
- assert.throws(()=>assertFilters({topicFilters:[{...filter,...change}]},options),/origin subscription/);
+ assert.throws(()=>assertFilters(wrap([{...filter,...change}]),options),/origin subscription/);
  }
+ }
+
 });
 test('M2 saved intent resumes once after interruption before broadcast',async t=>{
  const {provider,signers}=await start(t,{chainId:84532});
@@ -80,4 +85,9 @@ test('M2 reverted receipt remains failed without a new transaction',async t=>{
  await assert.rejects(runOperation(args),/failed on-chain/);
  assert.equal(await provider.getTransactionCount(from),1);
  assert.equal(journal.operations.deployCallback.hash,hash);
+});
+
+test('M2 filter wrapper rejects ambiguous or malformed casing without interpreting it as empty subscriptions',()=>{
+ const options={reactive:ZeroAddress,escrow:ZeroAddress,topics:[],cronSource:ZeroAddress,cronTopic:'0x'+'00'.repeat(32),cronExpected:false};
+ for(const result of [null,[],{TopicFilters:null},{TopicFilters:[],topicFilters:[]},{TopicFilters:[],Version:1,version:2},{TopicFilters:[],Version:'12309'}]) assert.throws(()=>assertFilters(result,options),/schema|ambiguous|version invalid/);
 });

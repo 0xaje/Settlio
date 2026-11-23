@@ -44,7 +44,7 @@ test('M2 commands deploy, inspect and resume without changing M1 or duplicating 
   const j=JSON.parse(fs.readFileSync(journalFile));
   const r=new Contract(j.contracts.SettlioReactive.address,compile('SettlioReactive').abi,lasna.provider);
   const names=['DEPOSIT_TOPIC','RETRY_TOPIC','POLICY_TOPIC','POLICY_RETRY_TOPIC','CANCEL_TOPIC','CONFIRMED_TOPIC','CHECKED_TOPIC','REFUNDED_TOPIC','EXPIRED_TOPIC','RELEASED_TOPIC'];
-  return {version:1,topicFilters:await Promise.all(names.map(async name=>({ChainId:84532,Contract:j.escrow,Topics:['0x'+(await r[name]()).toString(16).padStart(64,'0'),null,null,null],Configs:[{Contract:r.target,Active:true}]})))};
+  return {Version:12309,TopicFilters:await Promise.all(names.map(async name=>({ChainId:84532,Contract:j.escrow,Topics:['0x'+(await r[name]()).toString(16).padStart(64,'0'),null,null,null],Configs:[{Contract:r.target,Active:true}]})))};
  };
  const before=await base.provider.getTransactionCount(publicAddress);
  const estimate=await plan({deployer:publicAddress,base:base.provider,lasna:lasna.provider,env:{}});
@@ -59,7 +59,7 @@ test('M2 commands deploy, inspect and resume without changing M1 or duplicating 
  const baseNonce=await base.provider.getTransactionCount(publicAddress),lasnaNonce=await lasna.provider.getTransactionCount(publicAddress);
  filtersUnavailable=false;
  const result=await deploy({base:base.provider,lasna:lasna.provider,env,directoryRoot});
- assert.equal(result.observation.wiringVerified,true);assert.equal(result.observation.subscriptions.originSubscriptions,10);
+ assert.equal(result.observation.wiringVerified,true);assert.equal(result.observation.subscriptions.originSubscriptions,10);assert.equal(result.observation.subscriptions.filterVersion,12309);
  assert.equal(await base.provider.getTransactionCount(publicAddress),baseNonce);
  assert.equal(await lasna.provider.getTransactionCount(publicAddress),lasnaNonce);
  journal=JSON.parse(fs.readFileSync(journalFile));
