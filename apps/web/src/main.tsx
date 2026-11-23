@@ -13,6 +13,8 @@ import { assets, knownAsset, displayAmount as amount } from './assets';
 import { decodeTerms, encodeTerms, matchesQuote, termsHash, type Quote, type Terms } from './terms';
 
 const statuses = ['Missing', 'Awaiting deposit', 'Confirming booking', 'Confirmed', 'Refund pending', 'Refunded', 'Expired', 'Released'];
+const statusLabel = (quote: Quote, now: number) =>
+  quote.status === 1 && BigInt(now) >= quote.expiresAt ? 'Payment deadline passed' : statuses[quote.status];
 const short = (address: string) => address.slice(0, 6) + '…' + address.slice(-4);
 const date = (seconds: bigint | number) => new Date(Number(seconds) * 1000).toLocaleString();
 const pendingKey = () => 'settlio:pending:84532:' + escrowAddress;
@@ -220,6 +222,11 @@ type Transact = (send: () => Promise<TransactionResponse>, after?: (receipt: Tra
 
 function QuoteList({ account, refresh, navigate, connect }: { account: string; refresh: number; navigate: (route: string) => void; connect: () => void }) {
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
@@ -258,8 +265,8 @@ function QuoteList({ account, refresh, navigate, connect }: { account: string; r
       !configured ? <div className="empty"><h2>Waiting for deployment</h2><p>Your quote history will appear here once the escrow is configured.</p></div> :
       loading ? <p role="status" className="empty">Reading your quote history…</p> :
       error ? <p role="alert" className="error">{error}</p> :
-      <><div className="mobile-quotes" aria-label="Your quotes">{quotes.map(quote => <article className="mobile-quote" key={quote.id.toString()}><div className="mobile-quote-heading"><h3>Quote #{quote.id.toString()}</h3><span className={'status status-' + quote.status}>{statuses[quote.status]}</span></div><dl><dt>Customer</dt><dd className="address">{quote.customer}</dd><dt>Deposit</dt><dd>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</dd><dt>Payment deadline</dt><dd>{date(quote.expiresAt)}</dd></dl><button className="secondary wide" onClick={() => openQuote(quote)}>Open quote #{quote.id.toString()}</button></article>)}</div><div className="table-scroll quote-table"><table><thead><tr><th>Quote / Customer</th><th>Deposit</th><th>Status</th><th>Payment deadline</th><th><span className="sr-only">Open</span></th></tr></thead><tbody>
-      {quotes.map(quote => <tr key={quote.id.toString()}><td><strong>Quote #{quote.id.toString()}</strong><small>{short(quote.customer)}</small></td><td>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</td><td><span className={'status status-' + quote.status}>{statuses[quote.status]}</span></td><td>{date(quote.expiresAt)}</td><td><button className="text-button" onClick={() => openQuote(quote)}>Open quote</button></td></tr>)}
+      <><div className="mobile-quotes" aria-label="Your quotes">{quotes.map(quote => <article className="mobile-quote" key={quote.id.toString()}><div className="mobile-quote-heading"><h3>Quote #{quote.id.toString()}</h3><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div><dl><dt>Customer</dt><dd className="address">{quote.customer}</dd><dt>Deposit</dt><dd>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</dd><dt>Payment deadline</dt><dd>{date(quote.expiresAt)}</dd></dl><button className="secondary wide" onClick={() => openQuote(quote)}>Open quote #{quote.id.toString()}</button></article>)}</div><div className="table-scroll quote-table"><table><thead><tr><th>Quote / Customer</th><th>Deposit</th><th>Status</th><th>Payment deadline</th><th><span className="sr-only">Open</span></th></tr></thead><tbody>
+      {quotes.map(quote => <tr key={quote.id.toString()}><td><strong>Quote #{quote.id.toString()}</strong><small>{short(quote.customer)}</small></td><td>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</td><td><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></td><td>{date(quote.expiresAt)}</td><td><button className="text-button" onClick={() => openQuote(quote)}>Open quote</button></td></tr>)}
       </tbody></table></div>{!quotes.length && <div className="empty">No quotes created by this wallet in this range. Connect the merchant wallet to see its quotes.</div>}
       <div className="pagination"><span>Scanning up to 20 recent on-chain quotes per page.</span><button className="secondary" disabled={page === 0} onClick={() => setPage(value => value - 1)}>Newer</button><button className="secondary" disabled={count <= BigInt((page + 1) * 20)} onClick={() => setPage(value => value + 1)}>Older</button></div></>}
     </div>
@@ -393,7 +400,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
     catch { setCopyError('Copy failed. Select and copy the full link from your browser address bar.'); }
   }
   return <article className="quote-document">
-    <div className="document-header"><a className="wordmark" href={location.pathname}>Settlio</a><span className={'status status-' + quote.status}>{quote.status === 1 && expired ? 'Payment deadline passed' : statuses[quote.status]}</span></div>
+    <div className="document-header"><a className="wordmark" href={location.pathname}>Settlio</a><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div>
     <p className="eyebrow">Quote #{id.toString()}</p><h1>{verified ? terms.service : 'Service quote'}</h1>
     <p className="address">From {quote.merchant}</p><p className="address">For {quote.customer}</p>
     {!verified && <p role="alert" className="error">The service terms are missing or do not match this quote. Ask the merchant for the complete original share link. Payment is disabled.</p>}
