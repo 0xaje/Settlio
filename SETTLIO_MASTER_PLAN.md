@@ -595,3 +595,7 @@ Fee reserve payment independently verified: 1 test REACT via SYSTEM.depositTo, d
 
 ## M2 user WSL expiry reproduction complete · 23 November 2026
 User verify:m2 and verify:expiry on 8107f00 both passed at 15:55 WAT. Expired quote, closed scheduler and zero jobs/idle CRON independently collected earlier are now reproduced through the complete CLI from user WSL. Debt remains zero. Close the CLI-reproduction item; keep browser-closed and unique retry-attribution limits explicit. Next is a new ETH deposit/eligible cancellation/automatic same-asset refund, then other pending M2 flows. No M2-wide completion or M3 start.
+
+
+## M2 ETH refund checkpoint complete · 23 November 2026
+Quote 2 completed deposit, Reactive confirmation, eligible cancellation and authenticated automatic ETH refund. Independent receipt/calldata checks and refund-block customer/escrow deltas show exactly 0.0001 ETH returned; current ETH balance/liability zero, job closed and idle CRON off. Public evidence: deployments/evidence/m2/quote-2-eth-refund.json. Browser closure and unique request attribution are not asserted. No new code/build/test-suite run. USDC refund, automatic release, reproducible refund CLI, browser-closed and remaining operational gates stay open; M2 NOT ACCEPTED and M3 pending.
