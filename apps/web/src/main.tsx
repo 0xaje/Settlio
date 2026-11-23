@@ -50,6 +50,10 @@ function App() {
   const creating = params.get('screen') === 'new';
   const pauseReceiptCheck = import.meta.env.DEV && creating && !quoteParam && params.get('receipt-check') === 'pause';
   function navigate(search: string) {
+    // Keep the explicitly selected development check when opening the editor.
+    if (import.meta.env.DEV && params.get('receipt-check') === 'pause' && search === '?screen=new') {
+      search += '&receipt-check=pause';
+    }
     history.pushState({}, '', location.pathname + search);
     setRoute(location.search + location.hash);
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -102,8 +106,9 @@ function App() {
       // Controlled development-only interruption AFTER a real broadcast and saved hash.
       // The chain is unaffected; no transaction success or failure is fabricated.
       if (pauseReceiptCheck) {
-        if (!saved) throw new Error('The transaction was sent, but this browser could not save its hash. Keep this page open and use Check transaction status.');
-        setMessage('Receipt check paused after the real transaction was sent and its hash saved. Refresh this page, then select Check transaction status. Do not create or pay another quote.');
+        if (!saved) throw new Error('The transaction was sent, but this browser could not save its hash. Keep this page open and use Check saved transaction.');
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        setMessage('Step 1 complete: your quote transaction was sent and saved. Now refresh this page (Ctrl+R). Then use the Check saved transaction button above. Do not create another quote or pay a deposit.');
         return;
       }
       setMessage('Transaction sent. Waiting for the Base Sepolia receipt.');
@@ -180,7 +185,7 @@ function App() {
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       {pauseReceiptCheck && <p className="notice" role="status"><strong>Development receipt recovery check</strong><br/>Create one quote. After its transaction is sent, receipt waiting will pause so you can refresh and recover it. This check sends a real quote-creation transaction, never a deposit.</p>}
       <div className="build-note">Test funds only. This build covers quote, deposit, and confirmation. Automatic refunds and expiry processing are still being integrated.</div>
-      {pending && <section className="notice" role="status"><strong>A transaction still needs a receipt check</strong><p>Payments and quote creation are paused to prevent accidental repeats. Check the existing transaction first.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check transaction status</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
+      {pending && <section className="notice" role="status"><strong>Your saved transaction is ready to check</strong><p>Use the button below to read its result. No wallet signature or new transaction is needed. Creating another quote or payment is paused until this check is resolved.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check saved transaction</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
       {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button></fieldset></form></details>}
       {error && <p role="alert" className="error">{error}</p>}
       {message && <p role="status" className="notice">{message}</p>}
