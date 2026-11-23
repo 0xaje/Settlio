@@ -1,117 +1,104 @@
 # Settlio
 
-Settlio helps service providers create quotes, collect testnet deposits, confirm bookings through Reactive, expire unpaid quotes, and process eligible refunds.
+Settlio turns service quotes into wallet-funded bookings using Base Sepolia escrow and Reactive Lasna automation.
 
-## Current build
-The escrow, Reactive subscriber, and authenticated callback receiver are implemented. All three compile and 46 local contract/terms tests pass. The initial merchant/customer frontend passes TypeScript and production build checks. Read-only checks reached Base Sepolia and Lasna and verified chain IDs and protocol bytecode. Real ETH and USDC deposit-to-Reactive-to-confirmation callback flows are independently verified on public testnets; see [on-chain evidence](ONCHAIN-EVIDENCE.md). USDT is deferred as Coming soon by user approval; full browser/device coverage and recovery still require completion. M1 is open.
+## Current status — 23 November 2026
 
-Read [the master plan](SETTLIO_MASTER_PLAN.md), [project instructions](AGENTS.md), and [current progress](docs/PROGRESS.md).
+**M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-## Run contract checks
-Requires Node.js 22.18 or later and npm. Each test suite starts an isolated Anvil EVM on an OS-assigned port, verifies its chain/accounts, and signs locally.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; 46 local tests pass. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+
+Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
+
+**M2 remains NOT STARTED:** unattended scheduled expiry, real cancellation/refund routing and automatic deposit release are not operational in this deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+
+## Documentation
+
+| File | Purpose |
+|---|---|
+| [M1 acceptance](docs/M1_ACCEPTANCE.md) | Completed requirements, exact evidence, reproducible checks and limits |
+| [Master plan](SETTLIO_MASTER_PLAN.md) | Approved scope, policies and milestone gates |
+| [Progress](docs/PROGRESS.md) | Dated work/verification history; current status at top |
+| [On-chain evidence](ONCHAIN-EVIDENCE.md) | Genuine addresses, full transaction trails and decoded checks |
+| [Project instructions](AGENTS.md) | Sequential work, verification and documentation rules |
+| [Licence](LICENSE) | MIT terms for Settlio; dependencies retain their licences |
+
+Together with this README, there are six Markdown documents plus LICENSE. Two [JSON snapshots](deployments/evidence) supplement the human-readable records.
+
+## Check the source
+
+Node.js 22.18 or later and npm are required.
 
 ```sh
 npm ci
 npm run setup:reactive
 npm run build:contracts
+npm run build:web
 npm test
 ```
 
-Local tests exercise actual contract bytecode with isolated protocol fixtures. They do not prove live Reactive delivery. The pinned official dependency is installed separately under lib/ with its original licensing.
+The official Reactive dependency is pinned by the setup script. Each contract suite uses isolated Anvil accounts, verifies chain/account identity and signs locally. Fixture transactions and adversarial tokens never represent public customers or issuer integrations.
 
-## Initial payment policy
-Merchants can offer native Base Sepolia test ETH and an optional USDC price on the same quote. Each price and deposit is set independently; no exchange rate is assumed. The designated customer selects one option. The first successful deposit locks its asset and amount. Token payments use an exact-amount approval followed by a separate payment transaction. Approval alone is not a deposit. Test ETH is still required for gas. Customers accept the immutable terms fingerprint when paying. Eligible cancellation before refundCutoff reserves a full refund. Merchant release is available after that cutoff for confirmed quotes without pending cancellation. The escrow tracks liabilities per asset, holds customer principal separately from callback gas funding, and returns the deposited asset on refund or release. Failed transfers revert the state change and preserve the claim. Fee-on-transfer/rebasing assets are unsupported; merchant-created custom token contracts are not vetted by the escrow, and the UI only enables the issuer-listed USDC address and ETH.
+## Run the existing frontend
 
-USDC on Base Sepolia uses Circle's documented address `0x036CbD53842c5426634e7929541eC2318f3dCF7e` (6 decimals). Source: https://developers.circle.com/stablecoins/usdc-contract-addresses . Test USDC: https://faucet.circle.com/ (select Base Sepolia). Preflight now also checks the token's code and metadata.\n\nUSDT remains an approved requirement but is not enabled: an official Base Sepolia USDT deployment has not been verified. No arbitrary test token is presented as Tether. The three-asset local tests use explicitly isolated adversarial fixtures and do not prove issuer integration.\n\nThe example prices in approved design images are illustrative.
-
-## Submission
-Target track is Set It and Forget It. Execution, Integration, Usefulness, and Craft have equal weight. Required submission evidence includes public open-source code, deployed addresses, several verified full-loop traces, and a public video under three minutes.
-
-## Deploy the M1 integration
-Run npm run preflight first. Fund a dedicated testnet wallet on Base Sepolia and Lasna. Set DEPLOYER_PRIVATE_KEY securely as an environment variable on your own machine, then run npm run deploy:testnet. .env.example documents variables but is not automatically loaded.
-
-The script only accepts the two test chains. It deploys the subscriber, deploys a receiver that creates its escrow, configures subscriptions once, and records public addresses and hashes in deployments/testnet.json. Existing journal entries are reused after confirmation and source-fingerprint checks. Keep that journal if retrying. A stale deployment lock requires checking that the previous process has stopped.
-
-Payment-options version 2 changes creation bytecode. The deployment journal records its version and enabled assets. Do not delete an existing journal to bypass a source-fingerprint mismatch; inspect its recorded deployments first.\n\nFull live execution and interrupted-run recovery are pending validation. A successful deployment still needs a real customer deposit and independently verified callback. The M1 receiver supports confirmation only. Expiry/refund routing follows in M2.
-
-MIT licensed for Settlio source. Upstream dependencies retain their own licensing.
-
-## Run the frontend
-Use Node.js 22.18 or later. From the repository root run npm ci, npm run setup:reactive, npm run build:web, and npm run dev.
-
-After testnet deployment, create apps/web/.env.local using the actual escrow address returned by the callback receiver. Restart the dev server after setting it.
+Use the escrow actually returned by your deployment. For the evidenced M1 deployment, create apps/web/.env.local:
 
 ```dotenv
-VITE_ESCROW_ADDRESS=
+VITE_ESCROW_ADDRESS=0xfD09cf3bfd3aD13a03Cfb499ec18D97d79748c83
 VITE_BASE_SEPOLIA_RPC=https://sepolia.base.org
 ```
 
-The empty configuration shows deployment instructions and disables transactions. It never supplies fabricated history.
-
-## Next local deployment step
-In an Ubuntu/WSL terminal, from your existing repository checkout, update main and run the checks.
+Then run:
 
 ```sh
-git pull --ff-only origin main
-npm ci
-npm run setup:reactive
-npm run build:contracts
-npm test
-npm run preflight
+npm run dev
 ```
 
-Use a dedicated testnet wallet funded with Base Sepolia ETH and Lasna lREACT. Enter its key privately at the terminal prompt, which hides the input.
+Restart Vite after changing configuration. An absent/invalid escrow configuration disables history/transactions and shows setup instructions; it does not mean chain records were deleted. Never put private keys in VITE variables or share environment files.
 
-```sh
-read -r -s -p "Testnet deployer private key: " DEPLOYER_PRIVATE_KEY
-export DEPLOYER_PRIVATE_KEY
-npm run deploy:testnet
-unset DEPLOYER_PRIVATE_KEY
-```
+## M1 payment policy
 
-Keep deployments/testnet.json to resume safely and share its public addresses and transaction hashes for verification. Do not share a key or an environment file.
+Merchant offers native test ETH and optionally issuer-listed Base Sepolia USDC, each with separately set totals/deposits. No automatic exchange rate is assumed. The designated customer's first successful payment locks the selected option. USDC requires exact-amount approval followed by payment; approval alone does not pay. ETH is still needed for gas.
 
-The script's full deployment and restart recovery still require a funded live run. Check the transaction journal before retrying after any interruption.
+Shared terms bind service description, wallets, exact amounts/options and timestamps to the recorded fingerprint. Payment is disabled if terms are missing or do not match. Share-link terms are readable by anyone with the link; avoid confidential information.
 
-The first UI currently supports quote creation, deposit, and confirmation. Refund/expiry routing and the marketing hero follow in later milestones. Terms in share links are readable by anyone with the link. The recipient must use the designated wallet.
+Payment requires block.timestamp < expiresAt even if scheduled expiry is delayed. Contract code accounts separately for each asset and reserves eligible cancellation claims; callback gas cannot spend principal. Fee-on-transfer/rebasing assets are unsupported. The escrow does not vet arbitrary merchant-supplied tokens; the interface enables only ETH and verified USDC.
+
+The deployed receiver currently supports confirmation only. Cancellation/refund/expiry routing is not enabled, and remaining-balance collection is not implemented. Current release requires a merchant transaction after cutoff and confirmation with no reserved cancellation. The approved automatic-release policy is future M2 work, applies only through explicit accepted terms/new deployment, and does not attest service delivery.
+
+USDC address: 0x036CbD53842c5426634e7929541eC2318f3dCF7e, 6 decimals. [Circle deployment source](https://developers.circle.com/stablecoins/usdc-contract-addresses), [test faucet](https://faucet.circle.com/). No substitute token is advertised as USDT.
 
 ## Wallet and receipt recovery
-Connecting requests Base Sepolia and offers to add its official network details if the wallet reports error 4902. A declined network request is not bypassed. The selected network is rechecked before connection completes.
 
-Submitted transaction hashes are saved locally per escrow. If the page reloads before a receipt arrives, a receipt-check banner pauses new submissions. Check the existing transaction before retrying. Successful creation can recover its share link when the browser saved its terms. Approval receipts do not establish payment or booking confirmation.
+Connection checks Base Sepolia and adds official metadata only when the wallet reports an unknown network. Declining is respected; chain/account are rechecked before signing.
 
-If no receipt is found, the outcome stays unknown. After checking the explorer and wallet, a user may stop local tracking; this neither cancels nor reverses the transaction and never automatically resubmits it. Replaced/dropped transactions still require manual diagnosis. Receipt recovery depends on browser storage and RPC availability. Cross-tab coordination and real wallet timeout/reload recovery have not been verified.
+Submitted hashes are stored per escrow. During unresolved receipt tracking, new actions are paused. Check saved transaction reads the original receipt without resubmission. No receipt means unknown outcome, not failure. Stop local tracking never cancels a transaction; inspect wallet/explorer before sending again. Replaced/dropped transactions and cross-tab coordination still require care and broader release coverage.
 
-Run the read-only deployment health check from the checkout containing deployments/testnet.json:
+Recover a created quote accepts a creation hash, verifies the configured escrow's successful creation event and restores original matching saved terms. Payment/approval receipts cannot create a quote. If restoring damaged/mismatched terms throws, the saved pending hash remains available. Browser storage/RPC availability and original share links still matter.
+
+Development-only diagnostics at ?screen=new&receipt-check=pause support actual post-broadcast client interruption and explicit existing-receipt restaging. Restaging an already successful receipt is labelled separately and is not original-interruption proof. Diagnostic controls are absent from the production build.
+
+## Read-only live verification
+
+Keep your public deployments/testnet.json journal on your own checkout. Its deployment addresses are public; keys are not. Do not delete it to bypass version/source checks.
+
 ```sh
+npm run preflight
 npm run healthcheck
 ```
-It checks network identity, immutable callback/provider wiring, ETH/USDC custody coverage, and separate automation balance/debt/reserves. It never reads a key or sends a transaction. A nonzero exit means a failed check, an unavailable RPC, or funding needing attention; inspect its output before any recovery transfer. The development-environment run timed out, so a successful live run remains pending.
 
-The updated UI passed TypeScript/build and isolated wallet/receipt tests. Mobile visual checks and browser-based reload verification remain open because the test preview could not be reached. No redeployment is required for these frontend and read-only tooling changes.
+Healthcheck verifies identity/wiring, ETH/USDC custody and separate automation balances/debt/reserves. Successful readings are point-in-time observations, not guarantees of future callbacks. A failure can mean bad configuration, RPC unavailability, a failed check or funding needs.
 
-## Core-first priority and optional messaging
-Finish and prove Settlio's core website and unattended confirmation, unpaid expiry, eligible refund and recovery before integrating messaging. WhatsApp Business and iMessage via Photon are optional later convenience channels; other channels remain deferred. No messaging integration is implemented.
+For full payment trails, use [the exact verifier commands](docs/M1_ACCEPTANCE.md#reproduce-checks). The verifier reads genuine receipts, event linkage and authentication, then writes a snapshot only after success. Committed snapshot timestamps are historical; refreshed user-local snapshots are not silently presented as published.
 
-Photon can provide one API instead of a separate custom Meta adapter, but its documented WhatsApp Business integration still uses Meta Cloud API and business account/number provisioning. Consumer WhatsApp is separately described as forthcoming. Account entitlements remain unverified.
+## Deployment and later work
 
-## Reproduce payment evidence
-Run with your local public deployments/testnet.json:
-```sh
-npm run verify:quote -- 2 0x1b410e4e98859bc8bce93bbe7a9beb93b5ac3bc67c25ececeed2b77ba75f290f 0x187fc2615773c9725f7d1a7882709a21a1f16102b6bf0cfadba3fd271eaad6d5 0xb66ec4bc2398038d7f5a9b90746a419e00d43b2ed67fe2ccf551c215edb844b6
-```
-An optional final argument supplies another public deployment-journal path. The tool only reads chain data. It verifies receipts, deposit/asset/token events, origin-log fingerprint, callback request, authentication wiring and delivered confirmation, then saves a snapshot under deployments/evidence. No private key is needed.
+M1's existing public addresses are in [on-chain evidence](ONCHAIN-EVIDENCE.md). A fresh deployment uses npm run deploy:testnet with a securely supplied local testnet key and dedicated funding on both networks. Read .env.example and the deployment script first; it does not automatically load an environment file. Preserve journals and inspect interrupted transactions before retrying. No redeployment is needed for current frontend/recovery changes.
 
-Both committed ETH/USDC snapshots were generated by successful public-RPC runs. A quote-2 run with the quote-1 deposit was rejected without overwriting the verified snapshot. Historical receipts do not prove future delivery, expiry or refunds.
+Finish/prove core unattended policies before optional messaging. WhatsApp Business and iMessage via Photon are planned only; provisioning/subscription entitlements are unverified, and no messaging code is implemented.
 
-Subsequent user-provided WSL output passed the 42 tests, frontend build and live healthcheck with correct wiring, matched custody, zero automation debt and nonzero separate funding. Browser/mobile and full recovery checks remain open.
+## Submission
 
-## Reopen a quote from its creation receipt
-Expand Recover a created quote, paste its Base Sepolia creation transaction hash and select Find existing quote. This reads an existing successful QuoteCreated event from the configured escrow and opens the same quote. It never sends a payment or creates another quote. The customer cannot pay an unpaid quote while connected as its merchant.
+Track: Set It and Forget It. Execution, Integration, Usefulness and Craft have equal weight. Release requires public open-source source, deployed addresses, several genuine full-loop traces and a public demo video strictly under three minutes. The recovery recordings in the conversation are not the public submission video. No winning score or adoption is claimed.
 
-Original service terms can be restored only if this browser saved them, or through the original complete share link. The fingerprint must match the receipt. A payment or approval hash is not a creation hash. This manual recovery control is distinct from automatic restoration after reloading during a pending transaction; the latter remains unverified in a real browser. The control's event checks have local tests; its live/browser check is pending.
-
-Manual quote recovery with matching saved terms is now user-confirmed. A local EVM test also verifies genuinely pending creation across a reader restart with no second submission. It uses an explicitly isolated chain configured with the Base Sepolia chain ID to preserve the frontend network guard; it is not public-network evidence. Live browser interruption remains unverified.
-
-## Approved payment scope · 20 November 2026
-Current hackathon delivery supports ETH and USDC. The user approved deferring USDT and labelling it Coming soon. It is shown as a disabled option, with no token address, payment path or promised availability date. This supersedes earlier references to USDT as a required current-release asset. No redeployment is needed.
+MIT for Settlio source; upstream dependencies retain their own licensing.
