@@ -37,7 +37,8 @@
     "plan:recovery": "node script/scheduler-recovery.cjs plan",
     "pause:recovery": "node script/scheduler-recovery.cjs pause",
     "resume:recovery": "node script/scheduler-recovery.cjs resume",
-    "build:admission": "node script/compile-admission.cjs"
+    "build:admission": "node script/compile-admission.cjs",
+    "plan:admission": "node script/admission-budget.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
