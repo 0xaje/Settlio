@@ -766,3 +766,30 @@ User verify:m2 reports wiring verified, ten origin subscriptions, filterVersion 
 No code/test/build changes or reruns in this evidence/documentation update; prior 112-test suite stands. Execution/Integration: genuine reserve funding and healthy user prerequisites, automatic release still unproven. Usefulness: fee runway prepared for a consented timed booking. Craft: decoded public receipt and explicit scenario/provenance/closure limits. **M2 NOT ACCEPTED; M3 pending.**
 
 Next: one ETH-only automatic-release quote with explicit consent, fresh absolute WAT payment deadline and full-refund cutoff within the budget horizon; independently verify creation, then customer payment/confirmation and recorded closure of both app tabs before cutoff. No cancellation or manual merchant claim during this release test. The next quote does not yet exist. Recheck readiness if setup/rates/traffic change; a conditional budget pass is not a delivery guarantee.
+
+
+## M2 Quote 5 ETH automatic release verified — 23 November 2026
+
+**COMPLETE for this authenticated on-chain ETH release/accounting/terminal scheduler outcome. M2 NOT ACCEPTED overall.** Independently fetched Base/Lasna receipts, transactions, exact origin/CRON inputs, current immutable wiring, historical blocks and balances passed offline assertions at 2026-11-23T17:05:31.005Z (18:05 WAT). Public bundle: [quote-5-eth-release.json](../deployments/evidence/m2/quote-5-eth-release.json).
+
+| Stage | Network | Successful transaction |
+|---|---|---|
+| Creation with automaticRelease true | Base Sepolia | 0x75d47815385c7e4621c0010fd63ec95dc4a09d1d8586c60a287446fd7a5e7c0a |
+| Customer 0.0001 ETH deposit | Base Sepolia | 0xb74e5a9bc2b4dea7b99c045e5333a24e6ebccd1a03c290fb07003428fcd2ed1d |
+| Deposit-linked confirmation reaction | Lasna | 0x72702119e7365110d040277ce62603caa7f3db773ba81c5be955839fb270bf8d |
+| Confirmation callback | Base Sepolia | 0x6f6f8668a089d3003141b9d496dd61ffe281fe2538211afa640c5043418c344e |
+| Exact indexed network CRON | Lasna | 0x0bf0b9db32c13f96257e40598f921bfa33be7cd99551e64a59d1e94d9f729231 |
+| Associated policy request, attempt 1 | Lasna | 0x71e547ac48a525d946f5199ffb42c192fce92592da6ad32e19928bd1b057f30a |
+| Authenticated automatic release | Base Sepolia | 0xba43f1482f1032df46e5a1194cf27a90bfc422f59b189b10ff515ff90d9f590e |
+
+Quote terms: merchant ...288E, designated customer ...911eD; native asset, 0.0003 test ETH total and 0.0001 deposit. Creation PolicyRegistered and current automaticRelease getter both true. Actual payment deadline 23 November 17:40 WAT, full-refund cutoff 17:50 WAT. Deposit accepted before expiry; original deposit fingerprint matches the confirmation request. Real CRON trigger record binds its exact transaction/block/log; request configuration matches processPolicy(address(0),5). Actual delivered proxy configuration injects the authorised Reactive contract, targets the existing receiver and quote 5; immutable wiring matches.
+
+Release callback succeeded at **17:50:28 WAT**, after the agreed cutoff, emitting Released(5,100000000000000) and PolicyChecked(5,7). Merchant balance increases by exactly 100000000000000 wei across the release block and escrow decreases by the same amount. These are block observations, not an internal execution trace. Current quote is Released (7), native escrow balance, mapped liability and totalLiability are zero; job automatic/registered/confirmed/closed, nextAt zero; no active jobs and idle CRON false. No additional merchant claim transaction is represented as this automated result. Only the deposit was released; remaining balance collection and proof of service delivery are not claimed.
+
+User recording 20261123-1636-20.4877370.mp4, duration 94.5333 seconds, SHA256 7e3ca75df4119cdd91dab595d6a071b3e29f536019e8c95c521daeb70ba8c72d: reviewed sampled frames show Confirmed quote/terms and later Released/completed-scheduler UI, with clock views before/after cutoff. The recording does not visibly establish closure of BOTH app tabs across cutoff. **Browser-closed acceptance remains PENDING**; no retroactive closure claim. Unique retry-to-delivery attribution also remains unclaimed; matching request/delivery proof is not a protocol return-report mapping.
+
+Fresh next-test budget observation in the bundle reports idle scheduler, zero fee debt, 14.1183207 test REACT reserves against the conditional 13.6 stress allowance, sufficient callback balance, canStart true. This is a dated conditional readiness observation, not future delivery assurance. No additional top-up is needed under that observation. No new quote was created by the assistant.
+
+Evidence/documentation only: no contract/frontend source change, new build or test-suite run. Prior 112-test baseline stands. A reusable release CLI and user WSL release-verifier reproduction remain pending; these offline assertions are not mislabelled as a shipped command.
+
+Judging: Execution — real deposit/confirmation/CRON/request/authenticated release; Integration — deposit paid to merchant by scheduled policy after cutoff; Usefulness — merchant receives agreed eligible deposit with exact principal accounting; Craft — public trace, visible UI review and honest browser/reproduction limits. Next: one USDC automatic-release journey with fresh WAT payment deadline/full-refund cutoff and actual continuous browser-closure recording. Keep remaining operational cost/recovery/journey acceptance open; M3 has not started.
