@@ -134,13 +134,19 @@ function App() {
     try {
       const receipt = await pendingReceipt(reader, pending);
       if (!receipt) { setUnresolved(true); setMessage('No receipt yet. The transaction may still be pending or dropped. Check its explorer page before sending anything again.'); return; }
+      if (receipt.status !== 1) {
+        setPending(''); setUnresolved(false);
+        try { localStorage.removeItem(pendingKey()); } catch {}
+        setError('This transaction failed on-chain. Refresh the quote before trying again.'); return;
+      }
+      setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
+      // Keep the saved hash if restoring its service terms fails. The user must
+      // still be able to check the original transaction rather than resubmit.
+      restoreCreatedQuote(receipt);
       setPending(''); setUnresolved(false);
       try { localStorage.removeItem(pendingKey()); } catch {}
-      if (receipt.status !== 1) { setError('This transaction failed on-chain. Refresh the quote before trying again.'); return; }
-      setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
       setRefresh(value => value + 1);
-      restoreCreatedQuote(receipt);
-    } catch (failure) { setError(errorMessage(failure)); }
+    } catch (failure) { setUnresolved(true); setMessage(''); setError(errorMessage(failure)); }
     finally { transactionLock.current = false; setBusy(false); }
   }
   function restoreCreatedQuote(receipt: TransactionReceipt): boolean {
