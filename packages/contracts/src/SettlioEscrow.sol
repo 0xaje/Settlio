@@ -225,6 +225,7 @@ contract SettlioEscrow {
         if (msg.sender != quote.customer && msg.sender != quote.merchant) revert Unauthorized();
         if (quote.status == Status.Missing || quote.status == Status.Refunded ||
             quote.status == Status.Expired || quote.status == Status.Released) revert WrongState();
+        emit PolicyRegistered(id, quote.expiresAt, quote.refundCutoff, automaticRelease[id]);
         emit PolicyRequested(id);
     }
 
