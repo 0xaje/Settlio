@@ -1,0 +1,117 @@
+{
+  "result": {
+    "readOnly": true,
+    "scope": "conditional budget for one isolated timed-release test",
+    "cutoffWithinMinutes": 30,
+    "deliveryMarginSeconds": 900,
+    "observedMinimumCronSeconds": "105",
+    "modeledTickSeconds": "52",
+    "modeledCronTicks": "52",
+    "reactiveCallAllowance": "68",
+    "reactiveRequiredWei": "13600000000000000000",
+    "reactivePrepaidReservesWei": "414101000000000000",
+    "reactiveShortfallWei": "13185899000000000000",
+    "callbackRequiredWei": "114048000000000",
+    "callbackAvailableWei": "884378354010290",
+    "canStart": false,
+    "limits": [
+      "Conditional model: twice sampled CRON cadence, twice current gas prices, current coefficient/surcharge; not a protocol cost or delivery guarantee.",
+      "Assumes one quote, cutoff within the stated horizon, no concurrent jobs, sixteen extra source events, eight destination deliveries.",
+      "Higher rates, protocol changes, delayed ingestion, extra retries or external traffic invalidate the model.",
+      "No automatic funding or quote creation. Recheck immediately before creation; measured production cost/admission remains open."
+    ]
+  },
+  "observation": {
+    "baseChain": "84532",
+    "lasnaChain": "5318007",
+    "activeJobs": "0",
+    "paused": false,
+    "cronActive": false,
+    "reactiveDebt": "0",
+    "reactiveReserves": "414101000000000000",
+    "reactiveCoeff": "1000",
+    "reactiveExtra": "100000",
+    "callbackDebt": "0",
+    "callbackReserves": "0",
+    "callbackBalance": "884378354010290",
+    "callbackCoeff": "1100",
+    "callbackExtra": "80000",
+    "reactivePrice": "100000000000",
+    "callbackPrice": "6000000",
+    "cronTimes": [
+      "1795449855",
+      "1795449961",
+      "1795450066",
+      "1795450173"
+    ],
+    "observedAt": "2026-11-23T16:11:11.514Z",
+    "cronLogs": [
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008a5cb4"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8a5cb4",
+        "transactionHash": "0xf97856a1808114f44a106f790c98b56ba39787d08d11906df69cf9cb4482116d",
+        "transactionIndex": "0x0",
+        "blockHash": "0x09147c4b56197d83b096c3c2488a1d9f50cf9502d043d1137291163c1649c419",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008a5d18"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8a5d18",
+        "transactionHash": "0x7bc0d8d4d4101bd9161dc72d4741f98e46fa0996126ce4e8c45ea85546c26db3",
+        "transactionIndex": "0x0",
+        "blockHash": "0xc71e8c1dfc4f5d5aa17bbc84bee1efbad5ed3502f53f0f9609435d4c1cb44988",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008a5d7c"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8a5d7c",
+        "transactionHash": "0x52817e6221becb9c7df20fbac540824a4e942ffa90635203e64c31e92fbcc50f",
+        "transactionIndex": "0x0",
+        "blockHash": "0xff5dc406a5df4740cbc35a054cdcb269d6ca2c6912a5469e7e41c5cd50586be7",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008a5de0"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8a5de0",
+        "transactionHash": "0x86aec3dec738214eccd2569a11a4dd6f0650a09f1b2cf083c6c7d3d75bc49ab7",
+        "transactionIndex": "0x0",
+        "blockHash": "0x0e201aa00a29d1c88496b5cb90f3b48104f810c05bb246c6ff99478bfa1f2488",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      }
+    ]
+  },
+  "transport": "Actual collector using Python HTTP public JSON-RPC; Node CLI/user WSL reproduction pending",
+  "walletBalanceObservation": {
+    "address": "0xbf6301D7bca9F23A63A2d1Ed513d5120Dbb2288E",
+    "balanceWei": "8492835600000000000",
+    "source": "Independent earlier Lasna eth_getBalance latest read during this work; not atomic with budget"
+  }
+}

@@ -33,6 +33,16 @@ test('M2 fee recovery clears fixture debt into target reserves once and preserve
  const second=await fund({provider,directoryRoot:root,env});assert.equal(second.transactionHash,result.transactionHash);assert.equal(await provider.getTransactionCount(await owner.getAddress()),nonce);assert.equal(second.reserves,result.reserves);
  const status=await require('../script/m2-status.cjs').deploymentStatus({provider,directoryRoot:root,base:provider,lasna:provider});
  assert.equal(status.operations.find(op=>op.operation==='fundReactive').state,'succeeded');
+ await assert.rejects(fund({provider,directoryRoot:root,env,purpose:'anything'}),/purpose/);
+ const oldIntent=JSON.stringify(JSON.parse(fs.readFileSync(file)).operations.fundReactive);
+ const release=await fund({provider,directoryRoot:root,env,purpose:'release-test'});
+ assert.equal(release.depositWei,parseEther('14'));assert.equal(release.operation,'fundReactiveRelease');assert.notEqual(release.transactionHash,result.transactionHash);
+ const nonceAfterRelease=await provider.getTransactionCount(await owner.getAddress());
+ const resumed=await fund({provider,directoryRoot:root,env,purpose:'release-test'});assert.equal(resumed.transactionHash,release.transactionHash);assert.equal(await provider.getTransactionCount(await owner.getAddress()),nonceAfterRelease);
+ assert.equal(JSON.stringify(JSON.parse(fs.readFileSync(file)).operations.fundReactive),oldIntent);
+ assert.equal((await fund({provider,directoryRoot:root,env})).transactionHash,result.transactionHash);
+ const finalStatus=await require('../script/m2-status.cjs').deploymentStatus({directoryRoot:root,base:provider,lasna:provider});assert.equal(finalStatus.operations.find(op=>op.operation==='fundReactiveRelease').state,'succeeded');
+
  assert.equal(fs.readFileSync(file,'utf8').includes(env.DEPLOYER_PRIVATE_KEY),false);
  assert.equal(JSON.parse(fs.readFileSync(file)).operations.deployReactive.hash,tx.hash);assert.equal(fs.existsSync(path.join(root,'deployments/.deploy-m2.lock')),false);
 });

@@ -6,7 +6,7 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 107 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 112 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
@@ -215,3 +215,14 @@ Both fresh collectors/validators passed via independently fetched RPC data; user
 
 ## Refund reproduction accepted — 23 November 2026
 ETH Quote 2 and USDC Quote 4 live CLI runs passed from user WSL. Current user health output has zero liabilities and fee debt, zero jobs, idle CRON and 0.414101 test REACT reserves. This closes refund CLI reproduction, not browser-closed execution or automatic release. M2 remains NOT ACCEPTED; the next gate is adequate separate fee budget and a recorded browser-closed release journey.
+
+
+## Prepare the automatic-release test
+
+```sh
+npm run budget:m2 -- 30
+```
+
+Read-only, key-free conditional stress budget; it must report canStart true immediately before creation, alongside verify:m2. The model assumes one quote with cutoff within 30 minutes, no competing jobs, twice sampled cadence/current prices and a 15-minute delivery allowance. It is not a delivery/actual-cost guarantee or on-chain admission rule. Initial public observation failed: 13.6 test REACT modeled requirement vs 0.414101 reserves; callback buffer passed. See deployments/evidence/m2/release-budget-before-funding.json and [the prepared test procedure](docs/RELEASE_TEST.md).
+
+After sufficient test REACT arrives in the recorded deployer wallet, `npm run fund:m2:release` uses the local DEPLOYER_PRIVATE_KEY to create/resume one **14 test REACT** reserve deposit through SYSTEM.depositTo(existing subscriber), recorded as fundReactiveRelease. Existing fund:m2 keeps its original one-time 1-token recovery. Rerunning either purpose never creates another deposit. Do not edit/delete journal intents. This code does not claim a live top-up has happened. Verify its receipt, run budget:m2/verify:m2 again, then arrange fresh WAT quote times and closure recording. M2 remains open; current full suite passes 112 tests.

@@ -1,5 +1,5 @@
 // Only fixed stage labels and allowlisted codes are public. Raw errors may contain secrets.
-const stages=new Set(['wallet-key','deployment-lock','network-preflight','compile-and-journal','deployReactive','deployCallback','configure','verify-deployment','fundReactive']);
+const stages=new Set(['wallet-key','deployment-lock','network-preflight','compile-and-journal','deployReactive','deployCallback','configure','verify-deployment','fundReactive','fundReactiveRelease']);
 const codes=new Set(['INVALID_ARGUMENT','INSUFFICIENT_FUNDS','NONCE_EXPIRED','REPLACEMENT_UNDERPRICED','CALL_EXCEPTION','NETWORK_ERROR','SERVER_ERROR','TIMEOUT','UNKNOWN_ERROR','EACCES','ENOSPC','ENOENT','EEXIST']);
 async function stage(label,action){
  if(!stages.has(label))throw new Error('Unsupported internal deployment stage');
