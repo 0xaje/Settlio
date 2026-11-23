@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { ContractFactory, JsonRpcProvider, keccak256, toUtf8Bytes } = require('ethers');
+const { ContractFactory, JsonRpcProvider } = require('ethers');
 const startLocalChain = require('./helpers/local-chain.cjs');
 const compile = require('../script/compile.cjs');
 const { execFileSync } = require('node:child_process');
@@ -18,7 +18,8 @@ function storageProcess(file, source, ...args) {
 
 // Actual local EVM/RPC interruption test; this is not public-network/browser evidence.
 test('pending creation survives a reader restart and recovers once without resubmission', async t => {
-  const { pendingReceipt, decodePending } = await import('../apps/web/src/pending.ts');
+  const { pendingReceipt, decodePending, recoverPendingTransaction } = await import('../apps/web/src/pending.ts');
+  const { decodeTerms, encodeTerms, termsHash } = await import('../apps/web/src/terms.ts');
   const { createdQuoteFromReceipt } = await import('../apps/web/src/recovery.ts');
   const { provider, signers: [merchant, customer, receiver] } = await startLocalChain(t, { chainId: 84532 });
   const artifact = compile();
@@ -27,8 +28,11 @@ test('pending creation survives a reader restart and recovers once without resub
   const address = await escrow.getAddress();
   const now = (await provider.getBlock('latest')).timestamp;
   await provider.send('evm_setAutomine', [false]);
+  const originalTerms = { version: 1, service: 'Local recovery failure test', description: 'Original terms',
+    merchant: await merchant.getAddress(), customer: await customer.getAddress(),
+    total: '300', deposit: '100', expiresAt: now+3600, refundCutoff: now+7200 };
   const tx = await escrow.createQuote(await customer.getAddress(), 300n, 100n, now+3600, now+7200,
-    keccak256(toUtf8Bytes('local interrupted receipt test')), { gasLimit: 1000000 });
+    termsHash(originalTerms), { gasLimit: 1000000 });
   const saved = JSON.stringify({ hash: tx.hash, escrow: address });
   const directory = mkdtempSync(join(tmpdir(), 'settlio-storage-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
@@ -55,6 +59,21 @@ test('pending creation survives a reader restart and recovers once without resub
   assert.equal(await escrow.connect(restarted).quoteCount(), 1n);
   assert.equal((await pendingReceipt(restarted, restored.hash)).hash, tx.hash);
   assert.equal(await escrow.connect(restarted).quoteCount(), 1n);
-  storageProcess(storageFile, 'localStorage.removeItem(process.argv[1]);', key);
+  let encoded = 'not-valid-encoded-terms';
+  const clear = () => storageProcess(storageFile, 'localStorage.removeItem(process.argv[1]);', key);
+  const restore = receipt => {
+    const created = createdQuoteFromReceipt(receipt, address);
+    const terms = decodeTerms(encoded);
+    if (termsHash(terms).toLowerCase() !== created.termsHash.toLowerCase()) throw new Error('Saved quote terms do not match the creation receipt.');
+  };
+  await assert.rejects(recoverPendingTransaction(restarted, tx.hash, restore, clear));
+  assert.equal(storageProcess(storageFile, 'process.stdout.write(localStorage.getItem(process.argv[1]) || "");', key), saved);
+  encoded = encodeTerms({ ...originalTerms, description: 'Changed terms' });
+  await assert.rejects(recoverPendingTransaction(restarted, tx.hash, restore, clear), /do not match/);
+  assert.equal(storageProcess(storageFile, 'process.stdout.write(localStorage.getItem(process.argv[1]) || "");', key), saved);
+  encoded = encodeTerms(originalTerms);
+  const recovered = await recoverPendingTransaction(restarted, tx.hash, restore, clear);
+  assert.equal(recovered.hash, tx.hash);
+  assert.equal(await escrow.connect(restarted).quoteCount(), 1n);
   assert.equal(storageProcess(storageFile, 'process.stdout.write(localStorage.getItem(process.argv[1]) || "");', key), '');
 });
