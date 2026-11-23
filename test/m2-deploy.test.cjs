@@ -50,7 +50,9 @@ test('M2 commands deploy, inspect and resume without changing M1 or duplicating 
  const estimate=await plan({deployer:publicAddress,base:base.provider,lasna:lasna.provider,env:{}});
  assert.equal(estimate.readOnly,true);assert.equal(await base.provider.getTransactionCount(publicAddress),before);
  // Deployment succeeds on-chain; an unavailable subscription index keeps verification incomplete.
- await assert.rejects(deploy({base:base.provider,lasna:lasna.provider,env,directoryRoot}),/index unavailable/);
+ await assert.rejects(deploy({base:base.provider,lasna:lasna.provider,env,directoryRoot}),error=>error.m2Stage==='verify-deployment');
+ const status=await require('../script/m2-status.cjs').deploymentStatus({directoryRoot,base:base.provider,lasna:lasna.provider});
+ assert.deepEqual(status.operations.map(op=>op.state),['succeeded','succeeded','succeeded']);
  let journal=JSON.parse(fs.readFileSync(journalFile));
  assert.equal(journal.wiringVerified,undefined);
  const hashes=Object.values(journal.operations).map(x=>x.hash);

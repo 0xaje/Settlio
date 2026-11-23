@@ -567,3 +567,7 @@ User diagnostics and official Solidity source show Cron100 indexes its number: t
 
 ## M2 live preflight and plan passed · 23 November 2026
 User WSL output on a3aef74 verifies the indexed CRON100 observation at block 9050100 (hash 0xab6db2a9d9a4b89640185913021f7f2f3ad29301f294ca4ec945fe361df2a4a7) and completes read-only planning for the dedicated deployer. Creation estimates are covered by reported balances; configuration/future fees remain additional. The CRON preflight blocker is resolved for this observation. Next: versioned M2 deployment and verification, then complete scheduled-policy trace verification and unattended live acceptance. No deployment or M2 callback is yet claimed. M2 NOT ACCEPTED.
+
+
+## M2 deployment attempt requires read-only inspection · 23 November 2026
+User-local deploy:m2 stopped with a generic error; partial broadcast/creation cannot yet be excluded. verify:m2 did not run. Preserve all journals; use the new key-free status:m2 command before any retry. Stage-safe errors and read-only receipt checks pass the final 85-test suite. No contract bytecode or source fingerprint changed in this update. Root cause and public deployment outcome remain unverified; M2 NOT ACCEPTED. No M3 work.

@@ -6,6 +6,7 @@ const compile=require('./compile.cjs');
 const {BASE,LASNA,check,paths,newJournal,assertJournal,saveJournal,runOperation}=require('./m2-state.cjs');
 const {rpc,preflight,inspect,PROXY,USDC}=require('./m2-network.cjs');
 const {assertCreation}=require('./m2-code.cjs');
+const {stage,format}=require('./m2-errors.cjs');
 const root=path.join(__dirname,'..');
 const json=value=>JSON.stringify(value,(_,v)=>typeof v==='bigint'?v.toString():v,2);
 function inputs(env) {
@@ -28,19 +29,22 @@ async function plan({deployer,base,lasna,env=process.env}) {
 }
 async function deploy({base,lasna,env=process.env,directoryRoot=root}) {
  check(env.DEPLOYER_PRIVATE_KEY,'Set DEPLOYER_PRIVATE_KEY securely in your local shell. Never paste it into chat.');
- const baseSigner=new Wallet(env.DEPLOYER_PRIVATE_KEY,base),lasnaSigner=new Wallet(env.DEPLOYER_PRIVATE_KEY,lasna);
+ const [baseSigner,lasnaSigner]=await stage('wallet-key',async()=>[new Wallet(env.DEPLOYER_PRIVATE_KEY,base),new Wallet(env.DEPLOYER_PRIVATE_KEY,lasna)]);
  const locations=paths(directoryRoot);fs.mkdirSync(locations.directory,{recursive:true});
  let lock;
  try {lock=fs.openSync(locations.lock,'wx');} catch {check(false,'M2 deployment lock exists. Confirm no process is running before inspecting or removing it.');}
  try {
-  await preflight(base,lasna);
-  const {funding,artifacts,sourceHashes}=inputs(env);
-  const journal=fs.existsSync(locations.journal)?JSON.parse(fs.readFileSync(locations.journal,'utf8')):newJournal(baseSigner.address,sourceHashes,funding);
-  assertJournal(journal,baseSigner.address,sourceHashes,funding);
+  await stage('network-preflight',()=>preflight(base,lasna));
+  const {funding,artifacts,sourceHashes,journal}=await stage('compile-and-journal',async()=>{
+   const settings=inputs(env);
+   const journal=fs.existsSync(locations.journal)?JSON.parse(fs.readFileSync(locations.journal,'utf8')):newJournal(baseSigner.address,settings.sourceHashes,settings.funding);
+   assertJournal(journal,baseSigner.address,settings.sourceHashes,settings.funding);
+   return {...settings,journal};
+  });
   const save=()=>saveJournal(locations.journal,journal);save();
   async function deployOne(name,key,signer,args,value,chainId) {
    const artifact=artifacts[name],request=await creation(artifact,args,value);
-   const receipt=await runOperation({journal,key,signer,request,chainId,save});
+   const receipt=await stage(key,()=>runOperation({journal,key,signer,request,chainId,save}));
    check(receipt.contractAddress,'M2 creation receipt has no contract address.');
    const entry={address:getAddress(receipt.contractAddress),transactionHash:receipt.hash,chainId,creationBytecodeHash:sourceHashes[name]};
    if(journal.contracts[name]) check(json(journal.contracts[name])===json(entry),'M2 recorded deployment differs from the saved creation.');
@@ -54,11 +58,11 @@ async function deploy({base,lasna,env=process.env,directoryRoot=root}) {
   check(!journal.escrow || getAddress(journal.escrow)===escrow,'M2 escrow address differs from recorded receiver.');
   journal.escrow=escrow;save();
   const request=await reactive.configure.populateTransaction(escrow,callback.target);
-  const receipt=await runOperation({journal,key:'configure',signer:lasnaSigner,request,chainId:LASNA,save});
+  const receipt=await stage('configure',()=>runOperation({journal,key:'configure',signer:lasnaSigner,request,chainId:LASNA,save}));
   journal.configurationTransaction=receipt.hash;
   journal.paymentAssets={ETH:ZeroAddress,USDC};save();
   // A missing/lagging filter index blocks verification, without discarding successful deployment intents.
-  const observation=await inspect(journal,base,lasna);
+  const observation=await stage('verify-deployment',()=>inspect(journal,base,lasna));
   journal.wiringVerified=true;journal.subscriptionsVerified=true;journal.verifiedAt=new Date().toISOString();save();
   return {journal:locations.journal,observation,note:'M2 deployment checks passed. Unattended policy execution is still unverified. M1 configuration has not been changed.'};
  } finally {fs.closeSync(lock);fs.unlinkSync(locations.lock);}
@@ -76,5 +80,5 @@ async function main() {
   console.log(json(result));
  } finally {base.destroy();lasna.destroy();}
 }
-if(require.main===module) main().catch(error=>{console.error(error.m2Expected?error.message:'M2 command stopped. Check local configuration, RPC access, funds and the preserved M2 journal. No automatic replacement is authorised.');process.exitCode=1;});
+if(require.main===module) main().catch(error=>{console.error(format(error));process.exitCode=1;});
 module.exports={inputs,creation,plan,deploy};
