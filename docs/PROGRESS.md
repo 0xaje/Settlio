@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Current milestone status — 23 November 2026
+**M0 complete; M1 completed for its defined engineering scope; M2/M3/M4 pending.** [M1 acceptance checklist](M1_ACCEPTANCE.md) maps each completed requirement to its evidence and limits. The log below is chronological history: earlier open/failed/blocked entries are retained and superseded only by later explicit results. Completion does not imply zero defects, exhaustive browser/device testing or unimplemented later-stage features.
+
+
 ## Contract foundation on 19 November 2026
 
 Current milestone M1 remains open. The first live quote/deposit/Reactive/callback/UI flow has not been verified.
@@ -435,3 +439,9 @@ Fresh TypeScript/production frontend build and all 46 local tests pass, zero fai
 M1 engineering acceptance: quote creation and fixed terms; live ETH/USDC deposits and authenticated Reactive confirmation trails, both freshly reverified by user WSL; current WSL preflight/wiring/custody/funding pass; contract permission/amount/timing/principal/retry tests pass; targeted mobile fixes user-accepted; manual and staged browser recovery plus original newly-created quote pause/reload/recovery user evidence; malformed/mismatched terms retaining the saved hash now covered by the actual recovery coordinator integration. The former original-interruption blocker and the recovery-ordering failure-path item are resolved with their stated provenance; no unverified scenario has been relabelled as a browser/network pass.
 
 M1 is accepted for its defined engineering scope on this combined evidence. This does not claim exhaustive browser/extension/device coverage, an independent security audit, no possible defects, validated demand, or M2 functionality. Source changes still need user local pull before appearing in their running app. Existing UI bundle-size warning remains. Full final-interface/mobile journey coverage remains M3/M4. Execution passes the live-loop requirement; Integration functions but stronger unattended policies remain M2; Usefulness solves the stated workflow but demand validation is still pending; Craft has passing builds/tests and recovery evidence with coverage limits. No numeric judging score or prize prediction. Next milestone is M2 unattended policies under the already approved plan; no M2 code or deployment started in this step.
+
+
+## Completion documentation reconciled · 23 November 2026
+Inspected the full main repository tree: five Markdown documents before this update plus LICENSE and two evidence JSON files. Added docs/M1_ACCEPTANCE.md, making six Markdown documents plus LICENSE. Updated current README, master-plan authority/milestone status, on-chain evidence status, progress summary and AGENTS completion-record rule. Removed stale current README claims that M1, browser recovery and health verification were still pending; preserved chronological progress history and historical evidence bytes. M1 checklist includes acceptance proof/provenance, source/test links, exact full-loop commands, user-browser media references (not committed media), point-in-time health, remaining warnings, and M2/M3/M4 exclusions. No excluded mistaken drafts are used as acceptance evidence.
+
+Documentation verification: all six Markdown documents read, current links/paths and transaction hashes checked against fetched main tree and committed JSON snapshots; no tests rerun for docs-only changes. No new build/chain/browser pass, code change, transaction or deployment. M1 completion follows the previous recorded evidence, not this edit alone. Future milestones must maintain the same item-level completed/evidence/date/limits ledger before closure.
