@@ -160,12 +160,30 @@ function App() {
   }
   async function recoverCreatedQuote(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const saveForReload = pauseReceiptCheck && submitter instanceof HTMLButtonElement && submitter.value === 'save-for-reload';
     if (transactionLock.current || pending) return;
     transactionLock.current = true; setBusy(true); setError(''); setMessage('Checking the existing transaction. No wallet signature or payment is needed.');
     try {
       const receipt = await pendingReceipt(reader, recoveryHash.trim());
       if (!receipt) throw new Error('No receipt is available yet. Check this transaction in your wallet or explorer; do not create the quote again.');
       if (receipt.status !== 1) throw new Error('This transaction failed on-chain and did not create a quote.');
+      if (saveForReload) {
+        const created = createdQuoteFromReceipt(receipt, escrowAddress);
+        if (!created) throw new Error('Use a successful quote-creation transaction from this escrow.');
+        // Stage a verified EXISTING receipt for storage/reload coverage. No broadcast.
+        // This is not evidence that the original transaction was interrupted.
+        const encoded = localStorage.getItem(draftKey(created.termsHash)) || localStorage.getItem(cacheKey(created.id));
+        if (!encoded || termsHash(decodeTerms(encoded)).toLowerCase() !== created.termsHash.toLowerCase()) {
+          throw new Error('Matching original service terms are needed in this browser for the reload check.');
+        }
+        localStorage.setItem(pendingKey(), JSON.stringify({ hash: receipt.hash, escrow: escrowAddress }));
+        if (pendingHash().toLowerCase() !== receipt.hash.toLowerCase()) throw new Error('This browser could not retain the transaction record. Do not create another quote.');
+        setPending(receipt.hash); setTransaction(receipt.hash); setUnresolved(false);
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        setMessage('Existing successful transaction saved for a development reload check. Now refresh (Ctrl+R), then click Check saved transaction. No new transaction was sent. This does not reproduce the original interruption.');
+        return;
+      }
       if (!restoreCreatedQuote(receipt)) throw new Error('This transaction has no quote-creation event from the configured Settlio escrow. Use the creation hash, not a payment or approval hash.');
     } catch (failure) { setMessage(''); setError(errorMessage(failure)); }
     finally { transactionLock.current = false; setBusy(false); }
@@ -187,7 +205,7 @@ function App() {
       {pauseReceiptCheck && configured && !pending && <p className="notice" role="status"><strong>No saved transaction to check</strong><br/>There is no valid saved transaction for this escrow in this browser. The Check saved transaction button appears only while one is saved. Opening a quote or viewing its contract does not create a saved transaction. To reopen a known quote, use Recover a created quote below; do not create another quote just to find a button.</p>}
       <div className="build-note">Test funds only. This build covers quote, deposit, and confirmation. Automatic refunds and expiry processing are still being integrated.</div>
       {pending && <section className="notice" role="status"><strong>Your saved transaction is ready to check</strong><p>Use the button below to read its result. No wallet signature or new transaction is needed. Creating another quote or payment is paused until this check is resolved.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check saved transaction</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
-      {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button></fieldset></form></details>}
+      {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button>{pauseReceiptCheck && <><p className="helper">Development reload check: verify this existing successful receipt, save its hash, refresh, then check the saved transaction. This sends nothing and does not prove the original interruption.</p><button className="secondary" type="submit" name="recovery-mode" value="save-for-reload">Save existing transaction for reload check</button></>}</fieldset></form></details>}
       {error && <p role="alert" className="error">{error}</p>}
       {message && <p role="status" className="notice">{message}</p>}
       {transaction && <a className="tx-link" href={explorer + '/tx/' + transaction} target="_blank" rel="noreferrer">View submitted transaction</a>}
