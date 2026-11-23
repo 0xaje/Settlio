@@ -59,10 +59,10 @@ test('local protocol fixture validates M1 subscription and callback boundaries',
   const reactive = await deploy('SettlioReactive', [84532]);
   const receiver = await deploy('SettlioCallback', [await proxy.getAddress(), await reactive.getAddress()], parseEther('0.01'));
   const escrow = new Contract(await receiver.escrow(), compile().abi, owner);
-  await t.test('wiring is owner-only and immutable after two subscriptions', async () => {
+  await t.test('wiring is owner-only and immutable after ten subscriptions', async () => {
     await assert.rejects(reactive.connect(stranger).configure.staticCall(await escrow.getAddress(), await receiver.getAddress()));
     await (await reactive.configure(await escrow.getAddress(), await receiver.getAddress())).wait();
-    assert.equal(await system.subscriptionCount(), 2n);
+    assert.equal(await system.subscriptionCount(), 10n);
     await assert.rejects(reactive.configure.staticCall(await escrow.getAddress(), await receiver.getAddress()));
   });
   const terms = keccak256(toUtf8Bytes('local integration fixture'));
