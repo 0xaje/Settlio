@@ -690,6 +690,34 @@
         "internalType": "uint256",
         "name": "id",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "optionIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "acceptedTermsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "acceptedAutomaticRelease",
+        "type": "bool"
+      }
+    ],
+    "name": "payDepositWithPolicy",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
       }
     ],
     "name": "processPolicy",
