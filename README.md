@@ -131,7 +131,7 @@ M2 deployment verification is not unattended execution proof. Keep M2 open until
 
 
 
-## CRON event correction — awaiting live rerun
+## CRON event correction — live preflight passed
 User WSL diagnostics found CRON100 logs with two topics and empty data. The [official source](https://github.com/Reactive-Network/system-smart-contracts/blob/72710d2b5f4e15e445da782aaef9f8bae59f4af9/src/SystemContract.sol) declares the number indexed, despite prose documentation saying otherwise. Both our previous preflight and scheduler incorrectly expected an unindexed number. They now require the indexed layout. Final 80-test suite and builds pass, including an actual local indexed-event regression; public unattended execution is not yet proven.
 
-Rerun npm run preflight:m2 followed by npm run plan:m2 -- YOUR_PUBLIC_DEPLOYER_ADDRESS. Both are read-only. diagnose:cron remains available and now reports indexed-number matches/samples. A corrected live preflight pass is still pending. Do not delete deployment journals to bypass the updated source fingerprint. M2 remains open.
+Rerun npm run preflight:m2 followed by npm run plan:m2 -- YOUR_PUBLIC_DEPLOYER_ADDRESS. Both are read-only. diagnose:cron remains available and now reports indexed-number matches/samples. The corrected user WSL preflight and plan passed on 23 November (CRON100 block 9050100); deployment and live Settlio policy execution remain pending. Do not delete deployment journals to bypass the updated source fingerprint. M2 remains open.

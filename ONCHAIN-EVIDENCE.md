@@ -69,3 +69,9 @@ This step sent no transaction. Browser-closed unattended expiry/refund and full 
 Provenance: user-pasted diagnose:cron output at 2026-11-23T10:46:19.948Z, Lasna chain 5318007. Head advanced from 9049714 to 9049716. Three disjoint 2,000-block windows returned 20 CRON100-topic logs each from 0x0000000000000000000000000000000000ffffff. Samples show two topics and zero data bytes. Example reported network CRON hash: 0x0f24af7e6085e9adaac783cb88278f8dc783adca62e5c998a575c19d59b697ee (block 0x8a159c).
 
 This is a network CRON observation supplied by the user, not a Settlio policy execution, independently re-fetched receipt or origin-to-callback trace. It exposed an unindexed-layout assumption in our preflight/scheduler. Corrected indexed-layout source passes 80 local tests and builds; corrected live preflight and M2 callbacks remain pending. No new contract address, migration or public transaction was created by the correction.
+
+
+## Corrected M2 live preflight and planning — user WSL, 23 November 2026
+At source a3aef74, user output shows successful preflight:m2 and plan:m2. Both report genuine network CRON100 transaction 0xab6db2a9d9a4b89640185913021f7f2f3ad29301f294ca4ec945fe361df2a4a7, block/indexedNumber 9050100, indexed-number layout and 20 matching recent logs on Lasna 5318007. Base 84532 and USDC prerequisites passed. Provenance is supplied WSL output; these receipts have not been independently re-fetched in this workspace.
+
+The planner output is read-only: it establishes creation estimates/source fingerprints, not deployed M2 addresses or an origin-to-callback trail. No public transaction was sent by these commands. See the M2 acceptance ledger for exact estimates and remaining deployment, scheduled-policy verification and unattended execution gates.

@@ -563,3 +563,7 @@ User WSL preflight returned no matching recent CRON100 event; planning did not r
 
 ## Indexed CRON correction · 23 November 2026
 User diagnostics and official Solidity source show Cron100 indexes its number: two topics, empty data. The earlier unindexed-only preflight and scheduler assumption was an implementation defect, now corrected with strict indexed parsing and actual locally emitted-event regression. Final full suite: 80 passed; contracts/frontend builds pass. No public deployment or corrected live preflight pass yet. This supersedes the unknown-cause blocker; M2 still awaits user-local read-only preflight/plan and all public unattended execution gates. Timestamp deadlines and M1 contracts remain unchanged.
+
+
+## M2 live preflight and plan passed · 23 November 2026
+User WSL output on a3aef74 verifies the indexed CRON100 observation at block 9050100 (hash 0xab6db2a9d9a4b89640185913021f7f2f3ad29301f294ca4ec945fe361df2a4a7) and completes read-only planning for the dedicated deployer. Creation estimates are covered by reported balances; configuration/future fees remain additional. The CRON preflight blocker is resolved for this observation. Next: versioned M2 deployment and verification, then complete scheduled-policy trace verification and unattended live acceptance. No deployment or M2 callback is yet claimed. M2 NOT ACCEPTED.
