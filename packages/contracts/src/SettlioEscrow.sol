@@ -127,11 +127,20 @@ contract SettlioEscrow {
 
     /// @notice Backward-compatible ETH entry point for the first option only.
     function payDeposit(uint256 id, bytes32 acceptedTermsHash) external payable nonReentrant {
-        if (options[id].length == 0 || options[id][0].asset != address(0)) revert InvalidQuote();
+        if (automaticRelease[id] || options[id].length == 0 || options[id][0].asset != address(0)) revert InvalidQuote();
         _pay(id, 0, acceptedTermsHash);
     }
 
     function payDepositOption(uint256 id, uint256 optionIndex, bytes32 acceptedTermsHash) external payable nonReentrant {
+        if (automaticRelease[id]) revert InvalidQuote();
+        _pay(id, optionIndex, acceptedTermsHash);
+    }
+
+    /// @notice Explicit customer consent to the immutable automatic-release flag.
+    function payDepositWithPolicy(uint256 id, uint256 optionIndex, bytes32 acceptedTermsHash, bool acceptedAutomaticRelease)
+        external payable nonReentrant
+    {
+        if (acceptedAutomaticRelease != automaticRelease[id]) revert InvalidQuote();
         _pay(id, optionIndex, acceptedTermsHash);
     }
 
