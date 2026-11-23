@@ -32,7 +32,8 @@
     "verify:expiry": "node script/verify-expiry.cjs",
     "verify:refund": "node script/verify-refund.cjs",
     "budget:m2": "node script/release-budget.cjs",
-    "fund:m2:release": "node script/fund-m2.cjs release-test"
+    "fund:m2:release": "node script/fund-m2.cjs release-test",
+    "verify:release": "node script/verify-release.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
