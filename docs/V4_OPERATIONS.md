@@ -37,7 +37,7 @@ This checks official testnet IDs, protocol/USDC/indexed CRON prerequisites, prop
 
 Keyed commands read DEPLOYER_PRIVATE_KEY only from the local process environment. Use the existing hidden local shell prompt; never put a key in an argument, VITE variable, repository or chat. Environment files are not automatically loaded. No command is a public deployment claim until its genuine receipts are supplied and verified.
 
-The current version-3 interface has not yet been upgraded for V4. Do not switch its escrow configuration or old share links now. No public deployment or grant is requested at this checkpoint.
+The interface now supports legacy, V3 and V4 code paths with build/helper verification; see V4_INTERFACE.md for pending browser/mobile checks. Do not change old share-link targets. Review the proposed V4 configuration and creation costs read-only before any public deployment or grant.
 
 ## Intent and funding safety
 
@@ -61,4 +61,4 @@ Final full suite: **144 passed, zero failures/skips/cancellations**. The focused
 
 Official callback authentication/deployment order remains as documented at https://dev.reactive.network/callback-contracts; fee/debt/reserve semantics at https://dev.reactive.network/economy. V4 source and callback remain separate, and customer escrow is never a fee payer.
 
-Next gates: V4 functional interface/shared terms and refund recovery, then read-only user WSL review of settings/cost, explicit bounded wallet operations and genuine V4 origin-to-Reactive-to-callback evidence. Do not mark M2 closed from local tests.
+Next gates: read-only user WSL settings/cost review, explicit bounded wallet operations, rendered browser/mobile/extension journeys and genuine V4 origin-to-Reactive-to-callback evidence. V4 functional interface/shared terms and refund recovery have build/helper verification, not full browser/public acceptance. Do not mark M2 closed from local tests.

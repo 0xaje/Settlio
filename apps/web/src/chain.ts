@@ -1,5 +1,7 @@
 import { BrowserProvider, Contract, FetchRequest, getAddress, isAddress, JsonRpcProvider, type Eip1193Provider } from 'ethers';
 import abi from './escrow-abi.json';
+import { ADMISSION_ESCROW_ABI, admissionContract } from './admission';
+const contractABI = [...abi, ...ADMISSION_ESCROW_ABI];
 import type { Quote } from './terms';
 import { readPolicyVersion, assertPolicyWiring, REACTIVE_SYSTEM } from './policy';
 
@@ -23,7 +25,7 @@ export async function readContract(): Promise<Contract> {
   if (!configured) throw new Error('Settlio needs a deployed escrow address before it can read quotes.');
   if (BigInt(await reader.send('eth_chainId', [])) !== 84532n) throw new Error('The read connection is on the wrong network.');
   if (await reader.getCode(escrowAddress) === '0x') throw new Error('No escrow contract was found at the configured address.');
-  return new Contract(escrowAddress, abi, reader);
+  return new Contract(escrowAddress, contractABI, reader);
 }
 
 export async function walletContract(expectedAccount: string): Promise<Contract> {
@@ -34,7 +36,7 @@ export async function walletContract(expectedAccount: string): Promise<Contract>
   if (chain !== 84532n) throw new Error('Switch your wallet to Base Sepolia before continuing.');
   const signer = await provider.getSigner();
   if (getAddress(await signer.getAddress()) !== getAddress(expectedAccount)) throw new Error('Your wallet account changed. Review the quote again.');
-  return new Contract(escrowAddress, abi, signer);
+  return new Contract(escrowAddress, contractABI, signer);
 }
 
 export function asQuote(id: bigint, value: Record<string, unknown>): Quote {
@@ -60,7 +62,7 @@ reactiveRequest.timeout = 15000;
 const reactiveReader = new JsonRpcProvider(reactiveRequest, undefined, { cacheTimeout: -1 });
 
 export async function readPolicyDeployment(contract: Contract): Promise<
-  { version: 0 } | { version: 3; receiver: Contract; scheduler: Contract }
+  { version: 0 } | { version: 3 | 4; receiver: Contract; scheduler: Contract }
 > {
   const version = await readPolicyVersion(() => contract.POLICY_VERSION());
   if (version === 0) return { version };
@@ -81,14 +83,19 @@ export async function readPolicyDeployment(contract: Contract): Promise<
     await Promise.all([reader.send('eth_chainId', []), reactiveReader.send('eth_chainId', []),
       readPolicyVersion(() => scheduler.POLICY_VERSION()), receiver._SERVICE_PROVIDER(), receiver.escrow(),
       scheduler.originChain(), scheduler.originEscrow(), scheduler.callbackReceiver(), scheduler._SERVICE_PROVIDER()]);
-  assertPolicyWiring({ baseChainId: BigInt(baseId), reactiveChainId: BigInt(reactiveId), schedulerVersion,
+  assertPolicyWiring({ baseChainId: BigInt(baseId), reactiveChainId: BigInt(reactiveId), schedulerVersion, escrowVersion: version,
     escrow: escrowAddress, receiver: receiverAddress, proxy, receiverEscrow, originChain, originEscrow, callbackReceiver, reactiveProvider });
-  return { version: 3, receiver, scheduler };
+  if (version === 4) {
+    const block = await reader.getBlock('latest');
+    if (!block) throw new Error('Base Sepolia block is unavailable.');
+    await admissionContract(reader, contract, block.number);
+  }
+  return { version, receiver, scheduler };
 }
 
 export async function readAutomationStatus(id: bigint) {
   const deployment = await readPolicyDeployment(await readContract());
-  if (deployment.version !== 3) throw new Error('Automatic policies are not available on this deployment.');
+  if (deployment.version === 0) throw new Error('Automatic policies are not available on this deployment.');
   const { scheduler, receiver } = deployment;
   const proxy = getAddress(await receiver._SERVICE_PROVIDER());
   const receiverAddress = await receiver.getAddress(), schedulerAddress = await scheduler.getAddress();
