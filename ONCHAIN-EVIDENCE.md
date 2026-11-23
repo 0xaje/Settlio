@@ -1,5 +1,11 @@
 # Live on-chain evidence
 
+## Current acceptance status — 23 November 2026
+**M1 COMPLETE for its defined engineering scope.** See [the acceptance checklist](docs/M1_ACCEPTANCE.md) for all completed items and proof provenance. Both ETH/USDC full trails below were reverified successfully from user WSL on 23 November. Their committed JSON files retain their original verification dates; fresh user-local snapshot bytes were not fetched/published. Original creation interruption recovery is user-browser evidence; damaged-terms recovery is isolated integration evidence, not a live callback.
+
+M2 expiry/refund/automatic release, M3 full design and M4 submission remain pending. USDT is Coming soon, not an M1 blocker. Subsequent dated sections preserve historical observations; their older open-status statements do not override this current status. Historical receipts do not establish current balances or future delivery. No hashes or snapshot data have been changed in this documentation update.
+
+
 ## M1 · Quote #1 · ETH deposit and booking confirmation
 Verified on 19 November 2026 using read-only Base Sepolia and Reactive Lasna RPC calls. This is public-network evidence, not a local protocol fixture.
 
