@@ -3,7 +3,7 @@
 ## Current acceptance status — 23 November 2026
 **M1 COMPLETE for its defined engineering scope.** See [the acceptance checklist](docs/M1_ACCEPTANCE.md) for all completed items and proof provenance. Both ETH/USDC full trails below were reverified successfully from user WSL on 23 November. Their committed JSON files retain their original verification dates; fresh user-local snapshot bytes were not fetched/published. Original creation interruption recovery is user-browser evidence; damaged-terms recovery is isolated integration evidence, not a live callback.
 
-M2 remains open: unpaid expiry, ETH/USDC refunds and ETH release are now verified within scoped evidence below; USDC release, browser closure and remaining operational gates are pending. M3 full design and M4 submission remain pending. USDT is Coming soon, not an M1 blocker. Subsequent dated sections preserve historical observations; their older open-status statements do not override this current status. Historical receipts do not establish current balances or future delivery. No hashes or snapshot data have been changed in this documentation update.
+M2 remains open: unpaid expiry, ETH/USDC refunds and ETH/USDC releases are now verified within scoped evidence below. Quote 6 closure is user-confirmed and reopening video-verified; continuous closure footage is unavailable. Release CLI/reproduction and remaining operational gates are pending. M3 full design and M4 submission remain pending. USDT is Coming soon, not an M1 blocker. Subsequent dated sections preserve historical observations; their older open-status statements do not override this current status. Historical receipts do not establish current balances or future delivery. No hashes or snapshot data have been changed in this documentation update.
 
 
 ## M1 · Quote #1 · ETH deposit and booking confirmation
@@ -274,3 +274,33 @@ Fresh next-test budget observation in the bundle reports idle scheduler, zero fe
 Evidence/documentation only: no contract/frontend source change, new build or test-suite run. Prior 112-test baseline stands. A reusable release CLI and user WSL release-verifier reproduction remain pending; these offline assertions are not mislabelled as a shipped command.
 
 Judging: Execution — real deposit/confirmation/CRON/request/authenticated release; Integration — deposit paid to merchant by scheduled policy after cutoff; Usefulness — merchant receives agreed eligible deposit with exact principal accounting; Craft — public trace, visible UI review and honest browser/reproduction limits. Next: one USDC automatic-release journey with fresh WAT payment deadline/full-refund cutoff and actual continuous browser-closure recording. Keep remaining operational cost/recovery/journey acceptance open; M3 has not started.
+
+
+## M2 Quote 6 USDC automatic release and reopening — 23 November 2026
+
+**COMPLETE for authenticated USDC release, exact merchant accounting and terminal scheduler; reopening COMPLETE by video. Earlier tab closure is USER CONFIRMED. M2 overall NOT ACCEPTED.** Independent Base/Lasna public RPC evidence and offline assertions passed at 2026-11-23T17:46:15.671Z (18:46 WAT). Raw receipts, transactions, origin/CRON logs, block times, state, wiring, balances and recording provenance: [quote-6-usdc-release.json](deployments/evidence/m2/quote-6-usdc-release.json).
+
+| Stage | Network | Successful transaction |
+|---|---|---|
+| Creation, automatic release true | Base Sepolia | 0x1c5a6190c746671ffcc0ecdd1a2ac58a45b7573338c82499d770645d9838ca17 |
+| Exact 1 USDC approval | Base Sepolia | 0x7c87a8ed25c2a6e651d91242993fa7da60e5172e2f64c9e52bd7626ce75dee8c |
+| 1 USDC deposit | Base Sepolia | 0xd4311380a9249ca74e45976e0c49acec2e758be6bf43ed1535c17fc9af734987 |
+| Deposit-linked confirmation reaction | Lasna | 0xbbc2cea647671ad74b7b881fa7644044a12bdfb0ee392bf78b55b7d0b6bea2be |
+| Confirmation callback | Base Sepolia | 0xd615e9ee9b6230e7fd1693992eea5a0bc71352af61bd05fb3b45e0a5f6ea7dfa |
+| Exact indexed network CRON | Lasna | 0x535d662a55a2a9b0f0d2a050b025b7d8d33a13de4b364155beee6801dbf60c2c |
+| Associated release request, attempt 1 | Lasna | 0x944d8da1d6cf77bc2b95c408274ce9ea61af168a4a10b08dad9ec3d0395ccee7 |
+| Authenticated automatic release | Base Sepolia | 0xa529fd771e0e5c8b7cba5b651e7bfa167257a058c8af150db46bd3b81e2dac40 |
+
+Immutable terms: issuer-listed Base Sepolia USDC 0x036CbD53842c5426634e7929541eC2318f3dCF7e; total 3000000 units (3 USDC), deposit 1000000 (1); merchant ...288E, customer ...911eD; automaticRelease true. Actual payment deadline 23 November 18:15 WAT and full-refund cutoff 18:20 WAT. Deposit accepted before expiry. Genuine deposit fingerprint/trigger links confirmation request; exact network CRON transaction/block/log links the successful policy request. System request and delivered proxy payloads match authorised Reactive/receiver/quote 6; immutable authentication wiring independently matches.
+
+Release succeeded at **18:20:37 WAT**, after cutoff. Callback contains actual issuer-token Transfer(escrow,merchant,1000000), Released(6,1000000) and PolicyChecked(6,7). Merchant USDC balance rises exactly 1000000 across the release block; escrow falls exactly 1000000. These are block-level observations corroborating the explicit token transfer, not internal execution traces. Current USDC escrow balance/liability zero; native balance/totalLiability zero. Quote Released, job automatic/registered/confirmed/closed, nextAt zero, no active jobs, idle CRON false. Only the deposit was released; remaining-balance collection/service-delivery proof are not claimed. Unique protocol retry attribution remains unclaimed.
+
+### Recording provenance and accepted reopening
+- Original 20261123-1713-24.8981684.mp4, 40.3 seconds, SHA256 d30210ddf811600bfe67a721e9c7e96bc600b71294e778c73987b121ad4c0db1: independently reviewed Confirmed/Released UI, 1 USDC terms and 18:20 cutoff; timeline jumps from about 18:13 to 18:29.
+- User explicitly clarified that the tab was closed in the earlier test and recording was started after reopening. **Tab closure: USER CONFIRMED**; that attestation is accepted with its stated provenance, not represented as independently recorded closure.
+- New 20261123-1740-44.4569856.mp4, 26.943979 seconds, SHA256 d219769d6e4a30640e90b84c66d0d4cb33150269916c1cfbf9d4fc2dfd034889: independently reviewed fresh-tab navigation to quote 6, reading the same quote, returning Released/1 USDC and matching terms around 18:40–18:41. **Reopening completed state: COMPLETE — VIDEO VERIFIED.**
+- These are separate recordings, not a fabricated continuous sequence across cutoff. The uninterrupted closed interval is not independently captured. No raw recording or extracted frame was uploaded/published by the assistant to GitHub; only provenance metadata and factual findings are committed. Do not request another quote or retroactive reenactment merely to erase this recording limit.
+
+This supersedes the earlier blanket reopening/closure uncertainty with the new video and user clarification. It does not change historical recordings or claim a continuous capture exists. Evidence/documentation only: no code/build/test-suite rerun; prior 112-test baseline stands. No assistant payment, funding, cancellation, manual claim or deployment.
+
+Judging: Execution — genuine USDC deposit/confirmation/scheduled authenticated release; Integration — CRON and Reactive drive the merchant transfer; Usefulness — exact agreed deposit reaches merchant and completed quote reloads correctly; Craft — public accounting/trace and separately labelled recording/user evidence. Next: reusable read-only ETH/USDC release verifier and user WSL reproduction, then reconcile remaining M2 operational cost/recovery/journey acceptance. No further transaction or recording is needed now. M2 NOT ACCEPTED; M3 pending.
