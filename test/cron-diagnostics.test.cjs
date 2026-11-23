@@ -3,11 +3,11 @@ const assert=require('node:assert/strict');
 const {diagnose,summarize}=require('../script/diagnose-cron.cjs');
 const {CRON,CRON_TOPIC}=require('../script/m2-network.cjs');
 const range={from:10,to:20};
-const log={address:CRON,topics:[CRON_TOPIC],data:'0x'+'00'.repeat(32),blockNumber:'0xf',transactionHash:'0x'+'11'.repeat(32),blockHash:'0x'+'22'.repeat(32)};
+const log={address:CRON,topics:[CRON_TOPIC,'0x'+'00'.repeat(31)+'0f'],data:'0x',blockNumber:'0xf',transactionHash:'0x'+'11'.repeat(32),blockHash:'0x'+'22'.repeat(32)};
 test('CRON diagnostics distinguish absent results from incompatible log shapes',()=>{
  assert.equal(summarize([],range).returned,0);
- assert.equal(summarize([log],range).matchingDocumentedCron100,1);
- for(const change of [{address:'0x'+'00'.repeat(20)},{topics:[CRON_TOPIC,CRON_TOPIC]},{data:'0x'},{removed:true},{blockNumber:'0x21'}]) assert.equal(summarize([{...log,...change}],range).matchingDocumentedCron100,0);
+ assert.equal(summarize([log],range).matchingIndexedCron100,1);
+ for(const change of [{address:'0x'+'00'.repeat(20)},{topics:[CRON_TOPIC]},{topics:[CRON_TOPIC,'0x01']},{topics:[CRON_TOPIC,CRON_TOPIC,CRON_TOPIC]},{data:'0x'+'00'.repeat(32)},{removed:true},{blockNumber:'0x21'}]) assert.equal(summarize([{...log,...change}],range).matchingIndexedCron100,0);
  assert.throws(()=>summarize({},range),/non-array/);
 });
 test('CRON diagnosis uses bounded public queries and reports missing RPC results without fabricating proof',async()=>{

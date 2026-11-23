@@ -6,8 +6,7 @@ const {assertRuntime,assertCreation}=require('./m2-code.cjs');
 const PROXY='0x476F44b11F5C942c58f4c8E3d0300E5710743585';
 const SYSTEM='0x8888888888888888888888888888888888888888';
 const USDC='0x036CbD53842c5426634e7929541eC2318f3dCF7e';
-const CRON='0x0000000000000000000000000000000000fffFfF';
-const CRON_TOPIC='0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70';
+const {CRON,CRON_TOPIC,isCron100}=require('./cron-event.cjs');
 function rpc(url) {const request=new FetchRequest(url);request.timeout=15000;return new JsonRpcProvider(request,undefined,{cacheTimeout:-1});}
 async function preflight(base,lasna) {
   check(BigInt(await base.send('eth_chainId',[]))===BigInt(BASE)&&BigInt(await lasna.send('eth_chainId',[]))===BigInt(LASNA),'M2 supports Base Sepolia and Lasna only.');
@@ -17,10 +16,10 @@ async function preflight(base,lasna) {
   check(await token.decimals()===6n&&await token.symbol()==='USDC','M2 USDC metadata mismatch.');
   const last=await lasna.getBlockNumber();
   const logs=await lasna.send('eth_getLogs',[{address:CRON,topics:[CRON_TOPIC],fromBlock:toQuantity(Math.max(0,last-2000)),toBlock:toQuantity(last)}]);
-  const observed=logs.filter(log=>log.removed!==true&&Array.isArray(log.topics)&&log.topics.length===1&&log.topics[0].toLowerCase()===CRON_TOPIC&&/^0x[0-9a-f]{64}$/i.test(log.data));
-  check(observed.length>0,'No recent network CRON100 event observed. Scheduling preflight is not proven; do not deploy.');
+  const observed=logs.filter(isCron100);
+  check(observed.length>0,'No recent network CRON100 event with the indexed-number layout observed. Scheduling preflight is not proven; do not deploy.');
   const latest=observed[observed.length-1];
-  return {readOnly:true,baseChainId:BASE,reactiveChainId:LASNA,usdc:USDC,cronObserved:{transactionHash:latest.transactionHash,block:Number(BigInt(latest.blockNumber)),logsInWindow:observed.length}};
+  return {readOnly:true,baseChainId:BASE,reactiveChainId:LASNA,usdc:USDC,cronObserved:{transactionHash:latest.transactionHash,block:Number(BigInt(latest.blockNumber)),indexedNumber:BigInt(latest.topics[1]).toString(),layout:'indexed-number',logsInWindow:observed.length}};
 }
 async function inspect(journal,base,lasna) {
   check(journal?.milestone==='M2'&&journal.policyVersion===3&&journal.baseChainId===BASE&&journal.reactiveChainId===LASNA,'M2 deployment journal missing or incompatible.');

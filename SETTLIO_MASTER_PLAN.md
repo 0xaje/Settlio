@@ -559,3 +559,7 @@ Versioned M2 preflight/plan/deploy/verify commands and confirmation evidence nam
 
 ## M2 live CRON gate blocked · 23 November 2026
 User WSL preflight returned no matching recent CRON100 event; planning did not run and no deployment was attempted. Documented emitter/topic/shape agree with source, but the live cause is not yet known. Added read-only diagnose:cron with three passing focused tests; preflight/deployment gates are unchanged. Diagnose actual public RPC responses before fixing the confirmed cause. No live scheduling pass or M2 completion.
+
+
+## Indexed CRON correction · 23 November 2026
+User diagnostics and official Solidity source show Cron100 indexes its number: two topics, empty data. The earlier unindexed-only preflight and scheduler assumption was an implementation defect, now corrected with strict indexed parsing and actual locally emitted-event regression. Final full suite: 80 passed; contracts/frontend builds pass. No public deployment or corrected live preflight pass yet. This supersedes the unknown-cause blocker; M2 still awaits user-local read-only preflight/plan and all public unattended execution gates. Timestamp deadlines and M1 contracts remain unchanged.

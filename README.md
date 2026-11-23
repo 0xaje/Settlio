@@ -6,7 +6,7 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 76 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 80 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
@@ -130,5 +130,8 @@ The M2 journal freezes source, deployer and constructor funding. Each transactio
 M2 deployment verification is not unattended execution proof. Keep M2 open until real scheduled expiry, ETH/USDC refunds and eligible automatic releases have full traces and browser-closed evidence. The existing verify:quote command accepts an optional final M2 journal path and writes M2 confirmation evidence under deployments/evidence/m2, preserving M1 snapshots. Scheduled-policy trace verification remains pending.
 
 
-## CRON preflight diagnosis — current blocker
-On 23 November, the user WSL preflight returned no matching recent CRON100 event and stopped before planning/deployment. The cause is not yet confirmed. Run npm run diagnose:cron to inspect bounded recent/older log queries, topic/shape samples and block heights. It needs no key, sends no transaction and changes no deployment or subscription. Empty results differ from an unavailable query; alternate emitters, old events or an unchanged immediate head are diagnostic clues, not scheduling proof. This command does not waive preflight. Share its public JSON output for review before any deployment.
+
+## CRON event correction — awaiting live rerun
+User WSL diagnostics found CRON100 logs with two topics and empty data. The [official source](https://github.com/Reactive-Network/system-smart-contracts/blob/72710d2b5f4e15e445da782aaef9f8bae59f4af9/src/SystemContract.sol) declares the number indexed, despite prose documentation saying otherwise. Both our previous preflight and scheduler incorrectly expected an unindexed number. They now require the indexed layout. Final 80-test suite and builds pass, including an actual local indexed-event regression; public unattended execution is not yet proven.
+
+Rerun npm run preflight:m2 followed by npm run plan:m2 -- YOUR_PUBLIC_DEPLOYER_ADDRESS. Both are read-only. diagnose:cron remains available and now reports indexed-number matches/samples. A corrected live preflight pass is still pending. Do not delete deployment journals to bypass the updated source fingerprint. M2 remains open.

@@ -2,6 +2,7 @@
 const {toQuantity,getAddress}=require('ethers');
 const {rpc,CRON,CRON_TOPIC}=require('./m2-network.cjs');
 const {check,LASNA}=require('./m2-state.cjs');
+const {isCron100}=require('./cron-event.cjs');
 function summarize(logs,{from,to,address=CRON,topic=CRON_TOPIC}) {
  check(Array.isArray(logs),'CRON RPC returned a non-array log response.');
  const groups={};let matching=0;const samples=[];
@@ -10,11 +11,11 @@ function summarize(logs,{from,to,address=CRON,topic=CRON_TOPIC}) {
   const key=typeof t==='string'&&/^0x[0-9a-f]{64}$/i.test(t)?t.toLowerCase():'invalid-topic';
   groups[key]=(groups[key]||0)+1;
   let valid=false;
-  try {const block=Number(BigInt(log.blockNumber));valid=log.removed!==true&&block>=from&&block<=to&&getAddress(log.address)===getAddress(address)&&log.topics.length===1&&key===topic&&/^0x[0-9a-f]{64}$/i.test(log.data)&&/^0x[0-9a-f]{64}$/i.test(log.transactionHash)&&/^0x[0-9a-f]{64}$/i.test(log.blockHash);} catch {}
+  try {const block=Number(BigInt(log.blockNumber));valid=log.removed!==true&&block>=from&&block<=to&&getAddress(log.address)===getAddress(address)&&isCron100(log)&&key===topic&&/^0x[0-9a-f]{64}$/i.test(log.transactionHash)&&/^0x[0-9a-f]{64}$/i.test(log.blockHash);} catch {}
   if(valid) matching++;
-  if(samples.length<3) samples.push({address:/^0x[0-9a-f]{40}$/i.test(log.address||'')?log.address:null,block:/^0x[0-9a-f]+$/i.test(log.blockNumber||'')?log.blockNumber:null,hash:/^0x[0-9a-f]{64}$/i.test(log.transactionHash||'')?log.transactionHash:null,topic:key,topicCount:Array.isArray(log.topics)?log.topics.length:null,dataBytes:/^0x(?:[0-9a-f]{2})*$/i.test(log.data||'')?(log.data.length-2)/2:null});
+  if(samples.length<3) samples.push({address:/^0x[0-9a-f]{40}$/i.test(log.address||'')?log.address:null,block:/^0x[0-9a-f]+$/i.test(log.blockNumber||'')?log.blockNumber:null,hash:/^0x[0-9a-f]{64}$/i.test(log.transactionHash||'')?log.transactionHash:null,topic:key,topicCount:Array.isArray(log.topics)?log.topics.length:null,indexedNumber:isCron100(log)?BigInt(log.topics[1]).toString():null,dataBytes:/^0x(?:[0-9a-f]{2})*$/i.test(log.data||'')?(log.data.length-2)/2:null});
  }
- return {fromBlock:from,toBlock:to,returned:logs.length,matchingDocumentedCron100:matching,topics:groups,samples};
+ return {fromBlock:from,toBlock:to,returned:logs.length,matchingIndexedCron100:matching,topics:groups,samples};
 }
 async function diagnose(provider) {
  const chainId=Number(BigInt(await provider.send('eth_chainId',[])));

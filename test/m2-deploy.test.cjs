@@ -16,7 +16,7 @@ contract DeploymentProtocolFixture {
  function decimals() external pure returns(uint8){return 6;}
  function symbol() external pure returns(string memory){return "USDC";}
  function balanceOf(address) external pure returns(uint256){return 0;}
- function tick() external { bytes32 topic=0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70; assembly {mstore(0,1) log1(0,32,topic)} }
+ function tick() external { bytes32 topic=0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70; assembly {log2(0,0,topic,number())} }
 }`}};
 test('M2 commands deploy, inspect and resume without changing M1 or duplicating transactions',async t=>{
  const base=await start(t,{chainId:84532}),lasna=await start(t,{chainId:5318007});

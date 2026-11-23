@@ -11,6 +11,8 @@ import {IReactive} from "@reactive/src/interfaces/IReactive.sol";
 import {ISystemContract} from "@reactive/src/interfaces/ISystemContract.sol";
 interface IPolicyDestination { function processPolicy(address,uint256) external; }
 contract SchedulerProtocolFixture {
+    event Cron100(uint256 indexed number);
+    function emitCron() external { emit Cron100(block.number); }
     uint256 public subscriptionCount;
     uint256 public unsubscriptionCount;
     uint256 public requestCount;
@@ -57,7 +59,7 @@ test('M2 bounded CRON scheduling, acknowledgements, retry isolation and idle fun
  async function send(log){return (await system.forward(reactive.target,log,{gasLimit:900000})).wait();}
  async function policy(id,expiry,cutoff,automatic=true){return send(record(await reactive.POLICY_TOPIC(),id,coder.encode(['uint64','uint64','bool'],[expiry,cutoff,automatic])));}
  async function signal(topic,id){return send(record(topic,id));}
- async function tick(changes={}){return send(record(await reactive.CRON_TOPIC(),0,coder.encode(['uint256'],[sequence+1]),{chainId:31337,contractAddress:await reactive.CRON_SOURCE(),opCode:1,...changes}));}
+ async function tick(changes={}){return send(record(await reactive.CRON_TOPIC(),sequence+1,'0x',{chainId:31337,contractAddress:await reactive.CRON_SOURCE(),opCode:2,...changes}));}
  async function close(id){return signal(await reactive.EXPIRED_TOPIC(),id);}
    async function forwardReceipt(receipt){for(const log of receipt.logs){if(log.address.toLowerCase()!==escrow.target.toLowerCase())continue;await send({chainId:84532,contractAddress:escrow.target,topic0:BigInt(log.topics[0]),topic1:BigInt(log.topics[1]||0),topic2:BigInt(log.topics[2]||0),topic3:BigInt(log.topics[3]||0),data:log.data,blockNumber:receipt.blockNumber,opCode:log.topics.length,blockHash:BigInt(receipt.blockHash),txHash:BigInt(receipt.hash),logIndex:log.index});}}
  await t.test('forged/malformed CRON cannot run jobs; registration is deduplicated',async()=>{
@@ -65,10 +67,27 @@ test('M2 bounded CRON scheduling, acknowledgements, retry isolation and idle fun
    await send(log);await send(log);
    assert.equal(await reactive.activeJobCount(),1n);assert.equal(await system.subscriptionCount(),11n);assert.equal(await reactive.cronSubscribed(),true);
    await assert.rejects(reactive.react.staticCall(log));
-   for(const change of [{chainId:84532},{contractAddress:escrow.target},{opCode:2},{data:'0x'}])await tick(change);
+   for(const change of [{chainId:84532},{contractAddress:escrow.target},{opCode:1},{opCode:3},{topic2:1},{topic3:1},{data:coder.encode(['uint256'],[100])}])await tick(change);
    assert.equal(await system.requestCount(),0n);
    await signal(await reactive.POLICY_TOPIC(),102);assert.equal((await reactive.jobs(102)).registered,false);
    await close(101);assert.equal(await reactive.cronSubscribed(),false);assert.equal(await system.unsubscriptionCount(),1n);
+ });
+ await t.test('real indexed CRON receipt reaches a due job once; old unindexed shape cannot run it',async()=>{
+   const start=await now();await policy(151,start,start+200);
+   const source=await reactive.CRON_SOURCE();
+   for(const changes of [{opCode:1,topic1:0,data:coder.encode(['uint256'],[100])},{opCode:3},{topic2:1},{topic3:1},{data:coder.encode(['uint256'],[100])}]) {
+     await tick(changes);assert.equal(await system.requests(151),0n);
+   }
+   await provider.send('anvil_setCode',[source,await provider.getCode(prototype.target)]);
+   const emitter=new Contract(source,compile('SchedulerProtocolFixture',fixtures).abi,owner);
+   const receipt=await (await emitter.emitCron()).wait();
+   const log=receipt.logs.find(item=>item.address.toLowerCase()===source.toLowerCase());
+   assert.equal(log.topics[0],'0x'+(await reactive.CRON_TOPIC()).toString(16).padStart(64,'0'));
+   assert.equal(log.topics.length,2);assert.equal(log.data,'0x');
+   const observed={chainId:31337,contractAddress:source,topic0:BigInt(log.topics[0]),topic1:BigInt(log.topics[1]),topic2:0,topic3:0,data:log.data,blockNumber:receipt.blockNumber,opCode:log.topics.length,blockHash:BigInt(receipt.blockHash),txHash:BigInt(receipt.hash),logIndex:log.index};
+   await send(observed);assert.equal(await system.requests(151),1n);
+   await send(observed);assert.equal(await system.requests(151),1n);
+   await close(151);
  });
  await t.test('request remains queued until destination acknowledgement; backoff prevents immediate repeats',async()=>{
    const start=await now();await policy(201,start,start+200);

@@ -63,3 +63,9 @@ Verified details:
 script/verify-quote.cjs successfully reproduced both historical confirmation trails through read-only public RPC calls. Machine-readable snapshots are committed at deployments/evidence/quote-1.json and quote-2.json. The mismatched ETH deposit was rejected for quote 2 and the existing verified snapshot remained unchanged.
 
 This step sent no transaction. Browser-closed unattended expiry/refund and full recovery evidence remain pending.
+
+
+## M2 network observation — user WSL, 23 November 2026
+Provenance: user-pasted diagnose:cron output at 2026-11-23T10:46:19.948Z, Lasna chain 5318007. Head advanced from 9049714 to 9049716. Three disjoint 2,000-block windows returned 20 CRON100-topic logs each from 0x0000000000000000000000000000000000ffffff. Samples show two topics and zero data bytes. Example reported network CRON hash: 0x0f24af7e6085e9adaac783cb88278f8dc783adca62e5c998a575c19d59b697ee (block 0x8a159c).
+
+This is a network CRON observation supplied by the user, not a Settlio policy execution, independently re-fetched receipt or origin-to-callback trace. It exposed an unindexed-layout assumption in our preflight/scheduler. Corrected indexed-layout source passes 80 local tests and builds; corrected live preflight and M2 callbacks remain pending. No new contract address, migration or public transaction was created by the correction.

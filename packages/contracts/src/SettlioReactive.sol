@@ -95,7 +95,8 @@ contract SettlioReactive is AbstractReactive {
         bytes32 originLog = keccak256(abi.encode(log.chainId, log.blockHash, log.txHash, log.logIndex));
         if (processed[originLog]) return;
         if (log.chainId == block.chainid && log.contractAddress == CRON_SOURCE && log.topic0 == CRON_TOPIC) {
-            if (log.opCode != 1 || log.data.length != 32) return;
+            // Cron100(uint256 indexed number): signature + indexed block number, no data.
+            if (log.opCode != 2 || log.data.length != 0 || log.topic2 != 0 || log.topic3 != 0) return;
             processed[originLog] = true;
             if (cronSubscribed && !schedulerPaused) _tick();
             return;
