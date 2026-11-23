@@ -15,7 +15,7 @@ M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). M2 source i
 | Participant policy retry signal | COMPLETE — LOCAL CODE/TEST | requestPolicy rejects nonparticipants and terminal states; no live retry trail yet |
 | CRON scheduler and bounded work queue | COMPLETE — LOCAL CODE/TEST; LIVE PENDING | [Scheduler](../packages/contracts/src/SettlioReactive.sol), [scheduler tests](../test/scheduler.test.cjs): eight scans/two requests per tick; actual Lasna CRON still unverified |
 | Out-of-order events, acknowledgements, retry/backoff and idle pause | COMPLETE — LOCAL CODE/TEST; LIVE PENDING | Cancellation/confirmation flags persist, terminal states cannot reopen, six unanswered attempts then attention; pause/idle unsubscribe. Live cost/debt/admission review still pending |
-| Policy bound into shared terms and merchant/customer interface | PENDING | UI currently uses version 2 terms and manual-policy creation. New policy must be bound/verified and disclosed before enabling automatic release |
+| Policy-bound terms and merchant/customer interface | IMPLEMENTED — LOCAL CHECKS PASS; BROWSER/LIVE PENDING | Version 3 binds the automatic-release flag; legacy fingerprints unchanged; UI reads recorded policy. Explicit-consent payment API blocks legacy automatic-policy bypass. New browser journeys still need verification |
 | Versioned deployment journal, preflight/health/evidence tooling | PENDING | New bytecode/event API requires new deployments and version checks. Do not deploy this partial slice |
 | Live scheduled expiry, ETH/USDC refunds and automatic release | PENDING — RELEASE BLOCKER | Genuine CRON/origin -> Reactive -> authenticated Base callback traces, balances/state and browser-closed execution required |
 | Complete journeys, failure/recovery, documentation and review | PENDING | M2 cannot close until every required live/local gate is satisfied |
@@ -30,7 +30,7 @@ Existing manual release stays merchant-only. An opt-in can only be set at creati
 
 - Initial focused run failed because the first edit omitted the option-creation policy assignment/event. Corrected before commit.
 - Focused policy suite: 7 passing checks (parent plus six cases).
-- Expanded full suite: **64 passed, zero failures/skips/cancellations**, including existing 46 M1 checks.
+- Expanded full suite: **69 passed, zero failures/skips/cancellations**, including existing 46 M1 checks.
 - All three contracts compile using Solidity 0.8.29. TypeScript/production frontend build passes. Existing >500kB bundle warning remains.
 - Protocol proxy/token fixtures are isolated local test contracts. No public callback, CRON delivery, official USDC transfer, deployment or user payment is claimed by these tests.
 - Current official [Reactive contracts](https://dev.reactive.network/reactive-contracts) and [callback authentication](https://dev.reactive.network/callback-contracts) docs rechecked. CRON support is documented, not yet observed live for Settlio.
@@ -43,7 +43,7 @@ Integration: scheduler and genuine unattended callbacks still pending.
 Usefulness: approved deposit policy has clear behaviour; no customer-demand claim.
 Craft: tested permission/timing/failure boundaries and transparent incomplete ledger; no overall score claimed.
 
-Next: bind policy into versioned terms/UI, expose job/funding/attention states, version deployment/evidence tooling and verify real unattended network loops. Stay in M2 until live acceptance; do not begin M3 merely because local checks pass.
+Next: version deployment/evidence tooling, verify legacy and new policy browser journeys and verify real unattended network loops. Stay in M2 until live acceptance; do not begin M3 merely because local checks pass.
 
 
 ## Scheduler verification update — 23 November
@@ -52,3 +52,9 @@ CRON100 is authenticated against Reactive chain ID, legacy emitter address, topi
 The scheduler test suite includes real isolated expiry, native automatic payout, and late cancellation/refund transactions with protocol forwarding and explicit test CRON records. It proves local code wiring, not public delivery. Original M1 regression tests now expect ten subscriptions only for newly compiled fixture deployments; the old public M1 subscriber remains unchanged.
 
 Final 64-test run passed after the retry-timing correction. The contract build passed after it; the frontend build passed before that final internal-only correction, with no ABI or frontend change afterward. No new public transaction, network proof or deployment. Active jobs still incur tick fees; retries/idle unsubscribe do not establish production-scale admission economics or permanent funding. Those operational/live checks remain open.
+
+
+## Policy interface and explicit payment consent — 23 November
+Version 3 share terms now include automaticRelease; versions 1/2 golden fingerprints remain unchanged. [Policy guards](../apps/web/src/policy.ts) distinguish a deterministic legacy empty revert from unknown RPC/unsupported-version errors and validate chain IDs and immutable wiring. [Frontend](../apps/web/src/main.tsx) creates/reads policy quotes, discloses default-off opt-in, eligibility and device timezone, and connects cancellation/claim/retry controls only on policy-capable deployments. [Read adapters](../apps/web/src/chain.ts) query actual scheduler/funding states; failure remains unknown. Fee balance presence is not an execution guarantee.
+
+Automatic-policy deposits require payDepositWithPolicy and matching explicit consent; old deposit entry points reject these quotes. The [local policy UI/contract tests](../test/policy-ui.test.mjs) verify version/wiring failures and genuine isolated quote/payment consent; [terms tests](../test/terms.test.mjs) verify compatibility and policy mismatches. Final contracts/TypeScript/frontend build and 69 local tests pass. No new live or browser UI evidence. Snapshot/media evidence from M1 does not validate these new screens. New deployment/versioned journal and operational browser/live proof remain mandatory before M2 acceptance.
