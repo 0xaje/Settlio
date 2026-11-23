@@ -1,0 +1,165 @@
+{
+  "recordedAt": "2026-11-23T14:47:24.483752+00:00",
+  "evidenceType": "verified-live-fee-reserve-recovery",
+  "readOnlyVerification": true,
+  "transaction": {
+    "hash": "0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282",
+    "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+    "to": "0x8888888888888888888888888888888888888888",
+    "chainId": "0x512577",
+    "value": "0xde0b6b3a7640000",
+    "input": "0xb760faf9000000000000000000000000a2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+    "nonce": "0x4",
+    "blockHash": "0x573e380ccc1a5a1e9c83cc8d97a8e19b49533bbfd878dfe175f00fef7201d454",
+    "blockNumber": "0x8a4791"
+  },
+  "receipt": {
+    "blockHash": "0x573e380ccc1a5a1e9c83cc8d97a8e19b49533bbfd878dfe175f00fef7201d454",
+    "blockNumber": "0x8a4791",
+    "contractAddress": null,
+    "cumulativeGasUsed": "0x0",
+    "effectiveGasPrice": null,
+    "err": null,
+    "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+    "gasUsed": "0xcbfc",
+    "logs": [
+      {
+        "address": "0x8888888888888888888888888888888888888888",
+        "topics": [
+          "0xc91181be4112cf78026ec1c30b4f5ecac00faa44c8d5e9523e08325cf186d8a7",
+          "0x000000000000000000000000a2dbeb94c0a151e071a6c29999fe1c6b38217b85"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8a4791",
+        "transactionHash": "0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282",
+        "transactionIndex": "0x1",
+        "blockHash": "0x573e380ccc1a5a1e9c83cc8d97a8e19b49533bbfd878dfe175f00fef7201d454",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x1",
+        "removed": false
+      }
+    ],
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "rnkTxType": "u",
+    "root": "0x83f0afa171301a7eb5f74a3cdd4bfb857716f6319e9fd11d6d734ac8ad1d2f3e",
+    "status": "0x1",
+    "to": "0x8888888888888888888888888888888888888888",
+    "transactionHash": "0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282",
+    "transactionIndex": "0x1",
+    "type": "0x0"
+  },
+  "verifiedDeposit": {
+    "asset": "Lasna native test REACT",
+    "amountWei": "1000000000000000000",
+    "method": "depositTo(address)",
+    "target": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85"
+  },
+  "postRecoveryOfficialHealth": {
+    "recordedAt": "2026-11-23T14:31:05.271054+00:00",
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "**HEALTHY** (proven) \u2014 No debt, reserves 0.9536594 REACT (at least 10 reactions), 11/11 subscriptions active, 0 recent reverts (0.0/hour).\n- [funding] FUNDED (proven): Omni: debt 0 REACT, reserves 0.9536594 REACT. Legacy proxy: debt 0 REACT, reserves 0 REACT. Contract balance 0.0090906 REACT (not counted as funding unless the contract implements pay()).\n  - eth_call 0x8888888888888888888888888888888888888888: debt(address), reserves(address) on the Omni system contract\n  - eth_call 0x0000000000000000000000000000000000ffffff: debts(address), reserves(address) on the legacy proxy; eth_getBalance on the contract\n- [funding] PAYMENT_EVENTS (proven): Last 12000 blocks: 1 PaymentFailure, last BlacklistContract 9059001, last WhitelistContract 9062289.\n  - BlacklistContract 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce: block 9059001 (https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce)\n  - WhitelistContract 0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282: block 9062289 (https://lasna.reactscan.net/tx/0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282)\n  - PaymentFailure 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce: block 9059001 (https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce)"
+          }
+        ],
+        "structuredContent": {
+          "tool": "get_rc_health",
+          "network": "lasna",
+          "verdict": "HEALTHY",
+          "confidence": "proven",
+          "summary": "No debt, reserves 0.9536594 REACT (at least 10 reactions), 11/11 subscriptions active, 0 recent reverts (0.0/hour).",
+          "findings": [
+            {
+              "stage": "funding",
+              "verdict": "FUNDED",
+              "confidence": "proven",
+              "summary": "Omni: debt 0 REACT, reserves 0.9536594 REACT. Legacy proxy: debt 0 REACT, reserves 0 REACT. Contract balance 0.0090906 REACT (not counted as funding unless the contract implements pay()).",
+              "evidence": [
+                {
+                  "kind": "eth_call",
+                  "ref": "0x8888888888888888888888888888888888888888",
+                  "note": "debt(address), reserves(address) on the Omni system contract"
+                },
+                {
+                  "kind": "eth_call",
+                  "ref": "0x0000000000000000000000000000000000ffffff",
+                  "note": "debts(address), reserves(address) on the legacy proxy; eth_getBalance on the contract"
+                }
+              ]
+            },
+            {
+              "stage": "funding",
+              "verdict": "PAYMENT_EVENTS",
+              "confidence": "proven",
+              "summary": "Last 12000 blocks: 1 PaymentFailure, last BlacklistContract 9059001, last WhitelistContract 9062289.",
+              "evidence": [
+                {
+                  "kind": "BlacklistContract",
+                  "ref": "0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce",
+                  "note": "block 9059001",
+                  "url": "https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce"
+                },
+                {
+                  "kind": "WhitelistContract",
+                  "ref": "0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282",
+                  "note": "block 9062289",
+                  "url": "https://lasna.reactscan.net/tx/0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282"
+                },
+                {
+                  "kind": "PaymentFailure",
+                  "ref": "0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce",
+                  "note": "block 9059001",
+                  "url": "https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce"
+                }
+              ]
+            }
+          ],
+          "fix": [],
+          "limits": [],
+          "data": {
+            "account": {
+              "debt": "0",
+              "reserves": "953659400000000000",
+              "legacyDebt": "0",
+              "legacyReserves": "0",
+              "balance": "9090600000000000"
+            },
+            "subscriptions": {
+              "total": 11,
+              "active": 11
+            },
+            "feeModel": {
+              "perReaction": "0.016 REACT",
+              "cushion": "0.16 REACT",
+              "assumedReactGas": "60000",
+              "extraGas": "100000",
+              "coeffPer1000": "1000",
+              "feeParamsLive": true
+            },
+            "revertRate": {
+              "reverts": 0,
+              "windowBlocks": 12001,
+              "perHour": 0,
+              "flagAbovePerHour": 6
+            },
+            "rpcRequests": 12
+          }
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 2
+    }
+  },
+  "userReportedImmediateResult": {
+    "debt": "0",
+    "reserves": "985231500000000000",
+    "balance": "9090600000000000"
+  },
+  "limits": [
+    "Fee payment recovery is not by itself proof of policy callback delivery.",
+    "Balances/reserves are point-in-time readings and may fall as reactions are charged.",
+    "The account key was entered locally by the user and was never provided to the assistant."
+  ]
+}

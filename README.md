@@ -6,11 +6,11 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 87 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 95 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / LIVE CRON REQUEST PROVEN / FEE DEBT BLOCKED / DELIVERY PENDING:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / LIVE EXPIRY AND FEE RECOVERY VERIFIED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. M2 Quote 1 has independently verified authenticated on-chain expiry and fee recovery. Live refunds/releases and browser-closed acceptance remain pending. The separate M1 deployment retains its original confirmation-only receiver. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -173,3 +173,20 @@ Fresh independent checks show network sequencing moving and Quote 1 registered w
 npm run fund:m2 uses a securely supplied local DEPLOYER_PRIVATE_KEY to deposit exactly **1 test REACT** through the official Lasna system's depositTo(address), targeting the existing recorded M2 subscriber. This clears debt first and adds remaining funds to reserves. It verifies the recorded creation/source/wiring and expected signer/network, shares the M2 lock, and saves a fundReactive intent before broadcast. Rerunning reuses that exact operation and does not send a second deposit. A different future top-up requires explicit new tooling/intent rather than editing this journal. No other funds or deploy settings are changed.
 
 Run npm run status:m2 to inspect the funding hash and npm run verify:m2 after recovery. Neither read-only command needs a key. Do not send a plain transfer to SYSTEM or assume a direct subscriber transfer settles debt. No customer deposit is needed for Quote 1. Reserve recovery is not callback proof; destination delivery remains separately pending. One test REACT is a recovery buffer, not a future-fee guarantee. No public top-up was sent during development.
+
+
+## Reproduce the first M2 expiry
+Quote 1 is now Expired on Base and its scheduler job is closed. Funding recovery cleared fee debt. Raw public evidence and scoped results are in deployments/evidence/m2/funding-recovery-1.json and quote-1-expiry.json.
+
+```sh
+npm run verify:m2
+npm run verify:expiry -- 1 \
+0x26d54a13b47dafeced742b46ae831140348aa535e7af71e8b35fc547fa1014f6 \
+0xbf44cf5d4ddd5bc0a10ef3a9e30180c80d1e997503f232585a8522a2b9732bdb \
+0x26d506ff287ed32a7e011323b7a567f13a4864af46acdc2519bfdbfcf7e0f7ff \
+0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899
+```
+
+Both commands are read-only and need no private key. verify:expiry writes a public snapshot only after its validation passes, preserves M1 evidence, and accepts an optional final journal path. Existing published snapshot time is historical; a fresh local result is not silently represented as a newly published observation. The same validator passed independently fetched live RPC responses here; workspace Node transport failed, so full user WSL CLI reproduction is still pending.
+
+The scope is authenticated quote-linked expiry. Identical retries prevent unique attempt attribution without the missing return-report mapping; browser closure was not recorded. These limits are explicit in the result. A missing Reactive CallbackPosted report must not override successful Base receipt evidence. Other live M2 flows and operational acceptance remain open.

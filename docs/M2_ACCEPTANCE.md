@@ -1,6 +1,6 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / LIVE CRON REQUEST PROVEN / FEE DEBT BLOCKED / DELIVERY PENDING / NOT ACCEPTED**, started 23 November 2026.
+Status: **IN PROGRESS / LIVE EXPIRY AND FEE RECOVERY VERIFIED / REMAINING FLOWS OPEN / NOT ACCEPTED**, started 23 November 2026.
 M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
@@ -8,16 +8,18 @@ M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL re
 | Area | Status | Evidence / remaining gate |
 |---|---|---|
 | Explicit immutable automatic-release opt-in | COMPLETE — LOCAL CODE/TEST | [Escrow](../packages/contracts/src/SettlioEscrow.sol): createQuoteWithPolicy, automaticRelease getter, PolicyRegistered event. Existing creation entry points default to manual release |
-| Authenticated destination policy callback | COMPLETE — LOCAL CODE/TEST | [Receiver](../packages/contracts/src/SettlioCallback.sol): proxy and authorised Reactive sender guards; direct/wrong-sender calls rejected in [policy tests](../test/policy.test.cjs) |
+| Authenticated destination policy callback | COMPLETE — LOCAL TESTS AND LIVE EXPIRY | [Receiver](../packages/contracts/src/SettlioCallback.sol): proxy and authorised Reactive sender guards; direct/wrong-sender calls rejected in [policy tests](../test/policy.test.cjs) |
 | Authoritative destination timestamps/state | COMPLETE — LOCAL CODE/TEST | Early expiry/payout is harmless; payment rejected at expiry; exact cutoff allows eligible release |
 | Cancellation reservation takes priority | COMPLETE — LOCAL CODE/TEST | Eligible cancellation remains refundable after cutoff and cannot pay merchant |
 | Same-asset transfers, duplicate safety and failed-transfer rollback | COMPLETE — LOCAL CODE/TEST | Native automatic payout once, token refund/payout once; real mined failed token callback transactions retain state and liability, then succeed on retry. Existing asset/refund tests also pass |
 | Participant policy retry signal | COMPLETE — LOCAL CODE/TEST | requestPolicy rejects nonparticipants and terminal states; no live retry trail yet |
-| CRON scheduler and bounded work queue | COMPLETE — LOCAL CODE/TEST; LIVE PENDING | [Scheduler](../packages/contracts/src/SettlioReactive.sol), [scheduler tests](../test/scheduler.test.cjs): eight scans/two requests per tick; actual Lasna CRON still unverified |
+| CRON scheduler and bounded work queue | COMPLETE — LOCAL BOUNDS AND ONE LIVE EXPIRY | Real indexed CRON/trigger/request/expiry data verified; scan/request bounds remain local tests, not live scale proof |
 | Out-of-order events, acknowledgements, retry/backoff and idle pause | COMPLETE — LOCAL CODE/TEST; LIVE PENDING | Cancellation/confirmation flags persist, terminal states cannot reopen, six unanswered attempts then attention; pause/idle unsubscribe. Live cost/debt/admission review still pending |
 | Policy-bound terms and merchant/customer interface | IMPLEMENTED — LOCAL CHECKS PASS; BROWSER/LIVE PENDING | Version 3 binds the automatic-release flag; legacy fingerprints unchanged; UI reads recorded policy. Explicit-consent payment API blocks legacy automatic-policy bypass. New browser journeys still need verification |
-| Versioned deployment journal, preflight/health/evidence tooling | COMMANDS IMPLEMENTED / LOCAL CHECKS PASS; LIVE AND POLICY EVIDENCE PENDING | Separate M2 journal, preflight/plan/deploy/verify commands and namespaced confirmation evidence. Scheduled-policy verifier and live observations remain open |
-| Live scheduled expiry, ETH/USDC refunds and automatic release | PENDING — RELEASE BLOCKER | Genuine CRON/origin -> Reactive -> authenticated Base callback traces, balances/state and browser-closed execution required |
+| Versioned deployment journal, preflight/health/evidence tooling | DEPLOYMENT CHECKS COMPLETE; EXPIRY VALIDATOR PASSES LIVE DATA | Separate journals, exact filter checks and fee-recovery intent tested. New verify:expiry checks real data; full WSL CLI transport reproduction and other policy verifiers remain pending |
+| Live scheduled unpaid expiry | COMPLETE — AUTHENTICATED QUOTE-LINKED ON-CHAIN OUTCOME | Quote 1 receipt/events, creation observation, real CRON/request and scheduler closure verified. Unique retry attribution and browser-closed evidence are not claimed |
+| Live ETH/USDC refunds and automatic release | PENDING — RELEASE BLOCKER | Genuine origin/CRON -> Reactive -> authenticated Base callback traces, balances/state and browser-closed execution required |
+| Fee-debt recovery | COMPLETE — INDEPENDENT LIVE RECEIPT | 1 test REACT reserve deposit cleared debt/restored subscriptions. Measured cost/admission planning remains open |
 | Complete journeys, failure/recovery, documentation and review | PENDING | M2 cannot close until every required live/local gate is satisfied |
 
 ## Implemented destination rules
@@ -216,3 +218,33 @@ Implemented fund:m2 for one fixed 1-test-REACT SYSTEM.depositTo(existing M2 subs
 Validation: full local suite 87 passed, zero failures/skips/cancellations, then six focused reserve/status checks passed after a final error-stage wrapper. A real isolated fixture deposit clears 0.0147685 fixture debt, credits 0.9852315 reserves, preserves subscriber balance and creation record, rejects wrong deployer, and repeats without another deposit; fixture accounting is not live protocol evidence. No contract/frontend source changed or new builds claimed. No public reserve payment was sent by the assistant; user-local key action is required.
 
 Saved a labelled quote-1-recovery-diagnostic.json containing live observations/request logs and delivery limits. Execution/Integration now have live registration and CRON/request proof, but delivery, expiry/refund/release, full evidence verification and browser-closed testing remain incomplete. Usefulness awaits successful recovery and destination outcome. Craft gains journalled fee recovery; cost/admission thresholds and callback delivery remain weaknesses. M2 NOT ACCEPTED. Next: user runs fund:m2 once with the dedicated local key, verify debt/subscriptions, then inspect the same quote and trace actual destination delivery. A reserve payment fixes debt, not every callback problem.
+
+
+
+## M2 Quote 1 authenticated expiry and fee recovery verified · 23 November 2026
+User fund:m2 receipt 0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282 succeeded. Independently fetched its raw Lasna transaction and receipt: chain 5318007, value 1 test REACT, official SYSTEM recipient, decoded depositTo target equal to the recorded M2 subscriber, successful receipt at block 9062289. User immediate debt 0/reserves 0.9852315; later verify:m2 reserves 0.9684279. Independent official health at 14:31 UTC reports HEALTHY / proven, debt zero, reserves 0.9536594 and all 11 subscriptions active. Readings differ as paid reactions consume reserves; no future-fee guarantee. Saved funding-recovery-1.json with raw public evidence and provenance. No second fund operation was sent.
+
+An independent Base read at 14:31 UTC still showed AwaitingDeposit; a later read at 14:35 UTC showed Expired (6). Scheduler jobs(1) is registered and closed, with nextAt zero and four attempts. Found successful Base callback 0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899 at block 62612635, timestamp 2026-11-23 14:33:15 UTC / 15:33:15 WAT. Its actual proxy call decodes deliverCallback version 0, Base chain ID, the configured M2 receiver and processPolicy(M2 Reactive address,1). The escrow emits QuoteExpired(1) and PolicyChecked(1,6) in that same successful receipt. Current immutable receiver/proxy/Reactive wiring was freshly queried and matched.
+
+Added verify:expiry, a key-free verifier accepting quote ID and creation/CRON/reaction/callback hashes (optional journal path). It validates actual creation/policy terms and original processed fingerprint, exact indexed network CRON log, injected SYSTEM trigger input and receipt linkage, matching PolicyCallbackRequested/system CallbackRequest, delivered proxy configuration/authenticated sender and quote payload, successful expiry/outcome events, deadline/block timing, terminal quote and scheduler acknowledgement. It writes namespaced evidence only after all checks pass and whitelists public journal identity before saving.
+
+Independently retrieved live RPC responses passed validateBundle, yielding quote-1-expiry.json. Full CLI collection from this workspace hit Node provider network detection/access failure; that attempt did not write new success evidence or send a transaction. Public responses were instead fetched through Python HTTP and checked by the same validator. User WSL reproduction of the complete CLI transport is still pending. No fabricated receipt or simulated production transaction is used.
+
+Attribution limit: retries have identical payloads and the official return-report index still lacks mapping. The supplied real CRON/reaction #4 is a matching candidate, not uniquely identified as the one delivered. Report explicitly sets uniqueRetryAttribution false. Browser closure was not recorded; no browser-closed acceptance is claimed. The service's CALLBACK_NOT_POSTED / cannot_prove result is not proof of failed delivery: Base receipts now prove accepted expiry despite missing return reports. No exact-latency claim.
+
+Validation: eight historical-public-evidence/tampering tests pass; full local suite 95 passes with zero failures/skips/cancellations. After optional journal-path and clearer result-label adjustments, the eight focused checks pass again. They replay genuine recorded evidence and do not count as fresh live execution. No contract/frontend bytecode or deployed address changed and no new contract/frontend build was needed/claimed. Existing build baseline remains.
+
+Execution/Integration: COMPLETE for this scope — real quote registration, CRON/request and authenticated quote-linked expiry; fee-debt recovery independently verified. Usefulness: an unpaid booking becomes expired without a merchant expiry transaction; timing was delayed and browser-closed proof remains open. Craft: reproducible validation and explicit attribution/transport limits; measured costs/admission thresholds and broader journeys remain weak/open. M2 NOT ACCEPTED overall. Next: user reruns read-only verify:m2 and verify:expiry, checks the Expired page, then complete ETH/USDC refund/release and browser-closed acceptance. Keep the original 13:00/14:30 WAT terms; do not create a replacement quote for this result.
+
+
+### Quote 1 checkpoint closure
+
+| Checkpoint | Status | Proof / remaining limit |
+|---|---|---|
+| Original policy observation and live indexed CRON/request | COMPLETE — INDEPENDENT LIVE RPC | Processed creation fingerprint; injected trigger binds exact CRON receipt; request event/config verified |
+| Successful authenticated expiry on Base | COMPLETE — INDEPENDENT LIVE RPC | Callback 0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899, successful receipt, decoded proxy payload, QuoteExpired and PolicyChecked(1,6) |
+| Terminal scheduler acknowledgement | COMPLETE — CURRENT LIVE READ | jobs(1).closed true, registered true, nextAt zero |
+| Debt payment and reserve recovery | COMPLETE — INDEPENDENT LIVE RPC | Funding receipt 0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282; correct depositTo target/value and healthy subsequent observation |
+| Unique retry-to-delivery attribution | UNRESOLVED LIMIT | Identical retry payloads; no posted return-report mapping; do not uniquely attribute delivery to request #4 |
+| Browser-closed capture and full WSL CLI reproduction | PENDING | No retroactive browser-closure claim; validator passed live receipts but workspace Node transport failed |
+| ETH/USDC refunds, releases, cost/admission/recovery and full UI journeys | PENDING — M2 CLOSE BLOCKERS | Complete with actual balances, permissions, traces and usable browser evidence |

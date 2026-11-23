@@ -118,3 +118,18 @@ First proven CRON origin: Lasna block 9058600, hash 0x5f7362f65dea57beb12be0ceb4
 Official health reports debt 0.0147685 test REACT, balance 0.0090906, zero reserves and 11 inactive subscriptions. PaymentFailure/BlacklistContract hash 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce at block 9059001. The trace service cannot prove delivery because no posted callback result was found; Base quote remains unchanged.
 
 See [recovery diagnostic](deployments/evidence/m2/quote-1-recovery-diagnostic.json) for raw direct state, request logs, provenance, verdicts and limits. It is partial live evidence, not full-loop success. fund:m2 is tested local reserve-recovery tooling; its 1-test-REACT operator payment has not yet been sent or accepted as live proof. Original quote deadlines remain 13:00/14:30 WAT; they are not rewritten.
+
+
+## M2 Quote 1 authenticated on-chain expiry — independently verified
+Funding: 0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282, Lasna block 9062289. Independently verified status 1, 1 test REACT, SYSTEM.depositTo targeting the recorded M2 Reactive address. Debt zero and active subscriptions confirmed subsequently; reserve amounts change as fees are charged.
+
+Creation: 0x26d54a13b47dafeced742b46ae831140348aa535e7af71e8b35fc547fa1014f6. Its PolicyRegistered fingerprint is processed on the scheduler.
+Matching real CRON: 0xbf44cf5d4ddd5bc0a10ef3a9e30180c80d1e997503f232585a8522a2b9732bdb, Lasna block 9062300, log 2.
+Associated matching reaction/request #4: 0x26d506ff287ed32a7e011323b7a567f13a4864af46acdc2519bfdbfcf7e0f7ff, block 9062301.
+Successful Base callback: 0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899, Base block 62612635, 14:33:15 UTC / 15:33:15 WAT on 23 November.
+
+Decoded deliverCallback targets the configured receiver with processPolicy(recorded Reactive,1); immutable proxy/sender/escrow getters match. Its receipt emits QuoteExpired(1) and PolicyChecked(1,6); direct quote status is Expired and job closed. The original 13:00/14:30 WAT terms remain unchanged. This was delayed completion after fee recovery, not exact-time performance evidence.
+
+[Expiry proof](deployments/evidence/m2/quote-1-expiry.json) and [funding proof](deployments/evidence/m2/funding-recovery-1.json) include real public data and validation results. verify:expiry reproduces the scoped checks. Independently fetched responses passed the validator; user WSL CLI collection still needs reproduction because workspace Node RPC transport failed. Eight tampering/historical-evidence checks and full 95-test suite pass; unit replays are not fresh live evidence.
+
+Retry attribution is not unique: identical request payloads and missing return-report mapping prevent claiming request #4 specifically delivered this callback. Browser-closed operation was not recorded. Missing CallbackPosted results did not mean Base delivery failed. M2 refund/release and remaining browser/operational gates are still pending; no overall M2 completion is claimed.
