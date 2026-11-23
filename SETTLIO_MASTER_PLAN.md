@@ -27,8 +27,9 @@ Local test fixtures are not live integration evidence. The failure-path coordina
 M2 is next and remains unimplemented: unattended scheduled expiry, protected refunds and approved automatic release with live full-loop proof. No existing quote migration, redeployment or funds movement occurs merely because M1 is accepted. Existing corrected/recovery quotes remain unpaid.
 
 ## Authority and status
-This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
-Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 46 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
+This plan is the implementation source of truth. Current milestone status: M0 complete; **M1 complete for its defined engineering scope**; M2/M3/M4 not complete. The [M1 acceptance record](docs/M1_ACCEPTANCE.md) is the item-by-item evidence ledger; it includes live, user-browser and isolated-test provenance and residual limits. Older M1-open notes below are historical and superseded by the dated current acceptance.
+
+Historical Word/PDF planning exports represent earlier baselines and are not current. Do not claim scheduled refunds/expiry/automatic release, final design, exhaustive device coverage or submission completion from M1 acceptance.
 
 ## Approved decisions replacing version 1
 - Work directly on main in https://github.com/0xaje/Settlio. Preserve concurrent changes and never rewrite history.
@@ -76,7 +77,7 @@ Subsequent user WSL evidence passed all 42 tests, frontend build and read-only h
 
 ## Milestones and acceptance gates
 M0 foundation and execution policy is complete for local implementation. Deliver AGENTS.md, this plan, licence, an honest README, environment check, and a recorded payment-policy decision. Policy defaults, local compiler, Anvil runtime, and current Omni source interfaces are checked. Deployment preparation continues within M1.
-M1 quote and deposit to booking is active. Escrow, subscriber, and callback receiver compile and 42 local tests pass. Initial merchant/customer UI typechecks and builds, with limited desktop browser verification. Live read-only network preflight passed. One real Base Sepolia ETH quote, second-wallet payment, Lasna processing and authenticated confirmation callback are verified in ONCHAIN-EVIDENCE.md, with a user-provided confirmed UI screenshot. Live USDC approval/deposit/confirmation is also verified. USDT provenance/support and remaining journey checks remain open.
+M1 quote and deposit to booking is COMPLETE as of 23 November 2026. See [M1 acceptance](docs/M1_ACCEPTANCE.md) for every accepted item, genuine ETH/USDC traces, WSL live health, 46-test checks, browser creation-recovery and local failure-path verification. Its evidence limits remain explicit. USDT is deferred by approval, not an open M1 requirement.
 M2 unattended policies. Scheduled unpaid expiry, authenticated eligible cancellation/refund, merchant release, custody accounting, repeated delivery, deadline races, and recovery all verified.
 M3 complete approved interface. Connect the six surfaces to real state, accessible hero motion, responsive layouts, and independent user journeys.
 M4 release and submission. Security/reliability review, reproducible public source, licence, deployments, several full-loop proofs, and public video under three minutes.
