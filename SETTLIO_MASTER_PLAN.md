@@ -607,3 +607,7 @@ Quote 4 completed genuine 1 USDC approval/deposit, Reactive confirmation, cancel
 
 ## M2 refund verifier and partial fee review · 23 November 2026
 Read-only verify:refund for accepted ETH/USDC trails implemented; fresh actual collector/validator checks pass via Python HTTP RPC transport and recorded CLI replay passes. Full suite 107 passed, final 12 focused checks passed after guard review. WSL CLI reproduction pending. Historical subscriber reserve block debits 0.0299719/0.0168036 test REACT measured; these are not full quote costs or an admission guarantee. Current measured reserve 0.414101, zero source/destination debt. No new contract/frontend build, deployment, funding or live quote. Resolve WSL reproduction and adequate fee budget before automatic release/browser-closed testing. M2 NOT ACCEPTED; M3 pending.
+
+
+## M2 user WSL refund reproduction complete · 23 November 2026
+User default live verify:refund for ETH Quote 2 and USDC Quote 4 passed at 17:02 WAT, followed by verify:m2. Close the WSL refund-reproduction checkpoint. Both assets have zero custody/liability; scheduler idle and source/destination debt zero in user output. Reserve 0.414101 test REACT is a dated observation. Original published snapshots are preserved; no newer user-local bytes fabricated. No code/test/build changes. Automatic release, browser-closed capture, operational budget/admission and remaining recovery/journey acceptance stay open. Establish fee budget and closure capture before a new timed-release quote. M2 NOT ACCEPTED; M3 pending.
