@@ -139,7 +139,7 @@ test('M2 bounded CRON scheduling, acknowledgements, retry isolation and idle fun
      const start=await now(),cutoff=start+100;
      const creation=await (await escrow.createQuoteWithPolicy(await customer.getAddress(),[{asset:ZeroAddress,total:300n,deposit:100n}],start+50,cutoff,terms,true)).wait();
      const id=await escrow.quoteCount();await forwardReceipt(creation);
-     const deposit=await (await escrow.connect(customer).payDepositOption(id,0,terms,{value:100n})).wait();await forwardReceipt(deposit);
+     const deposit=await (await escrow.connect(customer).payDepositWithPolicy(id,0,terms,true,{value:100n})).wait();await forwardReceipt(deposit);
      const confirmation=await (await prototype.deliver(receiver.target,reactive.target,id)).wait();await forwardReceipt(confirmation);
      assert.equal((await escrow.getQuote(id)).status,3n);assert.equal((await reactive.jobs(id)).nextAt,BigInt(cutoff));
      return {id,cutoff};
