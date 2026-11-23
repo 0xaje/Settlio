@@ -8,7 +8,7 @@ import './style.css';
 import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract } from './chain';
 import { createdQuoteFromReceipt } from './recovery';
 import { ensureBaseSepolia } from './wallet';
-import { decodePending, pendingReceipt } from './pending';
+import { decodePending, pendingReceipt, recoverPendingTransaction } from './pending';
 import { assets, knownAsset, displayAmount as amount } from './assets';
 import { decodeTerms, encodeTerms, matchesQuote, termsHash, type Quote, type Terms } from './terms';
 
@@ -132,19 +132,15 @@ function App() {
     if (transactionLock.current || !pending) return;
     transactionLock.current = true; setBusy(true); setError('');
     try {
-      const receipt = await pendingReceipt(reader, pending);
-      if (!receipt) { setUnresolved(true); setMessage('No receipt yet. The transaction may still be pending or dropped. Check its explorer page before sending anything again.'); return; }
-      if (receipt.status !== 1) {
+      const receipt = await recoverPendingTransaction(reader, pending, restored => {
+        setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
+        restoreCreatedQuote(restored);
+      }, () => {
         setPending(''); setUnresolved(false);
         try { localStorage.removeItem(pendingKey()); } catch {}
-        setError('This transaction failed on-chain. Refresh the quote before trying again.'); return;
-      }
-      setMessage('Transaction confirmed on Base Sepolia. Booking confirmation is checked separately on the quote.');
-      // Keep the saved hash if restoring its service terms fails. The user must
-      // still be able to check the original transaction rather than resubmit.
-      restoreCreatedQuote(receipt);
-      setPending(''); setUnresolved(false);
-      try { localStorage.removeItem(pendingKey()); } catch {}
+      });
+      if (!receipt) { setUnresolved(true); setMessage('No receipt yet. The transaction may still be pending or dropped. Check its explorer page before sending anything again.'); return; }
+      if (receipt.status !== 1) { setError('This transaction failed on-chain. Refresh the quote before trying again.'); return; }
       setRefresh(value => value + 1);
     } catch (failure) { setUnresolved(true); setMessage(''); setError(errorMessage(failure)); }
     finally { transactionLock.current = false; setBusy(false); }
