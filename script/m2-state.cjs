@@ -28,9 +28,9 @@ function saveJournal(filename, journal) {
 function hydrate(unsigned) { return { type:0, chainId:BigInt(unsigned.chainId), nonce:unsigned.nonce,
   to:unsigned.to, data:unsigned.data, value:BigInt(unsigned.value), gasLimit:BigInt(unsigned.gasLimit), gasPrice:BigInt(unsigned.gasPrice) }; }
 async function runOperation({journal,key,signer,request,chainId,save,timeout=120000}) {
-  check(['deployReactive','deployCallback','configure','fundReactive','fundReactiveRelease'].includes(key),'Unknown M2 operation.');
+  check(['deployReactive','deployCallback','configure','fundReactive','fundReactiveRelease','pauseScheduler','resumeScheduler'].includes(key),'Unknown M2 operation.');
   check(chainId===BASE || chainId===LASNA,'Unsupported M2 operation network.');
-  check(!['fundReactive','fundReactiveRelease'].includes(key) || chainId===LASNA,'M2 reserve funding is Lasna-only.');
+  check(!['fundReactive','fundReactiveRelease','pauseScheduler','resumeScheduler'].includes(key) || chainId===LASNA,'M2 funding/scheduler operations are Lasna-only.');
   const rpc=signer.provider, from=getAddress(await signer.getAddress());
   check(from===getAddress(journal.deployer),'M2 signer differs from journal deployer.');
   check(Number(BigInt(await rpc.send('eth_chainId',[])))===chainId,'M2 operation network mismatch.');

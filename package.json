@@ -33,7 +33,10 @@
     "verify:refund": "node script/verify-refund.cjs",
     "budget:m2": "node script/release-budget.cjs",
     "fund:m2:release": "node script/fund-m2.cjs release-test",
-    "verify:release": "node script/verify-release.cjs"
+    "verify:release": "node script/verify-release.cjs",
+    "plan:recovery": "node script/scheduler-recovery.cjs plan",
+    "pause:recovery": "node script/scheduler-recovery.cjs pause",
+    "resume:recovery": "node script/scheduler-recovery.cjs resume"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
