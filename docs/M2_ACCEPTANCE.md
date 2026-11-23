@@ -246,5 +246,19 @@ Execution/Integration: COMPLETE for this scope — real quote registration, CRON
 | Terminal scheduler acknowledgement | COMPLETE — CURRENT LIVE READ | jobs(1).closed true, registered true, nextAt zero |
 | Debt payment and reserve recovery | COMPLETE — INDEPENDENT LIVE RPC | Funding receipt 0xaaa3863b906620ce06546e69fd288c4b51deae460da3f6e958c0d06d14a68282; correct depositTo target/value and healthy subsequent observation |
 | Unique retry-to-delivery attribution | UNRESOLVED LIMIT | Identical retry payloads; no posted return-report mapping; do not uniquely attribute delivery to request #4 |
-| Browser-closed capture and full WSL CLI reproduction | PENDING | No retroactive browser-closure claim; validator passed live receipts but workspace Node transport failed |
+| Full WSL CLI reproduction | COMPLETE — USER LIVE RUN | verify:m2 and verify:expiry passed on 8107f00, result verifiedAt 2026-11-23T14:55:21.519Z |
+| Browser-closed capture | PENDING | Browser closure was not recorded; do not retroactively claim it |
 | ETH/USDC refunds, releases, cost/admission/recovery and full UI journeys | PENDING — M2 CLOSE BLOCKERS | Complete with actual balances, permissions, traces and usable browser evidence |
+
+
+
+## M2 expiry CLI reproduced from user WSL — 23 November 2026
+User pulled 8107f00 and successfully ran verify:m2 followed by verify:expiry. Public expiry result verifiedAt 2026-11-23T14:55:21.519Z (15:55:21 WAT), scope quote-linked authenticated live expiry, outcome Expired, schedulerClosed true. This closes the previously pending complete-CLI transport/reproduction gate. It does not change the historical independently collected snapshot timestamp; the user's refreshed local JSON has not been silently substituted for the published bundle.
+
+The supplied result repeats the exact creation/CRON/associated reaction/callback hashes in quote-1-expiry.json and preserves uniqueRetryAttribution false and browserClosedEvidence not recorded. Those are explicit evidence limits, not hidden success claims. Browser-closed capture remains pending.
+
+Fresh user verify:m2: ten origin subscriptions, filterVersion 12401, quoteCount 1, activeJobs 0, CRON false, paused false. The completed job has left the runnable queue; inactive CRON is the correct terminal idle state. ETH/USDC custody balance and liability all zero. Reactive debt zero, reserves 907803600000000000, balance 9090600000000000; callback debt/reserves zero, balance 999354797200000. Funding observations are current, not perpetual capacity claims.
+
+Documentation-only status reconciliation; no code/build/test rerun or new transaction by the assistant. Prior 95-test full run/focused checks stand. Execution/Integration: authenticated live unpaid expiry plus user-reproduced evidence complete for this scope. Usefulness: next gate is a paid booking's cancellation/refund, not another expiry quote. Craft: reproducible public CLI now user-confirmed, while unique-attempt attribution, browser closure, costs/admission and remaining live workflows stay open. M2 NOT ACCEPTED overall.
+
+Next planned test: a new ETH-only quote for the designated customer, total 0.0003 test ETH, deposit 0.0001; automatic release off and USDC unchecked. Planned payment deadline 23 November 17:00 WAT and refund cutoff 19:00 WAT, future relative to the observed 15:56 WAT preparation time. This is a proposed test template, not an existing quote or new transaction. Create/share first and collect the genuine creation receipt before paying/cancelling; refund acceptance requires exact same-asset return, cleared liability and authenticated Reactive delivery. Adjust future times if creating later; never alter the expired Quote 1's terms.

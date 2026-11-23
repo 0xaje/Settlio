@@ -591,3 +591,7 @@ Network sequencing is moving at the latest independent observation. Quote 1 is r
 
 ## M2 first authenticated live expiry verified · 23 November 2026
 Fee reserve payment independently verified: 1 test REACT via SYSTEM.depositTo, debt cleared and subscriptions restored. Quote 1 now Expired on Base, with authenticated callback 0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899 at 15:33:15 WAT; scheduler closed. verify:expiry checks real creation/CRON/request/proxy payload/events and records quote-linked proof; unique retry attribution and browser closure are explicitly not proven. Same validator passed independently fetched live receipts; full workspace CLI transport failed, WSL rerun pending. Full 95-test suite and final eight focused checks pass. Mark live on-chain expiry and fee recovery complete, not all M2. Refund/release/browser-closed/cost and remaining acceptance gates stay open.
+
+
+## M2 user WSL expiry reproduction complete · 23 November 2026
+User verify:m2 and verify:expiry on 8107f00 both passed at 15:55 WAT. Expired quote, closed scheduler and zero jobs/idle CRON independently collected earlier are now reproduced through the complete CLI from user WSL. Debt remains zero. Close the CLI-reproduction item; keep browser-closed and unique retry-attribution limits explicit. Next is a new ETH deposit/eligible cancellation/automatic same-asset refund, then other pending M2 flows. No M2-wide completion or M3 start.

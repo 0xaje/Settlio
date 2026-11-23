@@ -133,3 +133,9 @@ Decoded deliverCallback targets the configured receiver with processPolicy(recor
 [Expiry proof](deployments/evidence/m2/quote-1-expiry.json) and [funding proof](deployments/evidence/m2/funding-recovery-1.json) include real public data and validation results. verify:expiry reproduces the scoped checks. Independently fetched responses passed the validator; user WSL CLI collection still needs reproduction because workspace Node RPC transport failed. Eight tampering/historical-evidence checks and full 95-test suite pass; unit replays are not fresh live evidence.
 
 Retry attribution is not unique: identical request payloads and missing return-report mapping prevent claiming request #4 specifically delivered this callback. Browser-closed operation was not recorded. Missing CallbackPosted results did not mean Base delivery failed. M2 refund/release and remaining browser/operational gates are still pending; no overall M2 completion is claimed.
+
+
+## User WSL reproduced full expiry verification — 23 November 2026
+After pulling 8107f00, user verify:m2 and verify:expiry both succeeded. Result verifiedAt 2026-11-23T14:55:21.519Z: quote-linked authenticated live expiry, outcome Expired, schedulerClosed true, associated candidate attempt 4, uniqueRetryAttribution false and browserClosedEvidence not recorded. Existing published receipt bundle retains its historical collection timestamp; a newer user-local result is not fabricated into it.
+
+User current observations: filterVersion 12401, ten origin subscriptions, quoteCount 1, zero jobs, CRON inactive, unpaused; zero ETH/USDC custody/liability, zero fee debt. Reactive reserves 907803600000000000 and balance 9090600000000000; callback balance 999354797200000. The terminal idle state is expected after closure. CLI reproduction gate is complete; browser-closed evidence and other M2 flows remain pending.

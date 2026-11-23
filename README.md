@@ -187,6 +187,10 @@ npm run verify:expiry -- 1 \
 0x547bbbf96a201348cf818f4dcf97a55dacb9403b24892009d152c2e219064899
 ```
 
-Both commands are read-only and need no private key. verify:expiry writes a public snapshot only after its validation passes, preserves M1 evidence, and accepts an optional final journal path. Existing published snapshot time is historical; a fresh local result is not silently represented as a newly published observation. The same validator passed independently fetched live RPC responses here; workspace Node transport failed, so full user WSL CLI reproduction is still pending.
+Both commands are read-only and need no private key. verify:expiry writes a public snapshot only after its validation passes, preserves M1 evidence, and accepts an optional final journal path. Existing published snapshot time is historical; a fresh local result is not silently represented as a newly published observation. The same validator passed independently fetched live RPC responses here. User WSL then reproduced the full verify:m2 and verify:expiry commands successfully at 2026-11-23T14:55:21.519Z; the earlier workspace Node transport failure remains historical.
 
 The scope is authenticated quote-linked expiry. Identical retries prevent unique attempt attribution without the missing return-report mapping; browser closure was not recorded. These limits are explicit in the result. A missing Reactive CallbackPosted report must not override successful Base receipt evidence. Other live M2 flows and operational acceptance remain open.
+
+
+## First expiry reproduction completed
+User WSL on 8107f00 confirmed Expired, schedulerClosed true and an idle queue/CRON, with zero debt. Full CLI reproduction is complete. Identical retry attribution and unrecorded browser closure remain explicit limits. The next live M2 gate is an ETH deposit followed by eligible cancellation and exact automatic refund; no new quote/payment is recorded yet.
