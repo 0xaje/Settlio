@@ -375,3 +375,29 @@ Prepared a scratch-only Playwright test using the real frontend and isolated Anv
 Actual run failed before opening a page: Chromium aborted with socket() failed: Operation not permitted in process_singleton_posix.cc. Browser launch was blocked by execution-environment permissions; no browser assertion ran, no browser pass or application root cause is claimed. Anvil/Vite cleanup hooks ran. Scratch test is not added to the default suite or represented as verified functionality. No production code, contract, deployment or public transaction changed.
 
 Remaining decision for the user: retain the strict original public-browser interruption gate and keep M1 open, or explicitly amend acceptance to the existing combined coverage (real ETH/USDC confirmation loops, 46 passing local checks including pending EVM and persistent-process restarts, manual browser recovery, staged confirmed-receipt browser outcome), with original public-browser pre-receipt interruption kept as a release verification item. Recommendation is the latter to progress to M2 without claiming missing evidence. This is a proposal only; no acceptance amendment or M1 closure has been applied. Execution/Integration evidence unchanged; Craft records the actual blocked attempt and practical limitation; Usefulness unchanged.
+
+
+## Strict M1 audit · 23 November 2026
+User explicitly rejected waiving the outstanding M1 gate and requires fixes and proof before M2. The previous acceptance-amendment proposal is not approved. M1 stays open; no M2 work is authorised by this audit.
+
+Reviewed current main escrow, callback, subscriber, quote terms, receipt decoder, pending-receipt guard, app transaction/recovery handlers, verifier, healthcheck, evidence record and master/progress. Rechecked current official Reactive Contracts and Callback Contracts documentation: subscriber onlySystem, destination proxy AND injected-sender authentication, immutable wiring and separate funding match the reviewed patterns. This is source review, not fresh live subscription/wiring verification. Contracts retain timestamp payment/cancellation checks, state-first nonreentrant principal transfers, exact token balance-delta checks and per-asset liabilities. No new contract defect established by this review; this is not an independent security audit or a guarantee of no defects. M2 refund/expiry routing remains explicitly unavailable.
+
+Found and corrected frontend ordering flaw: checkPending removed its saved hash before restoreCreatedQuote decoded/validated original terms. A malformed or mismatched saved draft could throw after the record was discarded. It now keeps the pending record until successful restoration, clears a failed mined transaction separately, and leaves unresolved recovery errors visible with existing explorer/retry controls. This issue does not establish the cause of the user's missing original record. The new restore-error branch has source/build review, not a live-browser pass; retain it as a verification item.
+
+Fresh baseline checks after syncing audited main sources: all three contracts compile with 0.8.29, TypeScript/frontend production build pass, 46 local tests pass with zero failures. Frontend build rerun after the ordering fix passed. The 46-test run preceded that UI-only ordering change and does not exercise its React/browser error branch. Bundle-size warning remains. No new blanket test or browser pass claimed.
+
+Fresh read-only healthcheck and both complete quote verifier invocations were attempted with the recorded public deployment addresses and genuine ETH/USDC hashes. All three exited with their failure guards; no new successful report or evidence snapshot written. Generic error output does not identify a contract fault versus connectivity; fresh live verification is blocked, not passed. Existing historical evidence remains unchanged. No public transaction, deposit, new quote, deployment or fund movement.
+
+M1 acceptance ledger:
+- quote creation with immutable terms: prior chain evidence and user screenshots; corrected quote unpaid;
+- ETH and USDC deposit -> Reactive -> authenticated confirmation: historical verified full-loop snapshots; fresh rechecks blocked;
+- designated-wallet permissions, wrong amounts/terms, duplicate payment, principal accounting, deadline boundaries, callbacks and retry: passing local suite, with prior live confirmation evidence separately labelled;
+- manual creation-receipt recovery: user-confirmed;
+- staged confirmed-hash browser save/reload recovery: user-provided outcome, original interruption not proven;
+- local EVM pending/restart and persistent Web Storage across processes: passing isolated test;
+- original newly broadcast public-browser interruption: OPEN;
+- restore-error retains pending hash: source/build reviewed, browser failure-path verification OPEN;
+- current custody/funding/wiring and original hashes revalidation: BLOCKED pending working RPC execution;
+- M1 closure: NOT ACCEPTED. M2 remains unstarted.
+
+Judging: Execution retains historical live trails but fresh state revalidation is blocked; Integration retains meaningful event/callback plumbing with known value limitations already recorded; Usefulness retains clear deposit workflow but no validated demand claim; Craft improves a concrete recovery error path while honestly retaining missing verification. Next action: run fresh build/tests/preflight/healthcheck and full-loop verifiers from the user's working WSL/RPC environment, then execute a clearly captured original interruption check. Do not substitute another manual lookup or staged confirmed receipt for that gate.
