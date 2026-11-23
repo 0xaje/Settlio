@@ -25,7 +25,8 @@
     "preflight:m2": "node script/m2.cjs preflight",
     "plan:m2": "node script/m2.cjs plan",
     "deploy:m2": "node script/m2.cjs deploy",
-    "verify:m2": "node script/m2.cjs verify"
+    "verify:m2": "node script/m2.cjs verify",
+    "diagnose:cron": "node script/diagnose-cron.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

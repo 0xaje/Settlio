@@ -555,3 +555,7 @@ Deployment-state/journal and exact subscription-filter helpers now have five foc
 
 ## M2 deployment command update · 23 November 2026
 Versioned M2 preflight/plan/deploy/verify commands and confirmation evidence namespace are implemented. Separate journal/lock, saved-intent resumption, immutable wiring and compiled creation/runtime checks pass local two-chain tests including an unavailable index after broadcast and duplicate-free resume. Legacy deployment rejects M2 bytecode. Final contracts/frontend build and 76 local tests pass. Live preflight produced no verified observations from this workspace. Actual deployment, scheduled-policy evidence verifier, public unattended loops, browser journeys, costs and recovery remain pending; M2 is NOT ACCEPTED. Follow the README read-only checks before any user-local M2 deployment.
+
+
+## M2 live CRON gate blocked · 23 November 2026
+User WSL preflight returned no matching recent CRON100 event; planning did not run and no deployment was attempted. Documented emitter/topic/shape agree with source, but the live cause is not yet known. Added read-only diagnose:cron with three passing focused tests; preflight/deployment gates are unchanged. Diagnose actual public RPC responses before fixing the confirmed cause. No live scheduling pass or M2 completion.
