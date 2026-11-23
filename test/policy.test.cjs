@@ -56,7 +56,7 @@ test('M2 destination policies authenticate, enforce timestamps and preserve rese
       await (await token.mint(await customer.getAddress(),100n)).wait();
       await (await token.connect(customer).approve(escrow.target,100n)).wait();
     }
-    await (await escrow.connect(customer).payDepositOption(q.id,0,terms,{value:asset===ZeroAddress?100n:0n})).wait();
+    await (await escrow.connect(customer).payDepositWithPolicy(q.id,0,terms,await escrow.automaticRelease(q.id),{value:asset===ZeroAddress?100n:0n})).wait();
   }
   await t.test('only authenticated callbacks apply policy and only participants request retries',async()=>{
     const q=await create();
@@ -64,6 +64,9 @@ test('M2 destination policies authenticate, enforce timestamps and preserve rese
     await assert.rejects(proxy.deliver.staticCall(receiver.target,await stranger.getAddress(),q.id));
     await assert.rejects(escrow.processPolicy.staticCall(q.id));
     await assert.rejects(escrow.releaseAutomatic.staticCall(q.id));
+    await assert.rejects(escrow.connect(customer).payDeposit.staticCall(q.id,terms,{value:100n}));
+    await assert.rejects(escrow.connect(customer).payDepositOption.staticCall(q.id,0,terms,{value:100n}));
+    await assert.rejects(escrow.connect(customer).payDepositWithPolicy.staticCall(q.id,0,terms,false,{value:100n}));
     await assert.rejects(escrow.connect(stranger).requestPolicy.staticCall(q.id));
     await (await escrow.connect(customer).requestPolicy(q.id)).wait();
     await assert.rejects(proxy.deliver.staticCall(receiver.target,await reactive.getAddress(),999));
@@ -72,7 +75,7 @@ test('M2 destination policies authenticate, enforce timestamps and preserve rese
     const q=await create();
     await (await process(q.id)).wait();assert.equal((await escrow.getQuote(q.id)).status,1n);
     await move(q.expiry);
-    await assert.rejects(escrow.connect(customer).payDepositOption.staticCall(q.id,0,terms,{value:100n}));
+    await assert.rejects(escrow.connect(customer).payDepositWithPolicy.staticCall(q.id,0,terms,true,{value:100n}));
     await (await process(q.id)).wait();assert.equal((await escrow.getQuote(q.id)).status,6n);
     await (await process(q.id)).wait();assert.equal(await escrow.liability(ZeroAddress),0n);
   });
