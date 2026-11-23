@@ -575,3 +575,7 @@ User-local deploy:m2 stopped with a generic error; partial broadcast/creation ca
 
 ## M2 deployment receipts and subscription-parser fix · 23 November 2026
 User WSL reports successful Reactive/callback creation and configuration receipts; preserve the M2 contracts/journal. Full verification stopped because live rnk_getFilters uses PascalCase Version/TopicFilters rather than the documented camelCase wrapper. Explicit support for both wrappers retains exact active subscription criteria and passes the final 86-test suite. No contract bytecode/fingerprint changed. Next is key-free verify:m2, not redeployment. Full runtime/wiring/filter report and unattended policy traces remain pending. M2 NOT ACCEPTED.
+
+
+## M2 deployment checkpoints completed · 23 November 2026
+User WSL verify:m2 on 6203604 passed source/runtime/creation/configuration/network/version/wiring, ten exact origin subscriptions, custody and separate funding checks (filter version 12314). Zero quotes/jobs correctly leave CRON inactive while unpaused. Record these deployment checkpoints as complete current observations; dynamic CRON delivery and unattended policy execution are still unverified. Next: separate M2 interface on port 5174 using process-scoped escrow 0x1694e56187f9422e364B42af3185d34a0D4b9bc0, then live policy journeys/evidence. M2 remains NOT ACCEPTED.

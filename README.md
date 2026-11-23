@@ -10,7 +10,7 @@ The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requir
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / DEPLOYMENT RECEIPTS REPORTED SUCCESSFUL / VERIFICATION PENDING:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment commands pass local integration tests. New browser journeys, live deployment checks and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / LIVE DEPLOYMENT CHECKS PASSED / POLICY EXECUTION PENDING:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -143,7 +143,19 @@ The user-local deployment attempt on 23 November stopped with a generic error. I
 New deployment failures include a fixed stage and allowlisted error code while suppressing raw error messages/key material. Share status output for diagnosis before resuming the preserved intent. M2 stays open until public deployment, full unattended traces and remaining acceptance gates are verified.
 
 
-## Existing M2 contracts — subscription verification pending
+## M2 subscription parser correction — resolved
 User WSL status reports successful Reactive/callback creation and configuration receipts. Addresses and hashes are in ONCHAIN-EVIDENCE.md with provenance. Verification stopped because Lasna returns Version/TopicFilters while the documented example uses version/topicFilters. The parser supports both explicit wrappers, retains all exact active subscription checks, and passes the full 86-test suite.
 
-Pull main and run npm run verify:m2 without a key. This reads the existing M2 journal/contracts and full subscription index. Do not redeploy or delete the journal to resolve this casing issue. A read-only verification pass and all genuine unattended policy traces are still required; M2 is not accepted. Earlier unknown-outcome notes are historical and superseded by the supplied status receipts.
+Pull main and run npm run verify:m2 without a key. This reads the existing M2 journal/contracts and full subscription index. Do not redeploy or delete the journal to resolve this casing issue. Read-only verification passed from user WSL; genuine unattended policy traces are still required. M2 is not accepted. Earlier unknown-outcome notes are historical and superseded by the supplied status receipts.
+
+
+## Verified M2 deployment — start its interface
+User WSL verify:m2 passed on 23 November: policy version 3, correct compiled code/wiring, ten active origin subscriptions, covered empty custody and funded fee accounts. Zero jobs means CRON is correctly idle, not paused. These are point-in-time prerequisites; live policy execution remains pending.
+
+To use the new escrow in a separate local dev process:
+
+```sh
+VITE_ESCROW_ADDRESS=0x1694e56187f9422e364B42af3185d34a0D4b9bc0 npm run dev -- --port 5174 --strictPort
+```
+
+Open http://localhost:5174 and check the merchant create-quote policy controls before creating a timed test. The process variable takes precedence over dotenv values for this run; no saved configuration or M1 quote is migrated. Do not change old share links to point at the new contract. The full M2 live/browser/evidence gates remain in the acceptance ledger.

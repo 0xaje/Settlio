@@ -1,7 +1,7 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / DEPLOYMENT RECEIPTS REPORTED SUCCESSFUL / VERIFICATION PENDING / NOT ACCEPTED**, started 23 November 2026.
-M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification remains pending; the existing M1 contracts, quote links and principal are unchanged.
+Status: **IN PROGRESS / LIVE DEPLOYMENT CHECKS COMPLETE / POLICY EXECUTION PENDING / NOT ACCEPTED**, started 23 November 2026.
+M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
 
@@ -154,3 +154,27 @@ Parser now explicitly accepts either top-level convention, preserves version rep
 Final full local suite: **86 passed, zero failures/skips/cancellations**. No contract/frontend source, source fingerprint, deployment intent or principal changed. No new build/live verifier pass claimed for this script-only change. Previous contract/frontend builds remain the baseline. No transaction is sent by this correction.
 
 Execution/Integration: successful deployment/configuration receipts are user-reported; complete runtime/wiring/subscription verification and unattended policy traces remain open. Usefulness unchanged. Craft: production-response casing regression fixes another fixture/documentation blind spot; browser, operational fees and recovery coverage remain pending. M2 NOT ACCEPTED. Next: pull main and run verify:m2 only, without a private key. Do not deploy again to clear this parser error.
+
+
+
+## M2 deployment verification passed — user WSL, 23 November 2026
+User pulled 6203604 and ran verify:m2 successfully without a key. Provenance is supplied live WSL command output, not an independently rerun workspace query. Report: policyVersion 3, wiringVerified true, ten active origin subscriptions, filterVersion 12314. Quote count and active jobs are both zero; scheduler not paused; cronActive false. The verifier requires inactive CRON when there is no runnable work, so this is the correct idle state, not an automation failure.
+
+The read-only verifier checks recorded creation/configuration transactions, compiled creation/runtime bytecode with separately verified immutable wiring, chain IDs, versions, custody coverage and active exact subscriptions. These deployment checks are now COMPLETE at the reported observation. This does not verify future dynamic CRON activation/delivery or an end-user policy execution.
+
+Custody observation: ETH balance/liability zero, USDC balance/liability zero. Lasna subscriber 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 has balance 100000000000000000 (0.1 native test REACT), debt/reserves zero, needsAttention false. Base callback 0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781 has balance 1000000000000000 (0.001 test ETH), debt/reserves zero, needsAttention false. These are current observations, not guaranteed capacity for later jobs. The new escrow remains 0x1694e56187f9422e364B42af3185d34a0D4b9bc0. Existing M1 addresses/quotes remain separate.
+
+No source implementation changed or tests/builds rerun for this documentation-only update. Prior 86-test/script regression and contract/frontend builds remain the baseline. Local installed Vite loadEnv was inspected: explicitly supplied VITE process variables take precedence over dotenv values. Operator can open a separate M2 dev instance on strict port 5174 with only its process-scoped public escrow variable, preserving the configured M1 dev instance.
+
+Judging: Execution has verified deployment prerequisites but no live M2 policy callbacks yet; Integration has verified origin subscriptions but dynamic CRON and unattended destination outcomes are pending; Usefulness requires completing merchant/customer live journeys; Craft gains reproducible recorded verification while broader browser/device/cost/recovery gates remain open. M2 NOT ACCEPTED. Next: open the M2 interface, verify the policy controls/version before creating a fresh timed quote, then collect genuine unattended expiry/refund/release traces and complete scheduled-policy evidence verification. Do not begin M3.
+
+
+### Completed deployment checkpoints
+
+| Checkpoint | Status | Evidence and limits |
+|---|---|---|
+| Creation/configuration, compiled code, immutable wiring, version and networks | COMPLETE — USER WSL LIVE VERIFIER | verify:m2 on 6203604 reports wiringVerified true and policyVersion 3; transaction addresses/hashes recorded in ONCHAIN-EVIDENCE.md |
+| Ten exact active origin subscriptions | COMPLETE — CURRENT OBSERVATION | User verifier reports originSubscriptions 10, filterVersion 12314 |
+| Correct empty-queue idle CRON state | COMPLETE — CURRENT OBSERVATION | quoteCount 0, activeJobs 0, paused false, cronActive false; dynamic activation/delivery still pending |
+| Custody coverage and separate fee funding | COMPLETE — CURRENT OBSERVATION | Both asset liabilities/balances zero; fee accounts funded with no observed debt; not proof of payment/refund or future fee sufficiency |
+| Unattended expiry/refund/release and complete browser journeys | PENDING — M2 ACCEPTANCE BLOCKER | Requires actual origin/CRON-to-Reactive-to-destination execution, balances/states, failure recovery and public evidence |
