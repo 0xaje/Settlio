@@ -599,3 +599,7 @@ User verify:m2 and verify:expiry on 8107f00 both passed at 15:55 WAT. Expired qu
 
 ## M2 ETH refund checkpoint complete · 23 November 2026
 Quote 2 completed deposit, Reactive confirmation, eligible cancellation and authenticated automatic ETH refund. Independent receipt/calldata checks and refund-block customer/escrow deltas show exactly 0.0001 ETH returned; current ETH balance/liability zero, job closed and idle CRON off. Public evidence: deployments/evidence/m2/quote-2-eth-refund.json. Browser closure and unique request attribution are not asserted. No new code/build/test-suite run. USDC refund, automatic release, reproducible refund CLI, browser-closed and remaining operational gates stay open; M2 NOT ACCEPTED and M3 pending.
+
+
+## M2 USDC refund checkpoint complete · 23 November 2026
+Quote 4 completed genuine 1 USDC approval/deposit, Reactive confirmation, cancellation and authenticated automatic refund. Issuer-token Transfer and exact refund-block balance deltas verified; current USDC/native liabilities zero, scheduler closed and idle CRON off. Evidence: deployments/evidence/m2/quote-4-usdc-refund.json. Browser closure and unique request attribution not claimed. No new code/build/test-suite run. Next: reproducible refund verification and fee-cost/funding review before automatic-release/browser-closed live testing. About 0.414101 test REACT reserves/zero debt is a dated health observation, not a sufficient-future-funding guarantee. M2 NOT ACCEPTED; M3 pending.

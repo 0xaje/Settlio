@@ -1,6 +1,6 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / LIVE EXPIRY, ETH REFUND AND FEE RECOVERY VERIFIED / REMAINING FLOWS OPEN / NOT ACCEPTED**, started 23 November 2026.
+Status: **IN PROGRESS / LIVE EXPIRY, ETH/USDC REFUNDS AND FEE RECOVERY VERIFIED / REMAINING FLOWS OPEN / NOT ACCEPTED**, started 23 November 2026.
 M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
@@ -16,9 +16,11 @@ M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL re
 | CRON scheduler and bounded work queue | COMPLETE — LOCAL BOUNDS AND ONE LIVE EXPIRY | Real indexed CRON/trigger/request/expiry data verified; scan/request bounds remain local tests, not live scale proof |
 | Out-of-order events, acknowledgements, retry/backoff and idle pause | COMPLETE — LOCAL CODE/TEST; LIVE PENDING | Cancellation/confirmation flags persist, terminal states cannot reopen, six unanswered attempts then attention; pause/idle unsubscribe. Live cost/debt/admission review still pending |
 | Policy-bound terms and merchant/customer interface | IMPLEMENTED — LOCAL CHECKS PASS; BROWSER/LIVE PENDING | Version 3 binds the automatic-release flag; legacy fingerprints unchanged; UI reads recorded policy. Explicit-consent payment API blocks legacy automatic-policy bypass. New browser journeys still need verification |
-| Versioned deployment journal, preflight/health/evidence tooling | DEPLOYMENT CHECKS COMPLETE; EXPIRY VALIDATOR PASSES LIVE DATA | Separate journals, exact filter checks and fee-recovery intent tested. New verify:expiry checks real data; full WSL CLI transport reproduction and other policy verifiers remain pending |
+| Versioned deployment journal, preflight/health/evidence tooling | DEPLOYMENT CHECKS COMPLETE; EXPIRY VALIDATOR PASSES LIVE DATA | Separate journals, exact filter checks and fee-recovery intent tested. New verify:expiry checks real data; WSL expiry CLI reproduction passed; refund/release verifiers remain pending |
 | Live scheduled unpaid expiry | COMPLETE — AUTHENTICATED QUOTE-LINKED ON-CHAIN OUTCOME | Quote 1 receipt/events, creation observation, real CRON/request and scheduler closure verified. Unique retry attribution and browser-closed evidence are not claimed |
-| Live ETH refund | COMPLETE — AUTHENTICATED ON-CHAIN OUTCOME | Quote 2 receipt, request, refund-block balances and terminal scheduler below; browser closure/reusable CLI pending |\n| Live USDC refund and automatic release | PENDING — RELEASE BLOCKER | Genuine origin/CRON -> Reactive -> authenticated Base callback traces, balances/state and browser-closed execution required |
+| Live ETH refund | COMPLETE — AUTHENTICATED ON-CHAIN OUTCOME | Quote 2 receipt, request, refund-block balances and terminal scheduler below; browser closure/reusable CLI pending |
+| Live USDC refund | COMPLETE — AUTHENTICATED ON-CHAIN OUTCOME | Quote 4 trace, token transfer/balance deltas and scheduler closure below; browser closure/reusable CLI pending |
+| Live automatic release | PENDING — RELEASE BLOCKER | Genuine origin/CRON -> Reactive -> authenticated Base callback traces, balances/state and browser-closed execution required |
 | Fee-debt recovery | COMPLETE — INDEPENDENT LIVE RECEIPT | 1 test REACT reserve deposit cleared debt/restored subscriptions. Measured cost/admission planning remains open |
 | Complete journeys, failure/recovery, documentation and review | PENDING | M2 cannot close until every required live/local gate is satisfied |
 
@@ -285,3 +287,32 @@ Cancellation accepted at 16:15:28 WAT; refund callback at 16:16:37 WAT emits Ref
 Checkpoint COMPLETE for this live ETH confirmation/cancellation/authenticated refund outcome and current accounting/terminal scheduler acknowledgement. Browser closure was not recorded; do not claim browser-closed acceptance. Matching request is independently verified, but unique retry attribution/return-report mapping is not asserted. A reusable refund CLI and user WSL reproduction remain pending. No new code, contract/frontend build or test-suite run is claimed; prior 95-test baseline stands. No assistant broadcast or new deployment.
 
 Judging assessment: Execution — genuine successful destination confirmation/refund and matching Reactive requests; Integration — CRON drives an authenticated refund without a separate customer refund transaction; Usefulness — eligible cancellation returns the exact deposit; Craft — public receipt/accounting evidence with explicit limits. Overall M2 NOT ACCEPTED. USDC refund, automatic release, browser-closed journeys, operational cost/admission and remaining recovery/reproducibility gates remain open. Next: create a fresh USDC-enabled quote, verify its creation, then select USDC for the customer payment.
+
+
+## M2 Quote 4 USDC refund checkpoint — 23 November 2026
+
+**COMPLETE for this live USDC deposit/confirmation/cancellation/refund outcome; M2 NOT ACCEPTED overall.** Independent read-only Base Sepolia/Lasna collection and offline assertions passed at 2026-11-23T15:52:22.293Z (16:52 WAT). Raw public receipts, transactions, CRON, state, token balances and current fee-health response: [quote-4-usdc-refund.json](../deployments/evidence/m2/quote-4-usdc-refund.json).
+
+| Stage | Network | Successful transaction |
+|---|---|---|
+| Quote creation | Base Sepolia | 0x9523727d0d08fb8c5f2876e01e7a9147bab4ec7618b5cbc30f759eefc99c2184 |
+| Exact 1 USDC approval | Base Sepolia | 0xba7af87415a6ef0ae09e05b94c21a822907a70cb919281a47d1f60ac17ac6b18 |
+| 1 USDC deposit | Base Sepolia | 0xf73bc4934cc72975a631a1b0009a5ad8dbb86045af160a4be7b2c3a8188be9ec |
+| Confirmation reaction | Lasna | 0x33fd3cdc67297891aac9ca913ce5e3748e76273066ad1edd23aee48fd6a9ff65 |
+| Confirmation callback | Base Sepolia | 0x749bb60a090ee4114d231f751233ac4621278038a1b0e1aaa22157b752094242 |
+| Customer cancellation | Base Sepolia | 0xd36f969d4f75aabb7c963893fcc0e65a3cf9ee61e54e50569b876035d20e8315 |
+| Network CRON | Lasna | 0x6d1d2ae270fece57ced0402d5292a2b5e9fe4207aff311db19420794054523bb |
+| Associated refund request, attempt 1 | Lasna | 0xbfd291478cfd1ec58b69a6fda7c47e1ea94451bb034cd17e4243c18a497cf839 |
+| Authenticated refund callback | Base Sepolia | 0x08c07b406bf0c2850094e8b8d7fef180adf22ff24645cf174161f0771dd03747 |
+
+Quote 4 used issuer-listed Base Sepolia USDC 0x036CbD53842c5426634e7929541eC2318f3dCF7e, option 1, six decimals: deposit 1000000 units (1 test USDC), total 3000000 (3). Payment deadline 23 November 18:00 WAT, full-refund cutoff 20:00 WAT, automatic release false. Approval alone was separate from the mined token transfer/deposit. Deposit reaction binds the actual origin log/block/hash and its fingerprint. Confirmation delivery decodes confirmBooking(authorised Reactive,4) through the official proxy and configured receiver.
+
+Cancellation succeeded at 16:47:27 WAT, before cutoff. Refund callback at 16:48:23 WAT decodes processPolicy(authorised Reactive,4); its successful receipt contains the issuer token Transfer(escrow,designated customer,1000000), Refunded(4,1000000) and PolicyChecked(4,5). The associated successful Lasna request is driven by the real indexed CRON receipt and requests the matching chain/receiver/payload. Current immutable wiring matches. No protocol return-report mapping/unique-attempt attribution is asserted.
+
+Across the refund block, customer USDC increases by exactly 1000000 units and escrow USDC decreases by exactly 1000000. Current USDC escrow balance/liability are zero; native balance/liability also zero. Quote is Refunded; scheduler job registered/confirmed/cancelled/closed, nextAt zero, active jobs zero, CRON false. Block deltas corroborate the explicit token transfer; current reads are dated observations, not future capacity guarantees.
+
+Official get_rc_health at 15:51:18 UTC reports HEALTHY/proven, zero debt, about 0.414101 test REACT reserves and 10/10 active origin subscriptions. Idle CRON being unsubscribed is expected. Reserves have decreased since funding recovery, so cost/admission and sufficient funding for the next timed release remain open. The existing fund:m2 command resumes its saved one-time operation; do not edit the journal or assume rerunning it creates a fresh top-up.
+
+Verification was read-only historical/live evidence inspection with assertions, not a new contract/frontend change or test-suite run. Prior 95-test baseline remains historical. Browser closure not recorded; reusable refund CLI, WSL reproduction and full browser-closed acceptance remain pending. No assistant transaction or deployment. Mistaken payment tests are excluded from accepted USDC evidence.
+
+Judging: Execution — actual confirmation/refund receipts and matching Reactive requests; Integration — meaningful CRON-triggered same-asset refund; Usefulness — designated customer receives the exact cancelled deposit; Craft — inspectable public token accounting and explicit evidence/funding limits. Next: complete reproducible refund tooling and fee-cost checks before a consented automatic-release/browser-closed live test. Remaining release/recovery/journey gates keep M2 open; M3 has not begun.
