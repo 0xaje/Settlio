@@ -6,11 +6,11 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 95 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 107 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / LIVE EXPIRY, ETH/USDC REFUNDS AND FEE RECOVERY VERIFIED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. M2 Quote 1 has independently verified authenticated on-chain expiry and fee recovery. M2 Quote 2 completed authenticated ETH confirmation/cancellation/refund with exact refund-block balance deltas, zero remaining native liability and closed scheduler; see [public evidence](deployments/evidence/m2/quote-2-eth-refund.json). USDC Quote 4 also completed an authenticated 1 USDC refund with exact token balance deltas, zero liability and scheduler closure; see [public evidence](deployments/evidence/m2/quote-4-usdc-refund.json). Releases, reusable refund CLI, funding/cost review and browser-closed acceptance remain pending. The separate M1 deployment retains its original confirmation-only receiver. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / LIVE EXPIRY, ETH/USDC REFUNDS AND FEE RECOVERY VERIFIED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. M2 Quote 1 has independently verified authenticated on-chain expiry and fee recovery. M2 Quote 2 completed authenticated ETH confirmation/cancellation/refund with exact refund-block balance deltas, zero remaining native liability and closed scheduler; see [public evidence](deployments/evidence/m2/quote-2-eth-refund.json). USDC Quote 4 also completed an authenticated 1 USDC refund with exact token balance deltas, zero liability and scheduler closure; see [public evidence](deployments/evidence/m2/quote-4-usdc-refund.json). Read-only refund verification is now implemented; WSL reproduction, releases, full funding/cost admission review and browser-closed acceptance remain pending. The separate M1 deployment retains its original confirmation-only receiver. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -198,3 +198,16 @@ User WSL on 8107f00 confirmed Expired, schedulerClosed true and an idle queue/CR
 
 ## Latest M2 checkpoint — USDC refund verified, 23 November 2026
 Quote 4 approval, 1 USDC deposit, Reactive confirmation, eligible cancellation, CRON/request and authenticated refund are independently checked. Token balance/liability zero and terminal scheduler acknowledged. See deployments/evidence/m2/quote-4-usdc-refund.json and the acceptance ledger. Browser closure and unique request attribution are not claimed. Fee health has zero debt and about 0.414101 test REACT reserves at the observation; cost/admission and release funding review remain open. Earlier next-step/recovery sections are historical; M2 remains NOT ACCEPTED.
+
+
+## Reproduce accepted M2 refunds
+
+```sh
+npm run verify:refund -- 2
+npm run verify:refund -- 4
+npm run verify:m2
+```
+
+These commands need no private key or wallet signature. Refund verification re-fetches genuine public receipts and current state, then writes separate quote-ID-refund-verified.json bundles after checks pass. IDs 2 and 4 refer to the accepted M2 ETH and USDC trails. Original evidence is preserved. It requires historical RPC access and may conservatively reject unrelated same-block balance movements. Use `npm run verify:refund -- 2 --recorded` (or 4) only for an explicitly labelled archived-evidence replay, not a new live check.
+
+Both fresh collectors/validators passed via independently fetched RPC data; full WSL CLI reproduction remains pending. Twelve new focused evidence/tamper checks pass; full suite baseline is now 107. No new deployment or contract/frontend source change. Fee observations are public in deployments/evidence/m2/fee-observation-2026-11-23.json; block reserve changes are not a complete per-quote fee or future delivery guarantee. Automatic release, browser-closed evidence and operational admission remain open.

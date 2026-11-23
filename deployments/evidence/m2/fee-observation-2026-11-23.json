@@ -1,0 +1,78 @@
+{
+  "confirmationbefore": {
+    "block": "0x8a58cc",
+    "raw": "0x000000000000000000000000000000000000000000000000076679698501d800"
+  },
+  "confirmationafter": {
+    "block": "0x8a58cd",
+    "raw": "0x00000000000000000000000000000000000000000000000006fbfe20c0438000"
+  },
+  "refundbefore": {
+    "block": "0x8a5930",
+    "raw": "0x00000000000000000000000000000000000000000000000006693fa194bec000"
+  },
+  "refundafter": {
+    "block": "0x8a5931",
+    "raw": "0x000000000000000000000000000000000000000000000000062d8cd893cc2000"
+  },
+  "reactivecoeff": {
+    "block": "latest",
+    "raw": "0x00000000000000000000000000000000000000000000000000000000000003e8"
+  },
+  "reactiveextra": {
+    "block": "latest",
+    "raw": "0x00000000000000000000000000000000000000000000000000000000000186a0"
+  },
+  "callbackcoeff": {
+    "block": "latest",
+    "raw": "0x000000000000000000000000000000000000000000000000000000000000044c"
+  },
+  "callbackextra": {
+    "block": "latest",
+    "raw": "0x0000000000000000000000000000000000000000000000000000000000013880"
+  },
+  "currentReserves": {
+    "block": "latest",
+    "raw": "0x00000000000000000000000000000000000000000000000005bf2eaa5e225000"
+  },
+  "currentDebt": {
+    "block": "latest",
+    "raw": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "callbackDebt": {
+    "block": "latest",
+    "raw": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "observedAt": "2026-11-23T15:57:54.295629+00:00",
+  "scope": "Historical subscriber reserve block deltas and current protocol fee parameters; not an admission guarantee",
+  "networks": {
+    "Base Sepolia": 84532,
+    "Reactive Lasna": 5318007
+  },
+  "contracts": {
+    "reactive": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85",
+    "callback": "0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781",
+    "system": "0x8888888888888888888888888888888888888888",
+    "proxy": "0x476F44b11F5C942c58f4c8E3d0300E5710743585"
+  },
+  "calldata": {
+    "reserves": "0xd66bd524000000000000000000000000a2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+    "debt": "0x9b6c56ec000000000000000000000000a2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+    "callbackDebt": "0x9b6c56ec0000000000000000000000001e44e729a2f2fa2e64c1edb9904a2ecd90c8a781",
+    "coeff": "0x2c16b16f",
+    "extra": "0xe5563728"
+  },
+  "derived": {
+    "confirmationBlockReserveDebitWei": "29971900000000000",
+    "refundBlockReserveDebitWei": "16803600000000000",
+    "currentReservesWei": "414101000000000000"
+  },
+  "limits": [
+    "Historical reserve differences include all subscriber activity in each block; not uniquely isolated transaction charges.",
+    "Receipt effectiveGasPrice is null on these Lasna reactions, so no gasUsed-times-gasPrice cost is fabricated.",
+    "Parameters are current observations; protocol owners may change them.",
+    "Not a complete per-quote cost, worst-case budget, admission threshold or guarantee of delivery.",
+    "No new funding transaction; the prior fund:m2 intent remains one-time."
+  ],
+  "officialDocumentation": "https://dev.reactive.network/economy"
+}

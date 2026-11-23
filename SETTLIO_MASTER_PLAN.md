@@ -603,3 +603,7 @@ Quote 2 completed deposit, Reactive confirmation, eligible cancellation and auth
 
 ## M2 USDC refund checkpoint complete · 23 November 2026
 Quote 4 completed genuine 1 USDC approval/deposit, Reactive confirmation, cancellation and authenticated automatic refund. Issuer-token Transfer and exact refund-block balance deltas verified; current USDC/native liabilities zero, scheduler closed and idle CRON off. Evidence: deployments/evidence/m2/quote-4-usdc-refund.json. Browser closure and unique request attribution not claimed. No new code/build/test-suite run. Next: reproducible refund verification and fee-cost/funding review before automatic-release/browser-closed live testing. About 0.414101 test REACT reserves/zero debt is a dated health observation, not a sufficient-future-funding guarantee. M2 NOT ACCEPTED; M3 pending.
+
+
+## M2 refund verifier and partial fee review · 23 November 2026
+Read-only verify:refund for accepted ETH/USDC trails implemented; fresh actual collector/validator checks pass via Python HTTP RPC transport and recorded CLI replay passes. Full suite 107 passed, final 12 focused checks passed after guard review. WSL CLI reproduction pending. Historical subscriber reserve block debits 0.0299719/0.0168036 test REACT measured; these are not full quote costs or an admission guarantee. Current measured reserve 0.414101, zero source/destination debt. No new contract/frontend build, deployment, funding or live quote. Resolve WSL reproduction and adequate fee budget before automatic release/browser-closed testing. M2 NOT ACCEPTED; M3 pending.

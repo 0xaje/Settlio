@@ -29,7 +29,8 @@
     "diagnose:cron": "node script/diagnose-cron.cjs",
     "status:m2": "node script/m2-status.cjs",
     "fund:m2": "node script/fund-m2.cjs",
-    "verify:expiry": "node script/verify-expiry.cjs"
+    "verify:expiry": "node script/verify-expiry.cjs",
+    "verify:refund": "node script/verify-refund.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
