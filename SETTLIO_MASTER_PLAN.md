@@ -19,6 +19,13 @@ The user approved the recommendation to add automatic release after the agreed f
 - This is M2 scope. M1 browser-interruption verification remains open; implementation starts only after its acceptance. M2 acceptance includes genuine unattended release and expiry, ETH/USDC same-asset refunds, deadline races, failed delivery/retry, no duplicate transfers, and origin/CRON/Reactive/callback evidence with both browser sessions closed.
 - Documentation approval is not deployed functionality, a new test pass or a completed milestone.
 
+## Current M1 acceptance · 23 November 2026
+M1 quote/deposit/confirmation engineering scope is accepted. This supersedes historical M1-open status notes below. Acceptance evidence: genuine ETH and USDC full confirmation loops freshly reverified from user WSL; 46 passing local tests; current compiler/frontend/preflight/health passes; user-accepted targeted mobile fixes; manual recovery and original quote-creation pause/reload/recovery recording and screenshot; fault-injection verification of malformed/mismatched saved terms preserving the hash through the recovery coordinator used by the app. See docs/PROGRESS.md for exact provenance.
+
+Local test fixtures are not live integration evidence. The failure-path coordinator was tested with a real isolated EVM receipt and persistent storage, not separately recorded in a browser. Browser screenshots/user actions are not independently replayed automation. No exhaustive device/extension coverage, independent security audit, validated customer demand or zero-defect claim. Full interface checks remain M3/M4. No gate waiver was used: the prior open recovery scenarios were exercised with these distinct kinds of evidence.
+
+M2 is next and remains unimplemented: unattended scheduled expiry, protected refunds and approved automatic release with live full-loop proof. No existing quote migration, redeployment or funds movement occurs merely because M1 is accepted. Existing corrected/recovery quotes remain unpaid.
+
 ## Authority and status
 This Markdown plan is the current implementation source of truth. It carries forward the original plan and replaces the conflicting decisions listed below. The original Word/PDF planning exports describe version 1 and require regeneration before being treated as current.
 Repository inspection on 19 November returned an empty repository. Contract implementation is active. Three contracts compile with 46 passing local tests. The initial frontend builds and was checked in a local desktop browser. The deployed contracts and genuine ETH and USDC origin/Reactive/confirmation callback loops are verified; see ONCHAIN-EVIDENCE.md. USDT support/provenance and remaining M1 checks are open. No overall judging score is claimed.
