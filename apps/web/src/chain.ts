@@ -1,6 +1,7 @@
 import { BrowserProvider, Contract, FetchRequest, getAddress, isAddress, JsonRpcProvider, type Eip1193Provider } from 'ethers';
 import abi from './escrow-abi.json';
 import type { Quote } from './terms';
+import { readPolicyVersion, assertPolicyWiring, REACTIVE_SYSTEM } from './policy';
 
 declare global {
   interface Window {
@@ -52,4 +53,54 @@ export function errorMessage(error: unknown): string {
   if (value.code === 'INSUFFICIENT_FUNDS') return 'Your wallet needs enough of the selected payment token, plus test ETH for gas.';
   if (value.code === 'CALL_EXCEPTION') return 'The contract rejected this action. Refresh the quote and check the amount, wallet, and deadline.';
   return value.shortMessage || value.message || 'This action could not be completed. Please try again.';
+}
+
+const reactiveRequest = new FetchRequest(import.meta.env.VITE_LASNA_RPC || 'https://lasna-rpc.rnk.dev');
+reactiveRequest.timeout = 15000;
+const reactiveReader = new JsonRpcProvider(reactiveRequest, undefined, { cacheTimeout: -1 });
+
+export async function readPolicyDeployment(contract: Contract): Promise<
+  { version: 0 } | { version: 3; receiver: Contract; scheduler: Contract }
+> {
+  const version = await readPolicyVersion(() => contract.POLICY_VERSION());
+  if (version === 0) return { version };
+  const receiverAddress = getAddress(await contract.callbackReceiver());
+  const receiver = new Contract(receiverAddress, [
+    'function escrow() view returns(address)', 'function _CALLBACK_SENDER() view returns(address)',
+    'function _SERVICE_PROVIDER() view returns(address)'
+  ], reader);
+  const reactiveAddress = getAddress(await receiver._CALLBACK_SENDER());
+  const scheduler = new Contract(reactiveAddress, [
+    'function POLICY_VERSION() view returns(uint256)', 'function originChain() view returns(uint256)',
+    'function originEscrow() view returns(address)', 'function callbackReceiver() view returns(address)',
+    'function _SERVICE_PROVIDER() view returns(address)', 'function schedulerPaused() view returns(bool)',
+    'function cronSubscribed() view returns(bool)', 'function activeJobCount() view returns(uint256)',
+    'function jobs(uint256) view returns(uint64 expiresAt,uint64 refundCutoff,uint64 nextAt,uint8 attempts,bool automaticRelease,bool registered,bool confirmed,bool cancelled,bool closed,bool needsAttention,bool retryRequested)'
+  ], reactiveReader);
+  const [baseId, reactiveId, schedulerVersion, proxy, receiverEscrow, originChain, originEscrow, callbackReceiver, reactiveProvider] =
+    await Promise.all([reader.send('eth_chainId', []), reactiveReader.send('eth_chainId', []),
+      readPolicyVersion(() => scheduler.POLICY_VERSION()), receiver._SERVICE_PROVIDER(), receiver.escrow(),
+      scheduler.originChain(), scheduler.originEscrow(), scheduler.callbackReceiver(), scheduler._SERVICE_PROVIDER()]);
+  assertPolicyWiring({ baseChainId: BigInt(baseId), reactiveChainId: BigInt(reactiveId), schedulerVersion,
+    escrow: escrowAddress, receiver: receiverAddress, proxy, receiverEscrow, originChain, originEscrow, callbackReceiver, reactiveProvider });
+  return { version: 3, receiver, scheduler };
+}
+
+export async function readAutomationStatus(id: bigint) {
+  const deployment = await readPolicyDeployment(await readContract());
+  if (deployment.version !== 3) throw new Error('Automatic policies are not available on this deployment.');
+  const { scheduler, receiver } = deployment;
+  const proxy = getAddress(await receiver._SERVICE_PROVIDER());
+  const receiverAddress = await receiver.getAddress(), schedulerAddress = await scheduler.getAddress();
+  const billingAbi = ['function debt(address) view returns(uint256)', 'function reserves(address) view returns(uint256)'];
+  const baseBilling = new Contract(proxy, billingAbi, reader);
+  const reactiveBilling = new Contract(REACTIVE_SYSTEM, billingAbi, reactiveReader);
+  const [job, paused, cron, nativeDebt, nativeReserves, nativeBalance, reactiveDebt, reactiveReserves, reactiveBalance] =
+    await Promise.all([scheduler.jobs(id), scheduler.schedulerPaused(), scheduler.cronSubscribed(),
+      baseBilling.debt(receiverAddress), baseBilling.reserves(receiverAddress), reader.getBalance(receiverAddress),
+      reactiveBilling.debt(schedulerAddress), reactiveBilling.reserves(schedulerAddress), reactiveReader.getBalance(schedulerAddress)]);
+  return { registered: Boolean(job.registered), closed: Boolean(job.closed), needsAttention: Boolean(job.needsAttention),
+    nextAt: BigInt(job.nextAt), attempts: Number(job.attempts), paused: Boolean(paused), cron: Boolean(cron),
+    feeAttention: nativeDebt > 0n || reactiveDebt > 0n || nativeReserves + nativeBalance === 0n || reactiveReserves + reactiveBalance === 0n,
+    nativeDebt: BigInt(nativeDebt), reactiveDebt: BigInt(reactiveDebt) };
 }
