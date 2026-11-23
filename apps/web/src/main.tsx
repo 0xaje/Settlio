@@ -5,7 +5,8 @@ import '@fontsource/inter/latin-400.css';
 import '@fontsource/inter/latin-500.css';
 import '@fontsource/inter/latin-600.css';
 import './style.css';
-import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract } from './chain';
+import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract, readPolicyDeployment, readAutomationStatus } from './chain';
+import { readPolicyVersion } from './policy';
 import { createdQuoteFromReceipt } from './recovery';
 import { ensureBaseSepolia } from './wallet';
 import { decodePending, pendingReceipt, recoverPendingTransaction } from './pending';
@@ -17,6 +18,7 @@ const statusLabel = (quote: Quote, now: number) =>
   quote.status === 1 && BigInt(now) >= quote.expiresAt ? 'Payment deadline passed' : statuses[quote.status];
 const short = (address: string) => address.slice(0, 6) + '…' + address.slice(-4);
 const date = (seconds: bigint | number) => new Date(Number(seconds) * 1000).toLocaleString();
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const pendingKey = () => 'settlio:pending:84532:' + escrowAddress;
 const draftKey = (hash: string) => 'settlio:terms:84532:' + escrowAddress + ':' + hash;
 function pendingHash(): string {
@@ -207,7 +209,7 @@ function App() {
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       {pauseReceiptCheck && <p className="notice" role="status"><strong>Development receipt recovery check</strong><br/>This development mode pauses receipt processing after quote creation. It does not pause the blockchain or send a deposit. Only create a quote when a new test has been arranged.</p>}
       {pauseReceiptCheck && configured && !pending && <p className="notice" role="status"><strong>No saved transaction to check</strong><br/>There is no valid saved transaction for this escrow in this browser. The Check saved transaction button appears only while one is saved. Opening a quote or viewing its contract does not create a saved transaction. To reopen a known quote, use Recover a created quote below; do not create another quote just to find a button.</p>}
-      <div className="build-note">Test funds only. This build covers quote, deposit, and confirmation. Automatic refunds and expiry processing are still being integrated.</div>
+      <div className="build-note">Test funds only. Available actions follow the configured deployment. Automatic checks require compatible, funded contracts and network delivery.</div>
       {pending && <section className="notice" role="status"><strong>Your saved transaction is ready to check</strong><p>Use the button below to read its result. No wallet signature or new transaction is needed. Creating another quote or payment is paused until this check is resolved.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check saved transaction</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
       {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button>{pauseReceiptCheck && <><p className="helper">Development reload check: verify this existing successful receipt, save its hash, refresh, then check the saved transaction. This sends nothing and does not prove the original interruption.</p><button className="secondary" type="submit" name="recovery-mode" value="save-for-reload">Save existing transaction for reload check</button></>}</fieldset></form></details>}
       {error && <p role="alert" className="error">{error}</p>}
@@ -284,10 +286,24 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
   const [usdc, setUsdc] = useState(false);
   const [usdcTotal, setUsdcTotal] = useState('');
   const [usdcDeposit, setUsdcDeposit] = useState('');
+  const [automaticRelease, setAutomaticRelease] = useState(false);
+  const [policyVersion, setPolicyVersion] = useState<0 | 3 | null>(null);
+  const [capabilityError, setCapabilityError] = useState('');
+  const [capabilityRetry, setCapabilityRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setPolicyVersion(null); setCapabilityError('');
+    if (!configured) return;
+    void readContract().then(readPolicyDeployment)
+      .then(value => { if (active) setPolicyVersion(value.version); })
+      .catch(failure => { if (active) setCapabilityError(errorMessage(failure)); });
+    return () => { active = false; };
+  }, [capabilityRetry]);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setValidation('');
     const form = new FormData(event.currentTarget);
     try {
+      if (policyVersion === null) throw new Error('Wait for the deployment check, or retry it before creating a quote.');
       const totalWei = parseUnits(total, 18);
       const depositWei = parseUnits(deposit, 18);
       const expiresAt = Math.floor(new Date(String(form.get('expiry'))).getTime() / 1000);
@@ -302,11 +318,15 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
         if (stableDeposit <= 0n || stableTotal < stableDeposit) throw new Error('Enter a positive USDC deposit no greater than its total.');
         options.push({ asset: assets[1].address, total: stableTotal.toString(), deposit: stableDeposit.toString() });
       }
-      const terms: Terms = { version: 2, options, service: service.trim(), description: description.trim(), merchant: getAddress(account), customer, total: totalWei.toString(), deposit: depositWei.toString(), expiresAt, refundCutoff };
+      const terms: Terms = { version: policyVersion === 3 ? 3 : 2, ...(policyVersion === 3 ? { automaticRelease } : {}), options, service: service.trim(), description: description.trim(), merchant: getAddress(account), customer, total: totalWei.toString(), deposit: depositWei.toString(), expiresAt, refundCutoff };
       try { localStorage.setItem(draftKey(termsHash(terms)), encodeTerms(terms)); } catch { /* Existing share-link flow still works without local storage. */ }
       await transact(async () => {
         const contract = await walletContract(account);
-        return contract.createQuoteWithOptions(customer, options, expiresAt, refundCutoff, termsHash(terms));
+        const checked = await readPolicyDeployment(await readContract());
+        if (checked.version !== policyVersion) throw new Error('The deployment check changed. Reload and review your quote.');
+        return policyVersion === 3
+          ? contract.createQuoteWithPolicy(customer, options, expiresAt, refundCutoff, termsHash(terms), terms.automaticRelease)
+          : contract.createQuoteWithOptions(customer, options, expiresAt, refundCutoff, termsHash(terms));
       }, receipt => {
         // The creation receipt is the authority for the ID, not the current counter.
         const id = createdQuoteId(receipt);
@@ -317,6 +337,9 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
   }
   return <section><div className="page-heading"><div><p className="eyebrow">Make the details clear</p><h1>Create quote</h1><p>Set the price and terms, then share one link with your customer.</p></div></div>
     {!account && <button className="primary" onClick={connect}>Connect wallet to create</button>}
+    {capabilityError ? <div className="error" role="alert"><p>{capabilityError}</p><button className="secondary" disabled={busy} onClick={() => setCapabilityRetry(value => value + 1)}>Retry deployment check</button></div> :
+      configured && policyVersion === null ? <p role="status">Checking which booking policies this deployment supports…</p> :
+      policyVersion === 0 ? <p className="notice">This deployment supports deposit confirmation. Automatic expiry, refund routing and release are not available here.</p> : null}
     <div className="editor-layout"><form className="form-panel" onSubmit={submit}><fieldset disabled={busy}>
       <label>Customer wallet<input name="customer" required placeholder="0x…" autoComplete="off"/></label>
       <label>Service<input name="service" required maxLength={120} value={service} onChange={event => setService(event.target.value)} placeholder="What are you booking?"/></label>
@@ -327,11 +350,12 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
       <p className="helper">Set a separate price for each currency. There is no automatic conversion. USDT · Coming soon. It is not available for quotes or payments yet.</p>
       <label>Payment deadline<input name="expiry" type="datetime-local" required/></label>
       <label>Full-refund cutoff<input name="cutoff" type="datetime-local" required/></label>
-      <p className="helper">Dates use your local time zone. The customer must cancel before the cutoff for a full deposit refund. These terms are fixed when you create the quote.</p>
+      {policyVersion === 3 && <><label><span><input type="checkbox" checked={automaticRelease} onChange={event => setAutomaticRelease(event.target.checked)}/> Automatically release the deposit after the full-refund cutoff</span></label><p className="helper">{automaticRelease ? 'The deposit may be paid to you after the cutoff if no eligible cancellation has reserved a refund. This does not verify that the service was delivered.' : 'After the cutoff, you must claim an eligible confirmed deposit yourself. Eligible cancellations are still reserved for refund.'} This choice is fixed in the quote and shown to the customer before payment.</p></>}
+      <p className="helper">Dates use your device’s time zone ({timeZone}). The customer must cancel before the cutoff for a full deposit refund. These terms are fixed when you create the quote.</p>
       <p className="helper">The share link contains your service description. Anyone with that link can read it. Avoid personal or confidential information.</p>
       {validation && <p role="alert" className="error">{validation}</p>}
-      <button className="primary wide" type="submit" disabled={!account || !configured}>{busy ? 'Waiting for transaction…' : 'Create share link'}</button>
-    </fieldset></form><aside className="preview"><span className="eyebrow">Customer preview</span><h2>{service || 'Your service'}</h2><p>{description || 'Your service details will appear here.'}</p><div className="preview-amount"><span>Deposit due today</span><strong>{deposit || '—'} <small>test ETH</small></strong></div><p>Total {total || '—'} test ETH</p>{usdc && <p>Or deposit {usdcDeposit || '—'} of {usdcTotal || '—'} test USDC</p>}<p className="helper">Payment confirms the deposit first. The booking is confirmed after Reactive delivers its callback.</p></aside></div>
+      <button className="primary wide" type="submit" disabled={!account || !configured || policyVersion === null}>{busy ? 'Waiting for transaction…' : 'Create share link'}</button>
+    </fieldset></form><aside className="preview"><span className="eyebrow">Customer preview</span><h2>{service || 'Your service'}</h2><p>{description || 'Your service details will appear here.'}</p><div className="preview-amount"><span>Deposit due today</span><strong>{deposit || '—'} <small>test ETH</small></strong></div><p>Total {total || '—'} test ETH</p>{usdc && <p>Or deposit {usdcDeposit || '—'} of {usdcTotal || '—'} test USDC</p>}{policyVersion === 3 && <p className="helper">Deposit release: {automaticRelease ? 'Automatic after the agreed refund cutoff, unless a refund is reserved.' : 'Merchant must claim after the refund cutoff.'}</p>}<p className="helper">Payment confirms the deposit first. The booking is confirmed after Reactive delivers its callback.</p></aside></div>
   </section>;
 }
 
@@ -368,6 +392,8 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
         const choices = await contract.getQuoteOptions(id);
         value.options = choices.map((choice: { asset: string; total: bigint; deposit: bigint }) => ({ asset: choice.asset, total: choice.total.toString(), deposit: choice.deposit.toString() }));
         if (value.status === 0) throw new Error('This quote was not found.');
+        value.policyVersion = await readPolicyVersion(() => contract.POLICY_VERSION());
+        value.automaticRelease = value.policyVersion === 3 ? Boolean(await contract.automaticRelease(id)) : false;
         if (active && current === sequence.current) { setQuote(value); setError(''); }
       } catch (failure) { if (active && current === sequence.current) { setQuote(null); setError(errorMessage(failure)); } }
     }
@@ -395,7 +421,8 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   const needsApproval = asset !== ZeroAddress && allowance < deposit;
   const verified = terms !== null && matchesQuote(terms, quote);
   const customer = account && getAddress(account) === getAddress(quote.customer);
-  const participant = account && (customer || getAddress(account) === getAddress(quote.merchant));
+  const merchant = account && getAddress(account) === getAddress(quote.merchant);
+  const participant = account && (customer || merchant);
   const expired = BigInt(now) >= quote.expiresAt;
   async function copy() {
     try { await navigator.clipboard.writeText(shareLink(id, terms!)); setCopied(true); }
@@ -407,10 +434,14 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
     <p className="address">From {quote.merchant}</p><p className="address">For {quote.customer}</p>
     {!verified && <p role="alert" className="error">The service terms are missing or do not match this quote. Ask the merchant for the complete original share link. Payment is disabled.</p>}
     {quote.status === 3 && <div className="confirmation"><h2>Booking confirmed</h2><p>Your deposit was received and the booking confirmation is recorded on-chain.</p></div>}
+    {quote.status === 4 && <div className="notice"><h2>Refund pending</h2><p>Your cancellation is recorded and the deposit is reserved for refund. It has not yet been returned.</p></div>}
+    {quote.status === 5 && <div className="confirmation"><h2>Deposit refunded</h2><p>The refund is recorded on-chain in the deposited asset.</p></div>}
+    {quote.status === 6 && <div className="notice"><h2>Quote expired</h2><p>Expiry is recorded on-chain. This quote cannot accept payment.</p></div>}
+    {quote.status === 7 && <div className="confirmation"><h2>Deposit released</h2><p>The deposited amount was released to the merchant on-chain. This is not proof of service delivery.</p></div>}
     {quote.status === 2 && <div className="notice"><strong>Deposit received · confirming booking</strong><p>This page checks for confirmation every ten seconds. If delivery stalls, a participant can request it again below.</p></div>}
     <div className="quote-columns"><div><h2>Service details</h2><p className="description">{verified ? terms.description || terms.service : 'Waiting for verified service terms.'}</p>
-      <h2>Payment and cancellation</h2><dl><dt>Pay before</dt><dd>{date(quote.expiresAt)}</dd><dt>Cancel before for a full deposit refund</dt><dd>{date(quote.refundCutoff)}</dd></dl>
-      <p className="helper">Refund routing is still being integrated. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>
+      <h2>Payment and cancellation</h2><p className="helper">Times use your device’s time zone: {timeZone}.</p><dl><dt>Pay before</dt><dd>{date(quote.expiresAt)}</dd><dt>Cancel before for a full deposit refund</dt><dd>{date(quote.refundCutoff)}</dd></dl>
+      {quote.policyVersion === 3 ? <><p className="helper"><strong>Deposit release:</strong> {quote.automaticRelease ? 'Automatic after the refund cutoff if the booking is confirmed and no eligible cancellation reserved a refund.' : 'The merchant must claim an eligible confirmed deposit after the refund cutoff.'} These rules do not verify service delivery. Remaining-balance collection is not enabled.</p><AutomationStatus id={id} refresh={refresh}/></> : <p className="helper">Refund routing is not enabled on this deployment. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>}
       <details><summary>Contract details</summary><p className="address">Terms fingerprint {quote.termsHash}</p><a href={explorer + '/address/' + escrowAddress} target="_blank" rel="noreferrer">View escrow on Base Sepolia</a></details>
     </div><aside className="payment-summary"><span>{quote.status >= 2 && quote.status !== 6 ? 'Deposit amount' : 'Deposit due today'}</span>{quote.status === 1 && <label>Payment currency<select value={selected} disabled={busy} onChange={event => setSelected(Number(event.target.value))}>{quote.options?.map((option, index) => <option key={option.asset} value={index}>{knownAsset(option.asset)?.symbol ?? 'Unverified token'}</option>)}<option value="usdt-coming-soon" disabled>USDT — Coming soon</option></select></label>}
       {!supported && <p role="alert" className="error">This token is not verified for this interface. Payment is disabled.</p>}
@@ -421,11 +452,60 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
         const token = new Contract(asset, ['function approve(address,uint256) returns(bool)'], contract.runner);
         return token.approve(escrowAddress, allowance > 0n ? 0n : deposit);
       })}>{allowance > 0n ? 'Reset previous approval' : 'Approve deposit amount'}</button></> :
-      <button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => (await walletContract(account)).payDepositOption(id, selected, quote.termsHash, { value: asset === ZeroAddress ? deposit : 0n }))}>Accept terms & pay deposit</button>}{!customer && <p className="helper">Connect the customer wallet shown on this quote to pay.</p>}</>)}
-      {quote.status === 2 && participant && <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestConfirmation(id))}>Request confirmation again</button>}
+      <button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
+        const contract = await walletContract(account);
+        const payment = { value: asset === ZeroAddress ? deposit : 0n };
+        return terms?.version === 3 ? contract.payDepositWithPolicy(id, selected, quote.termsHash, terms.automaticRelease, payment) : contract.payDepositOption(id, selected, quote.termsHash, payment);
+      })}>Accept terms & pay deposit</button>}{!customer && <p className="helper">Connect the customer wallet shown on this quote to pay.</p>}</>)}
+      {quote.status === 2 && quote.policyVersion !== 3 && participant && <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestConfirmation(id))}>Request confirmation again</button>}
+      {quote.policyVersion === 3 && customer && (quote.status === 2 || quote.status === 3) && BigInt(now) < quote.refundCutoff && <>
+        <p className="helper">Cancellation reserves a full deposit refund now. The money returns when the refund transaction executes.</p>
+        <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestCancellation(id))}>Cancel booking and request full refund</button>
+      </>}
+      {quote.policyVersion === 3 && merchant && quote.status === 3 && BigInt(now) >= quote.refundCutoff &&
+        <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).release(id))}>Claim eligible deposit</button>}
+      {quote.policyVersion === 3 && participant && (quote.status === 2 || quote.status === 4 || (quote.status === 1 && expired) || (quote.status === 3 && quote.automaticRelease && BigInt(now) >= quote.refundCutoff)) &&
+        <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestPolicy(id))}>Retry automatic check</button>}
       {verified && <button className="secondary wide" onClick={() => void copy()}>{copied ? 'Link copied' : 'Copy quote link'}</button>}{copyError && <p role="alert" className="error">{copyError}</p>}
     </aside></div>
   </article>;
+}
+
+
+function AutomationStatus({ id, refresh }: { id: bigint; refresh: number }) {
+  const [status, setStatus] = useState<Awaited<ReturnType<typeof readAutomationStatus>> | null>(null);
+  const [error, setError] = useState('');
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true, reading = false;
+    setStatus(null); setError('');
+    async function load() {
+      if (reading) return;
+      reading = true;
+      try {
+        const value = await readAutomationStatus(id);
+        if (active) { setStatus(value); setError(''); }
+      } catch (failure) { if (active) { setStatus(null); setError(errorMessage(failure)); } }
+      finally { reading = false; }
+    }
+    void load();
+    const timer = setInterval(() => void load(), 20000);
+    return () => { active = false; clearInterval(timer); };
+  }, [id, refresh, retry]);
+  return <section className="notice" aria-label="Automatic booking checks"><h3>Automatic booking checks</h3>
+    {error ? <><p role="alert">Status unavailable: {error}</p><p>The booking status above is read separately from Base Sepolia. An unavailable check is not proof of success or failure.</p><button className="secondary" onClick={() => setRetry(value => value + 1)}>Refresh automation status</button></> :
+    !status ? <p role="status">Reading scheduler and fee status…</p> :
+    <><p>{status.needsAttention ? 'This booking needs attention after repeated attempts. A participant can retry the automatic check below.' :
+      status.closed ? 'The scheduler has observed this booking’s completion.' :
+      status.paused ? 'The operator has paused automatic checks.' :
+      !status.registered ? 'Waiting for the scheduler to observe this quote.' :
+      status.nextAt > 0n && status.cron ? 'Automatic checks are scheduled. A scheduled check is not proof that a payment or refund has executed.' :
+      'No automatic check is currently scheduled for this booking.'}</p>
+      {status.nextAt > 0n && <p>Next eligible check: {date(status.nextAt)}. Delivery may be later.</p>}
+      <p>Attempts in this retry cycle: {status.attempts} of 6.</p>
+      <p>{status.feeAttention ? 'Automation funding needs attention. The operator must check fee balances and debt.' : 'No fee debt or empty fee balance detected. This does not guarantee enough funds for the next check.'}</p>
+      <p className="helper">Automation fees are separate from customer deposits. This status refreshes every twenty seconds.</p></>}
+  </section>;
 }
 
 createRoot(document.getElementById('root')!).render(<App/>);
