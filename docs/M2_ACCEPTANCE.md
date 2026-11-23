@@ -1,6 +1,6 @@
 # M2 unattended policies — acceptance ledger
 
-Status: **IN PROGRESS / LIVE QUOTE REGISTRATION BLOCKED / NOT ACCEPTED**, started 23 November 2026.
+Status: **IN PROGRESS / LIVE CRON REQUEST PROVEN / FEE DEBT BLOCKED / DELIVERY PENDING / NOT ACCEPTED**, started 23 November 2026.
 M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 
 ## Acceptance conditions and current results
@@ -197,3 +197,22 @@ Committed labelled [diagnostic evidence](../deployments/evidence/m2/quote-1-regi
 Execution/Integration: live registration, dynamic CRON and policy callbacks BLOCKED / UNVERIFIED. The root cause is not yet exclusively proven; exact filter validity and repeated likely-ingestion-stall observations narrow the investigation. Usefulness is not established by a blocked test. Craft gains source-cross-checked, provenance-labelled service evidence and honest scan limits; missing scheduled-policy verifier, fee buffer, cost/recovery and browser acceptance gates remain open. M2 NOT ACCEPTED.
 
 Keep this quote unpaid and preserve its link/hash. Passing 13:00 WAT is intentional for the expiry test; an overdue deadline alone or a UI label is not proof of an authenticated expiry callback. Once ingestion resumes, recheck this same quote, provision adequate separate fees, and collect the actual origin/CRON -> Reactive -> Base result. No retry, new quote, redeployment, top-up or payment was performed by the assistant. No M3 work began.
+
+
+
+## M2 registration/CRON recovered; fee debt and callback delivery remain open · 23 November 2026, about 15:16 WAT
+Fresh independent official MCP observations supersede the earlier likely-ingestion-stall diagnosis: get_network_info reports OK_NETWORK / proven, frontier 179714802 -> 179714828 at Lasna heights 9061591 -> 9061595. This proves movement during that sample, not permanent network health.
+
+Direct public read-only RPC checks (Base Sepolia publicnode, Lasna official RPC) show Quote 1 still status AwaitingDeposit (1), expiry 1795435200 (13:00 WAT), refund cutoff 1795440600 (14:30 WAT). jobs(1) now registered true, attempts 3, nextAt 1795440652, closed false, confirmed/cancelled/attention false. The original quote has registered; do not recreate it or alter its terms. Both deadlines are past, so only an authenticated expiry result can establish automated completion.
+
+Independently retrieved three PolicyCallbackRequested logs for Quote 1. First reaction 0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92 (block 9058601); later requests 0xbb1d31d87ea2d46d884f390242ce03feeae2bf2adc263ad22c2fb6fe988779c3 and 0x07bc0f3491985978a7746a3f141721eb76e853a3b077eebd17986c3e5f64202e. Official trace_reactive_tx proves the first react() succeeded, gasUsed 127271, from a real Lasna CRON100 origin at block 9058600, hash 0x5f7362f65dea57beb12be0ceb49ea1bb378a2dfe6b6166b4d6edecb76558fb83, log index 2; it requested one callback to our Base receiver with gasLimit 1000000. This is real CRON -> Reactive -> callback-request evidence, not successful delivery or browser-closed acceptance.
+
+Official trace labels CALLBACK_NOT_POSTED / cannot_prove: getCallbacks is empty; the service sees no posted results network-wide in its sampled 30000 blocks and no recipient CallbackFailure in its sampled Base interval. Return-report absence alone does not prove nondelivery. The separate Base quote status remains 1, so expiry has not been accepted at the observed state. Delivery investigation remains open.
+
+Current hard blocker: official get_rc_health reports IN_DEBT_BLOCKED / proven, debt 14768500000000000 wei (0.0147685 test REACT), reserves zero, balance 9090600000000000 wei (0.0090906), eleven subscriptions total and none active. PaymentFailure and BlacklistContract are reported at block 9059001 in 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce. Initial 0.1 test REACT did not cover elapsed checks; the earlier low-fee warning must now be treated as a real operational failure. Contract pay() support does not exempt it from debt blocking.
+
+Implemented fund:m2 for one fixed 1-test-REACT SYSTEM.depositTo(existing M2 subscriber) reserve payment. It validates Lasna, recorded deployer, existing creation receipt/compiled code and immutable target wiring; it does not require active subscriptions while recovering from debt. It shares the M2 lock and writes its fundReactive public intent/hash before broadcast. Rerunning resumes that same transaction, not a second deposit. status:m2 includes the optional funding operation. Safe fund-stage errors preserve existing secret suppression. It does not replace deployments, change constructor funding/source fingerprints or touch escrow principal.
+
+Validation: full local suite 87 passed, zero failures/skips/cancellations, then six focused reserve/status checks passed after a final error-stage wrapper. A real isolated fixture deposit clears 0.0147685 fixture debt, credits 0.9852315 reserves, preserves subscriber balance and creation record, rejects wrong deployer, and repeats without another deposit; fixture accounting is not live protocol evidence. No contract/frontend source changed or new builds claimed. No public reserve payment was sent by the assistant; user-local key action is required.
+
+Saved a labelled quote-1-recovery-diagnostic.json containing live observations/request logs and delivery limits. Execution/Integration now have live registration and CRON/request proof, but delivery, expiry/refund/release, full evidence verification and browser-closed testing remain incomplete. Usefulness awaits successful recovery and destination outcome. Craft gains journalled fee recovery; cost/admission thresholds and callback delivery remain weaknesses. M2 NOT ACCEPTED. Next: user runs fund:m2 once with the dedicated local key, verify debt/subscriptions, then inspect the same quote and trace actual destination delivery. A reserve payment fixes debt, not every callback problem.

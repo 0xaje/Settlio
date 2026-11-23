@@ -14,7 +14,7 @@ async function deploymentStatus({directoryRoot=root,base,lasna}) {
  let journal;try {journal=JSON.parse(fs.readFileSync(files.journal,'utf8'));}catch {check(false,'M2 journal cannot be decoded. Preserve it; no action was sent.');}
  check(journal?.milestone==='M2'&&journal.schemaVersion===1&&journal.policyVersion===3&&journal.baseChainId===BASE&&journal.reactiveChainId===LASNA,'M2 journal version/networks invalid. Preserve it for inspection.');
  report.deployer=address(journal.deployer);report.escrow=address(journal.escrow);
- for(const [key,expectedChain] of [['deployReactive',LASNA],['deployCallback',BASE],['configure',LASNA]]) {
+ for(const [key,expectedChain] of [['deployReactive',LASNA],['deployCallback',BASE],['configure',LASNA],...(journal.operations?.fundReactive?[['fundReactive',LASNA]]:[])]) {
   const op=journal.operations?.[key];if(!op) {report.operations.push({operation:key,state:'not-recorded'});continue;}
   const item={operation:key,chainId:expectedChain,hash:hash(op.hash),savedState:['prepared','broadcast','confirmed','failed'].includes(op.status)?op.status:'unknown',nonce:Number.isSafeInteger(op.unsigned?.nonce)&&op.unsigned.nonce>=0?op.unsigned.nonce:null};
   report.operations.push(item);

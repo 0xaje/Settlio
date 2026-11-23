@@ -1,0 +1,310 @@
+{
+  "recordedAt": "2026-11-23T14:22:12.425223+00:00",
+  "evidenceType": "partial-live-registration-cron-and-debt-diagnostic-not-complete-callback-proof",
+  "readOnly": true,
+  "quoteId": "1",
+  "addresses": {
+    "escrow": "0x1694e56187f9422e364B42af3185d34a0D4b9bc0",
+    "reactive": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85",
+    "receiver": "0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781"
+  },
+  "network": {
+    "observedAt": "2026-11-23T14:16:11.890988+00:00",
+    "report": {
+      "tool": "get_network_info",
+      "verdict": "OK_NETWORK",
+      "confidence": "proven",
+      "findings": [
+        {
+          "stage": "sequencer",
+          "verdict": "SEQUENCER_MOVING",
+          "confidence": "proven",
+          "summary": "Committed sequence frontier 179714802 -> 179714828 at heights 9061591 -> 9061595.",
+          "evidence": [
+            {
+              "kind": "rnk_getCommittedSequenceFrontier",
+              "note": "{\"height\":9061591,\"fromSeq\":179714797,\"toSeq\":179714802} then {\"height\":9061595,\"fromSeq\":179714822,\"toSeq\":179714828}"
+            }
+          ]
+        }
+      ],
+      "limits": [
+        "The public RPC is load-balanced: capabilities such as the archive flag can differ between requests, so treat them as hints."
+      ]
+    }
+  },
+  "health": {
+    "recordedAt": "2026-11-23T14:16:08.685875+00:00",
+    "response": {
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "**IN_DEBT_BLOCKED** (proven) \u2014 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 owes 0.0147685 REACT on the Omni system contract: reactions are blocked and its subscriptions are inactive.\n- [funding] IN_DEBT_BLOCKED (proven): Omni: debt 0.0147685 REACT, reserves 0 REACT. Legacy proxy: debt 0 REACT, reserves 0 REACT. Contract balance 0.0090906 REACT (not counted as funding unless the contract implements pay()).\n  - eth_call 0x8888888888888888888888888888888888888888: debt(address), reserves(address) on the Omni system contract\n  - eth_call 0x0000000000000000000000000000000000ffffff: debts(address), reserves(address) on the legacy proxy; eth_getBalance on the contract\n- [funding] PAYMENT_EVENTS (proven): Last 12000 blocks: 1 PaymentFailure, last BlacklistContract 9059001, last WhitelistContract none.\n  - BlacklistContract 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce: block 9059001 (https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce)\n  - PaymentFailure 0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce: block 9059001 (https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce)\nFix:\n- Omni debt: 0.0147685 REACT (14768500000000000 wei). Minimum deposit to clear it is 0.0147685 REACT; a deposit below the debt only reduces it and the contract stays blocked. Suggested: 0.1747685 REACT (debt plus 10 reactions at about 0.016 REACT each): cast send 0x8888888888888888888888888888888888888888 \"depositTo(address)\" 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 --value 174768500000000000 --rpc-url https://lasna-rpc.rnk.dev/\n- A deposit clears debt first; subscriptions re-activate once all debt is zero."
+          }
+        ],
+        "structuredContent": {
+          "tool": "get_rc_health",
+          "network": "lasna",
+          "verdict": "IN_DEBT_BLOCKED",
+          "confidence": "proven",
+          "summary": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 owes 0.0147685 REACT on the Omni system contract: reactions are blocked and its subscriptions are inactive.",
+          "findings": [
+            {
+              "stage": "funding",
+              "verdict": "IN_DEBT_BLOCKED",
+              "confidence": "proven",
+              "summary": "Omni: debt 0.0147685 REACT, reserves 0 REACT. Legacy proxy: debt 0 REACT, reserves 0 REACT. Contract balance 0.0090906 REACT (not counted as funding unless the contract implements pay()).",
+              "evidence": [
+                {
+                  "kind": "eth_call",
+                  "ref": "0x8888888888888888888888888888888888888888",
+                  "note": "debt(address), reserves(address) on the Omni system contract"
+                },
+                {
+                  "kind": "eth_call",
+                  "ref": "0x0000000000000000000000000000000000ffffff",
+                  "note": "debts(address), reserves(address) on the legacy proxy; eth_getBalance on the contract"
+                }
+              ]
+            },
+            {
+              "stage": "funding",
+              "verdict": "PAYMENT_EVENTS",
+              "confidence": "proven",
+              "summary": "Last 12000 blocks: 1 PaymentFailure, last BlacklistContract 9059001, last WhitelistContract none.",
+              "evidence": [
+                {
+                  "kind": "BlacklistContract",
+                  "ref": "0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce",
+                  "note": "block 9059001",
+                  "url": "https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce"
+                },
+                {
+                  "kind": "PaymentFailure",
+                  "ref": "0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce",
+                  "note": "block 9059001",
+                  "url": "https://lasna.reactscan.net/tx/0x84cc66b427da3d9b5852468bd9d1813303bc87ed08567c7ee88da061ecbe30ce"
+                }
+              ]
+            }
+          ],
+          "fix": [
+            "Omni debt: 0.0147685 REACT (14768500000000000 wei). Minimum deposit to clear it is 0.0147685 REACT; a deposit below the debt only reduces it and the contract stays blocked. Suggested: 0.1747685 REACT (debt plus 10 reactions at about 0.016 REACT each): cast send 0x8888888888888888888888888888888888888888 \"depositTo(address)\" 0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85 --value 174768500000000000 --rpc-url https://lasna-rpc.rnk.dev/",
+            "A deposit clears debt first; subscriptions re-activate once all debt is zero."
+          ],
+          "limits": [],
+          "data": {
+            "account": {
+              "debt": "14768500000000000",
+              "reserves": "0",
+              "legacyDebt": "0",
+              "legacyReserves": "0",
+              "balance": "9090600000000000"
+            },
+            "subscriptions": {
+              "total": 11,
+              "active": 0
+            },
+            "feeModel": {
+              "perReaction": "0.016 REACT",
+              "cushion": "0.16 REACT",
+              "assumedReactGas": "60000",
+              "extraGas": "100000",
+              "coeffPer1000": "1000",
+              "feeParamsLive": true
+            },
+            "revertRate": {
+              "reverts": 0,
+              "windowBlocks": 12001,
+              "perHour": 0,
+              "flagAbovePerHour": 6
+            },
+            "rpcRequests": 15
+          }
+        }
+      },
+      "jsonrpc": "2.0",
+      "id": 2
+    }
+  },
+  "directRpcState": {
+    "baseChain": {
+      "jsonrpc": "2.0",
+      "result": "0x14a34",
+      "id": 1
+    },
+    "quote": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x000000000000000000000000bf6301d7bca9f23a63a2d1ed513d5120dbb2288e000000000000000000000000e84a1b8c20b1e33fc1d6dd4650af53783f2911ed000000000000000000000000000000000000000000000000000110d9316ec00000000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000006b042ac0000000000000000000000000000000000000000000000000000000006b043fd82a67019bb7da208a844764b8e4478eaa8e117bab31f38a4e606f6f905e4bfe16000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "job": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": "0x000000000000000000000000000000000000000000000000000000006b042ac0000000000000000000000000000000000000000000000000000000006b043fd8000000000000000000000000000000000000000000000000000000006b04400c00000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "decodedState": {
+    "quoteStatus": "AwaitingDeposit (1)",
+    "expiresAt": 1795435200,
+    "refundCutoff": 1795440600,
+    "job": {
+      "expiresAt": 1795435200,
+      "refundCutoff": 1795440600,
+      "nextAt": 1795440652,
+      "attempts": 3,
+      "automaticRelease": false,
+      "registered": true,
+      "confirmed": false,
+      "cancelled": false,
+      "closed": false,
+      "needsAttention": false,
+      "retryRequested": false
+    }
+  },
+  "requestLogs": [
+    {
+      "address": "0xa2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+      "topics": [
+        "0xbba2b2b23409e41092a0d09cab3096b630352652943e00cadb579ac4803936dd",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ],
+      "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "blockNumber": "0x8a3929",
+      "transactionHash": "0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92",
+      "transactionIndex": "0x1",
+      "blockHash": "0x2278edd871f8ea348c196b9e8139f692d419c43155f9ed1e6c3955578c18ddfe",
+      "blockTimestamp": "0x0",
+      "logIndex": "0x2",
+      "removed": false
+    },
+    {
+      "address": "0xa2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+      "topics": [
+        "0xbba2b2b23409e41092a0d09cab3096b630352652943e00cadb579ac4803936dd",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ],
+      "data": "0x0000000000000000000000000000000000000000000000000000000000000002",
+      "blockNumber": "0x8a398d",
+      "transactionHash": "0xbb1d31d87ea2d46d884f390242ce03feeae2bf2adc263ad22c2fb6fe988779c3",
+      "transactionIndex": "0x1",
+      "blockHash": "0x990d7bbee5b54b0078d1b3aaa3746fb46dfad2090f0c4fa442d5e0760ba40938",
+      "blockTimestamp": "0x0",
+      "logIndex": "0x2",
+      "removed": false
+    },
+    {
+      "address": "0xa2dbeb94c0a151e071a6c29999fe1c6b38217b85",
+      "topics": [
+        "0xbba2b2b23409e41092a0d09cab3096b630352652943e00cadb579ac4803936dd",
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      ],
+      "data": "0x0000000000000000000000000000000000000000000000000000000000000003",
+      "blockNumber": "0x8a3a55",
+      "transactionHash": "0x07bc0f3491985978a7746a3f141721eb76e853a3b077eebd17986c3e5f64202e",
+      "transactionIndex": "0x1",
+      "blockHash": "0x2ae6019d4a3442eb8eab703901a09d3dc8b13e2e36bb9e7c8ed777a924a012ba",
+      "blockTimestamp": "0x0",
+      "logIndex": "0x2",
+      "removed": false
+    }
+  ],
+  "firstRequestOfficialTrace": {
+    "tool": "trace_reactive_tx",
+    "network": "lasna",
+    "verdict": "CALLBACK_NOT_POSTED",
+    "confidence": "cannot_prove",
+    "summary": "Reaction succeeded; callback problem: No delivery result for the callback (log 1) to Base Sepolia, and no CallbackPosted event exists on this network in the last 30,000 blocks: results are not being posted back, so delivery cannot be read from Reactive.",
+    "findings": [
+      {
+        "stage": "reaction",
+        "verdict": "REACTED",
+        "confidence": "proven",
+        "summary": "react() succeeded and requested 1 callback(s).",
+        "evidence": [
+          {
+            "kind": "reactive tx",
+            "ref": "0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92",
+            "note": "block 9058601, gasUsed 127271",
+            "url": "https://lasna.reactscan.net/tx/0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92"
+          }
+        ]
+      },
+      {
+        "stage": "callback",
+        "verdict": "GAS_BUDGET",
+        "confidence": "likely",
+        "summary": "Of gasLimit 1000000, about 846312 reaches the target (proxy overhead 130000, intrinsic ~23688).",
+        "evidence": []
+      },
+      {
+        "stage": "callback",
+        "verdict": "DEST_FUNDING",
+        "confidence": "proven",
+        "summary": "Recipient on Base Sepolia (84532) now: debt 0 native, reserves 0 native at proxy 0x476F44b11F5C942c58f4c8E3d0300E5710743585.",
+        "evidence": []
+      },
+      {
+        "stage": "delivery",
+        "verdict": "CALLBACK_NOT_POSTED",
+        "confidence": "cannot_prove",
+        "summary": "No delivery result for the callback (log 1) to Base Sepolia, and no CallbackPosted event exists on this network in the last 30,000 blocks: results are not being posted back, so delivery cannot be read from Reactive.",
+        "evidence": [
+          {
+            "kind": "getCallbacks",
+            "ref": "0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92",
+            "note": "empty"
+          }
+        ]
+      },
+      {
+        "stage": "delivery",
+        "verdict": "NO_FAILURE_SEEN",
+        "confidence": "cannot_prove",
+        "summary": "No CallbackFailure for 0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781 at the Base Sepolia proxy in blocks 62591329-62608644: the callback either succeeded or was never delivered. Check the recipient's own events.",
+        "evidence": []
+      }
+    ],
+    "fix": [],
+    "limits": [],
+    "data": {
+      "rnkTxType": "r",
+      "reaction": {
+        "tx": "0x80ff5a138037db5fff54218c6a95487cb7cf868f8f89479e0625b358141bfb92",
+        "block": 9058601,
+        "route": "omni (0x8888\u20268888)",
+        "rc": "0xa2DBeB94c0a151e071A6c29999FE1c6B38217b85",
+        "rcAttribution": "proven",
+        "origin": {
+          "chainId": 5318007,
+          "chain": "Reactive Lasna",
+          "contract": "0x0000000000000000000000000000000000fffFfF",
+          "block": 9058600,
+          "tx": "0x5f7362f65dea57beb12be0ceb49ea1bb378a2dfe6b6166b4d6edecb76558fb83",
+          "logIndex": 2,
+          "topicCount": 2
+        },
+        "filterId": "0x735f6a6aa93f6d26e12d13fb76b4fd7c",
+        "gasUsed": 127271
+      },
+      "callbacks": [
+        {
+          "destination": "Base Sepolia (84532)",
+          "recipient": "0x1E44e729A2f2Fa2e64C1eDb9904A2eCD90C8A781",
+          "gasLimit": "1000000",
+          "legacy": false,
+          "payload": "0x47a82dfd0000000000000000000000000000000000000000000000000000000000000000\u2026"
+        }
+      ],
+      "rpcRequests": 19
+    }
+  },
+  "limits": [
+    "Direct state calls and MCP diagnostics are separate point-in-time observations, not an atomic snapshot.",
+    "Reaction and callback request are verified; destination expiry is not verified and quote state remains AwaitingDeposit.",
+    "No posted callback report is not by itself proof of nondelivery; the official tool labels delivery cannot_prove.",
+    "No browser-closed execution claim; no debt payment or reserve top-up has been sent by the assistant.",
+    "fund:m2 is a proposed operator-run 1-test-REACT reserve deposit, not an existing receipt."
+  ]
+}

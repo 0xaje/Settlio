@@ -6,11 +6,11 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 86 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 87 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / LIVE QUOTE REGISTRATION BLOCKED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / LIVE CRON REQUEST PROVEN / FEE DEBT BLOCKED / DELIVERY PENDING:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment and subscription checks passed from user WSL. New browser journeys and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -161,7 +161,15 @@ VITE_ESCROW_ADDRESS=0x1694e56187f9422e364B42af3185d34a0D4b9bc0 npm run dev -- --
 Open http://localhost:5174 and check the merchant create-quote policy controls before creating a timed test. The process variable takes precedence over dotenv values for this run; no saved configuration or M1 quote is migrated. Do not change old share links to point at the new contract. The full M2 live/browser/evidence gates remain in the acceptance ledger.
 
 
-## First live policy test — currently blocked
+## First live policy test — initial registration blocker (superseded)
 The unpaid M2 Quote 1 was created, but the user observes zero scheduler jobs. Official read-only Reactive diagnostics confirm the exact policy filter is active and a matching origin event exists. Two network checks flag likely origin-ingestion stalling; the bounded origin trace cannot prove delivery because its RPC scan budget was exhausted. These observations do not establish a confirmed network-wide outage or rule out every application defect.
 
 See deployments/evidence/m2/quote-1-registration-diagnostic.json and the acceptance ledger. Keep the quote unpaid. Neither an overdue payment deadline nor a UI expired label proves a successful policy callback. Registration/CRON/callback proof and a sufficient separate fee buffer remain required. M2 is not complete. No repeated quote creation or redeployment is justified by these observations.
+
+
+## Current M2 recovery: registered, debt-blocked, delivery pending
+Fresh independent checks show network sequencing moving and Quote 1 registered with three callback requests. A real CRON -> Reactive -> request trace is verified; Base expiry is not. The Reactive subscriber now owes 0.0147685 test REACT and has no active subscriptions due to debt. Initial fee funding was insufficient. Records and machine-readable diagnostic evidence distinguish this from the earlier registration blocker.
+
+npm run fund:m2 uses a securely supplied local DEPLOYER_PRIVATE_KEY to deposit exactly **1 test REACT** through the official Lasna system's depositTo(address), targeting the existing recorded M2 subscriber. This clears debt first and adds remaining funds to reserves. It verifies the recorded creation/source/wiring and expected signer/network, shares the M2 lock, and saves a fundReactive intent before broadcast. Rerunning reuses that exact operation and does not send a second deposit. A different future top-up requires explicit new tooling/intent rather than editing this journal. No other funds or deploy settings are changed.
+
+Run npm run status:m2 to inspect the funding hash and npm run verify:m2 after recovery. Neither read-only command needs a key. Do not send a plain transfer to SYSTEM or assume a direct subscriber transfer settles debt. No customer deposit is needed for Quote 1. Reserve recovery is not callback proof; destination delivery remains separately pending. One test REACT is a recovery buffer, not a future-fee guarantee. No public top-up was sent during development.
