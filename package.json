@@ -21,7 +21,11 @@
     "build:web": "node script/export-abi.cjs && tsc -p apps/web/tsconfig.json && vite build apps/web",
     "preview:web": "vite preview apps/web --host 0.0.0.0",
     "healthcheck": "node script/healthcheck.cjs",
-    "verify:quote": "node script/verify-quote.cjs"
+    "verify:quote": "node script/verify-quote.cjs",
+    "preflight:m2": "node script/m2.cjs preflight",
+    "plan:m2": "node script/m2.cjs plan",
+    "deploy:m2": "node script/m2.cjs deploy",
+    "verify:m2": "node script/m2.cjs verify"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

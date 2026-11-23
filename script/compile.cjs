@@ -13,7 +13,7 @@ function compile(name = 'SettlioEscrow', extraSources = {}) {
   }
   const input = {
     language: 'Solidity', sources,
-    settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: 'cancun', outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object'] } } }
+    settings: { optimizer: { enabled: true, runs: 200 }, evmVersion: 'cancun', outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'evm.deployedBytecode.object', 'evm.deployedBytecode.immutableReferences'] } } }
   };
   const output = JSON.parse(solc.compile(JSON.stringify(input), {
     import(importPath) {

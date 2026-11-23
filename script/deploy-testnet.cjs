@@ -17,6 +17,10 @@ function provider(url) {
 }
 
 async function main() {
+  if (compile().abi.some(item => item.name === 'POLICY_VERSION')) {
+    const error = new Error('M2 source requires npm run plan:m2 and npm run deploy:m2. The M1 journal is preserved.');
+    error.versionGuard = true; throw error;
+  }
   if (!process.env.DEPLOYER_PRIVATE_KEY) {
     throw new Error('Set DEPLOYER_PRIVATE_KEY securely in your local environment. Never paste it into chat or commit it.');
   }
@@ -105,7 +109,7 @@ async function main() {
 main().catch(error => {
   // Do not print RPC errors or transaction objects which may contain private configuration.
   const allowed = ['Set DEPLOYER_PRIVATE_KEY', 'Wrong network', 'Protocol contract', 'Journal belongs', 'Source changed', 'Recorded deployment', 'Deployment did not', 'Escrow creation', 'Configuration did not', 'Deployment wiring'];
-  console.error(allowed.some(prefix => error.message.startsWith(prefix)) ? error.message :
+  console.error(error.versionGuard || allowed.some(prefix => error.message.startsWith(prefix)) ? error.message :
     'Deployment stopped. Check funds, RPC access, and the deployment journal before retrying. Remove deployments/.deploy.lock only after confirming no deployment process is running.');
   process.exitCode = 1;
 });

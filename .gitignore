@@ -9,3 +9,5 @@ lib/
 deployments/.deploy.lock
 deployments/*.tmp
 apps/web/dist/
+
+deployments/.deploy-m2.lock

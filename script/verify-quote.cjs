@@ -56,10 +56,11 @@ async function main() {
     check(same(callbackTx.to,PROXY)&&callbackTx.data.toLowerCase().includes(receiverAddress.slice(2).toLowerCase())&&callbackTx.data.toLowerCase().includes(payload.slice(2).toLowerCase()),'Delivered callback payload mismatch');
     check(events(callback,escrow.interface,escrowAddress).some(item=>item.event?.name==='BookingConfirmed'&&item.event.args.quoteId===id),'Successful booking event missing');
     const report={verifiedAt:new Date().toISOString(),readOnly:true,quoteId:id,contracts:{escrow:escrowAddress,reactive:reactiveAddress,receiver:receiverAddress},origin:{hash:originHash,block:origin.blockNumber,blockHash:origin.blockHash,logIndex:deposit.log.index,status:origin.status},reactive:{hash:reactiveHash,block:reactive.blockNumber,originLog,status:reactive.status},callback:{hash:callbackHash,block:callback.blockNumber,status:callback.status},quote:{customer:quote.customer,merchant:quote.merchant,asset:quote.asset,deposit:quote.deposit,total:quote.total,currentStatus:quote.status},note:'Receipts prove a historical deposit/confirmation loop. Current quote status may have changed since confirmation. This does not prove refunds, expiry, mainnet readiness or future delivery.'};
-    const directory=path.join(ROOT,'deployments/evidence');fs.mkdirSync(directory,{recursive:true});
+    const directory=require('./evidence-path.cjs')(ROOT,journal);
+    const evidencePath=path.relative(ROOT,directory);fs.mkdirSync(directory,{recursive:true});
     const output=JSON.stringify(report,(_,value)=>typeof value==='bigint'?value.toString():value,2)+'\n';
     const filename=path.join(directory,'quote-'+id+'.json');fs.writeFileSync(filename+'.tmp',output);fs.renameSync(filename+'.tmp',filename);
-    console.log('Verified full deposit-to-Reactive-to-confirmation loop. Public evidence saved to deployments/evidence/quote-'+id+'.json.');
+    console.log('Verified full deposit-to-Reactive-to-confirmation loop. Public evidence saved to '+evidencePath+'/quote-'+id+'.json.');
   } finally {base.destroy();lasna.destroy();}
 }
 main().catch(error=>{console.error(error.verificationFailure?error.message:'Receipt verification failed. Check network access, supplied hashes, deployment journal and event linkage. No transaction was sent and no successful evidence file was written.');process.exitCode=1;});

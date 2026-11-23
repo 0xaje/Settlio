@@ -6,11 +6,11 @@ Settlio turns service quotes into wallet-funded bookings using Base Sepolia escr
 
 **M1 COMPLETED: quote -> ETH/USDC deposit -> Reactive -> authenticated booking confirmation, with receipt recovery.**
 
-The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 69 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
+The [M1 acceptance checklist](docs/M1_ACCEPTANCE.md) marks each completed requirement and links its source, tests and evidence. All three contracts compile; TypeScript/production frontend build passes; M1 baseline had 46 local tests; the current suite has 76 passing checks including M2 destination-policy and scheduler cases. Real ETH and USDC confirmation trails are verified. The user reran both public-trail verifiers, preflight and live healthcheck successfully from WSL on 23 November.
 
 Original creation pause/reload/recovery is supported by user recording/screenshots. Malformed/mismatched service-term recovery is verified using the same coordinator as the app, with a real isolated EVM receipt and persistent storage. Local fixtures do not count as live integration evidence. No exhaustive browser/device coverage or independent security-audit claim.
 
-**M2 IN PROGRESS / NOT DEPLOYED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. New browser journeys, versioned deployment and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not deploy the partial M2 source or delete the M1 journal to bypass source/version checks. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
+**M2 IN PROGRESS / NOT DEPLOYED:** destination policy, bounded CRON scheduler, explicit-consent payment and versioned policy-interface code are implemented and locally tested. Versioned deployment commands pass local integration tests. New browser journeys, live deployment checks and genuine unattended proof remain pending. Scheduled expiry, cancellation/refund routing and automatic release are not operational in the existing deployment. See [M2 acceptance ledger](docs/M2_ACCEPTANCE.md). Do not delete the M1 journal or use its legacy deploy command for M2. Run the read-only M2 checks before any new deployment. The approved full interface/rotating hero is M3; release/submission is M4. ETH and USDC are enabled; USDT is disabled as Coming soon.
 
 ## Documentation
 
@@ -95,7 +95,7 @@ For full payment trails, use [the exact verifier commands](docs/M1_ACCEPTANCE.md
 
 ## Deployment and later work
 
-M1's existing public addresses are in [on-chain evidence](ONCHAIN-EVIDENCE.md). A fresh deployment uses npm run deploy:testnet with a securely supplied local testnet key and dedicated funding on both networks. Read .env.example and the deployment script first; it does not automatically load an environment file. Preserve journals and inspect interrupted transactions before retrying. No redeployment is needed for current frontend/recovery changes.
+M1's existing public addresses are in [on-chain evidence](ONCHAIN-EVIDENCE.md). M2 uses the separate commands below with dedicated testnet funding. The legacy deploy:testnet command refuses policy bytecode before reading a key or touching its journal. Read .env.example and the deployment script first; environment files are not loaded automatically. Preserve journals and inspect interrupted transactions before retrying. No redeployment is needed for current frontend/recovery changes.
 
 Finish/prove core unattended policies before optional messaging. WhatsApp Business and iMessage via Photon are planned only; provisioning/subscription entitlements are unverified, and no messaging code is implemented.
 
@@ -110,3 +110,21 @@ MIT for Settlio source; upstream dependencies retain their own licensing.
 New policy deployments use version 3 shared terms. Merchant automatic release defaults off; the customer sees the immutable choice and explicitly accepts it in payDepositWithPolicy. Existing version 1/2 share fingerprints are unchanged, and legacy automatic-policy payment bypass is rejected in the new escrow code.
 
 The interface detects the deployed version, verifies new scheduler wiring before policy creation, shows real job/funding/attention observations and separates refund pending from refunded/released states. RPC errors remain unknown. New actions remain unavailable on the existing M1 deployment. Browser/extension/physical-device journeys and live M2 proof remain pending. See [M2 acceptance](docs/M2_ACCEPTANCE.md). Browser RPC settings are public; never supply private keys or confidential credentials as VITE_* values.
+
+## Versioned M2 deployment checks
+
+These commands read public state and never require a key:
+
+```sh
+npm run preflight:m2
+npm run plan:m2 -- YOUR_PUBLIC_DEPLOYER_ADDRESS
+npm run verify:m2
+```
+
+preflight:m2 checks network IDs, protocol/USDC/CRON code, USDC metadata and a recent correctly shaped CRON100 event. plan:m2 additionally estimates creation gas/costs and reads wallet balances; configuration and future automation charges are additional. verify:m2 requires an existing deployments/testnet-m2.json and checks recorded creation/configuration transactions, compiled runtime (constructor immutable slots checked through wiring getters), versions, ten active origin subscriptions, current CRON/queue state, liabilities and separate fee accounts. An unavailable subscription index is a blocked verification, never a pass. The live preflight attempt in this workspace failed without verified observations on 23 November; run these from the funded WSL environment before deployment.
+
+Only deploy:m2 reads DEPLOYER_PRIVATE_KEY and can broadcast. Supply that key securely in your local shell; never put it in command arguments, chat, Git, or VITE variables. REACTIVE_FUND defaults to 0.1 and CALLBACK_FUND to 0.001 in each network's native fee currency. These are initial funding amounts, not a future-delivery guarantee. Then npm run deploy:m2 creates new contracts, preserving M1 and its frontend configuration.
+
+The M2 journal freezes source, deployer and constructor funding. Each transaction intent/hash is saved before broadcast. Resuming signs and checks that same intent; occupied nonces, reverted receipts and changed inputs block automatic replacement. Preserve the journal after an interruption. The .deploy-m2.lock is removed on normal exit; after a crash, confirm no deployment process is active before inspecting/removing a stale lock. Do not delete or edit saved intents to force a retry.
+
+M2 deployment verification is not unattended execution proof. Keep M2 open until real scheduled expiry, ETH/USDC refunds and eligible automatic releases have full traces and browser-closed evidence. The existing verify:quote command accepts an optional final M2 journal path and writes M2 confirmation evidence under deployments/evidence/m2, preserving M1 snapshots. Scheduled-policy trace verification remains pending.

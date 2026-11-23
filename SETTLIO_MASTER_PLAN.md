@@ -551,3 +551,7 @@ Version 3 terms bind automaticRelease. Customer explicit consent is checked by t
 
 ## M2 deployment tooling status · 23 November 2026
 Deployment-state/journal and exact subscription-filter helpers now have five focused checks; the final full local suite passes 74 tests. This component is not yet connected to a deployment CLI. Versioned preflight/CRON observations, source/runtime checks, M2 deployment and evidence commands remain pending. No public broadcast or M2 acceptance. See docs/M2_ACCEPTANCE.md for evidence and limits.
+
+
+## M2 deployment command update · 23 November 2026
+Versioned M2 preflight/plan/deploy/verify commands and confirmation evidence namespace are implemented. Separate journal/lock, saved-intent resumption, immutable wiring and compiled creation/runtime checks pass local two-chain tests including an unavailable index after broadcast and duplicate-free resume. Legacy deployment rejects M2 bytecode. Final contracts/frontend build and 76 local tests pass. Live preflight produced no verified observations from this workspace. Actual deployment, scheduled-policy evidence verifier, public unattended loops, browser journeys, costs and recovery remain pending; M2 is NOT ACCEPTED. Follow the README read-only checks before any user-local M2 deployment.
