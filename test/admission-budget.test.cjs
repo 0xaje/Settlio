@@ -30,3 +30,11 @@ test('RPC failure cannot produce a successful funding plan',async()=>{
  const unavailable={send:async()=>{throw Error('fixture RPC unavailable');}};
  await assert.rejects(observe(unavailable,unavailable,ids),/unavailable/);
 });
+
+test('explicit one-hour operator window leaves quote horizon and whole-lifetime cost unchanged',()=>{
+ const o=snapshot(),long={...proposal,validSeconds:3600n};
+ assert.throws(()=>calculate(o,long,1000n));
+ const result=calculate(o,long,1000n,3600n),short=calculate(o,proposal,1000n);
+ assert.equal(result.validUntil,'4600');assert.equal(result.reactiveRequiredWei,short.reactiveRequiredWei);assert.equal(result.callbackRequiredWei,short.callbackRequiredWei);assert.equal(o.maxHorizon,1000n);
+ assert.throws(()=>calculate(o,{...long,validSeconds:3601n},1000n,3600n));assert.throws(()=>calculate(o,long,1000n,7200n));
+});

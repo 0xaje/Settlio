@@ -17,7 +17,7 @@ function identity(value){
  const result={policyVersion:4};for(const name of ['escrow','callback','reactive','admission','sponsor'])result[name]=getAddress(value[name]);
  check(new Set(['escrow','callback','admission','sponsor'].map(k=>result[k])).size===4&&Object.values(result).slice(1).every(a=>BigInt(a)!==0n),'V4 addresses must be nonzero; Base escrow, callback, admission and sponsor must be distinct.');return result;
 }
-function calculate(observation,proposal,now=BigInt(Math.floor(Date.now()/1000))){
+function calculate(observation,proposal,now=BigInt(Math.floor(Date.now()/1000)),grantWindowLimit=600n){
  const o=observation,id=identity(o.identity);const merchant=getAddress(proposal.merchant),credits=BigInt(proposal.credits),validSeconds=BigInt(proposal.validSeconds??300);
  check(BigInt(merchant)!==0n&&credits>0n,'A nonzero merchant and positive credit count are required.');
  check(o.baseChain===84532n&&o.lasnaChain===5318007n,'Wrong budget networks.');
@@ -27,7 +27,8 @@ function calculate(observation,proposal,now=BigInt(Math.floor(Date.now()/1000)))
  check(o.subscriptions?.originSubscriptions===10&&o.subscriptions.cronActive===false&&Number.isSafeInteger(o.subscriptions.filterVersion)&&o.subscriptions.filterVersion>=0,'Active origin subscriptions must be verified before sponsorship.');
  check(o.reactiveDebt===0n&&o.callbackDebt===0n,'Fee debt must be cleared before sponsorship.');
  check(o.maxActive>0n&&o.maxLifetime>=o.maxActive&&o.maxHorizon>0n&&o.maxRetries>0n&&o.retryInterval>0n&&credits<=o.maxActive&&credits<=o.maxLifetime,'Invalid admission limits or requested capacity.');
- check(validSeconds>=30n&&validSeconds<=600n&&validSeconds<=o.maxHorizon,'Grant validity must be 30–600 seconds and within the configured horizon.');
+ check([600n,3600n].includes(grantWindowLimit),'Unknown operator grant window policy.');
+ check(validSeconds>=30n&&validSeconds<=grantWindowLimit&&(grantWindowLimit===3600n||validSeconds<=o.maxHorizon),'Grant validity exceeds the explicit operator window policy.');
  check(o.baseTimestamp+validSeconds>now+15n,'Grant window is already too short; refresh the observation.');
  check(o.maxAttempts===6n&&o.sourceRetrySeconds===60n&&o.callbackGas===1000000n&&o.maxRequests===2n&&o.maxScans===8n,'Unknown scheduler configuration; review the model.');
  check(o.cronTimes.length>=3,'Recent indexed CRON observations required.');

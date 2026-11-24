@@ -48,7 +48,9 @@
     "grant:v4": "node script/v4-grant.cjs grant",
     "open:v4": "node script/v4-grant.cjs open",
     "plan:renew:v4": "node script/v4-renew.cjs plan",
-    "renew:v4": "node script/v4-renew.cjs renew"
+    "renew:v4": "node script/v4-renew.cjs renew",
+    "plan:window:v4": "node script/v4-renew.cjs plan-window",
+    "window:v4": "node script/v4-renew.cjs window"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

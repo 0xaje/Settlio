@@ -38,3 +38,26 @@ The new 600-second expiry is calculated from a fresh Base observation; planning 
 A dedicated journal payload and renewExpiredGrant operation preserve the original grant/open records and recover the same hash on rerun. They never extend a completed renewal on rerun. An expired/stale saved renewal, failed/unknown transaction or conflicting state needs review; do not delete/edit the journal, replace a nonce or run initial grant/funding again. This implementation does not automate a second renewal cycle. No quote already accepted is terminated when its merchant grant expires.
 
 Validation and public outcome provenance are in the dated master/progress/M2 acceptance checkpoint. Public renewal remains pending until the user executes it and its receipt/state are verified.
+
+
+## Slow-network correction: separate one-hour operator window
+
+The first ten-minute renewal also expired during user coordination. Only after that confirmed renewal has expired wholly unused, use `plan:window:v4` (read-only) then `window:v4` (hidden sponsor key). These are separate saved operations; do not rerun initial funding or delete either prior renewal record. The window is 3600 seconds from a fresh Base block observation, with some time consumed by checks/broadcast. It retains the same unused credit and current admission state. The quote itself still needs future payment/refund timestamps within 900 seconds of creation.
+
+```bash
+cd ~/Settlio &&
+git pull --ff-only origin main &&
+(
+  export NODE_OPTIONS="--dns-result-order=ipv4first --no-network-family-autoselection" &&
+  export BASE_SEPOLIA_RPC=https://sepolia.base.org &&
+  export LASNA_RPC=https://lasna-rpc.rnk.dev &&
+  npm run plan:window:v4 &&
+  read -rsp "Sponsor private key (hidden): " DEPLOYER_PRIVATE_KEY &&
+  printf '\\n' &&
+  export DEPLOYER_PRIVATE_KEY &&
+  npm run window:v4 &&
+  npm run verify:v4
+)
+```
+
+A funding shortfall or changed/used grant blocks issuance. No additional funds are sent by this command. Reruns recover the saved one-hour transaction without extending its expiry. Public outcome remains pending until signed and verified. This correction does not make arbitrary repeated renewals available.

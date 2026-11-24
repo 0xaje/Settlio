@@ -108,6 +108,18 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  assert.deepEqual(state.read(directoryRoot).initialGrant,originalGrant);assert.equal(state.read(directoryRoot).operations.grantInitial.hash,initialGrantHash);assert.equal(state.read(directoryRoot).operations.openAdmission.hash,initialOpenHash);
  const validRenewalJournal=fs.readFileSync(journalFile,'utf8'),edited=JSON.parse(validRenewalJournal);edited.expiredGrantRenewal.payload.proposal.credits='1';state.save(journalFile,edited);
  await assert.rejects(renewal.renew(renewalIO),/integrity/);fs.writeFileSync(journalFile,validRenewalJournal);
+ await assert.rejects(renewal.inspect({...renewalIO,window:true}),/not expired/);
+ const firstRenewal=structuredClone(state.read(directoryRoot).expiredGrantRenewal);
+ renewalTime+=700;
+ for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
+ await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
+ const windowIO={...renewalIO,window:true};
+ const windowPlan=await renewal.inspect(windowIO);assert.equal(windowPlan.proposal.validSeconds,'3600');assert.equal(windowPlan.result.canGrant,true);
+ const windowGrant=await renewal.renew(windowIO);assert.equal(windowGrant.admissionOpen,true);assert.equal(BigInt(windowGrant.grant[1]),BigInt(renewalTime)+3600n);
+ const windowNonce=await base.provider.getTransactionCount(owner);
+ assert.equal((await renewal.renew(windowIO)).transactionHash,windowGrant.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),windowNonce);
+ assert.deepEqual(state.read(directoryRoot).expiredGrantRenewal,firstRenewal);assert.deepEqual(state.read(directoryRoot).initialGrant,originalGrant);
+ assert.equal((await v4.verify({journal:state.read(directoryRoot),base:base.provider,lasna})).admission.admitted,0n);
  const final=state.read(directoryRoot);for(const [k,hash]of Object.entries(originalHashes))assert.equal(final.operations[k].hash,hash);
  assert.equal(fs.readFileSync(path.join(directoryRoot,'deployments/testnet-m2.json'),'utf8'),'legacy sentinel');assert.equal(fs.readFileSync(state.paths(directoryRoot).journal,'utf8').includes(key),false);assert.equal(fs.existsSync(state.paths(directoryRoot).lock),false);
  const status=await v4.status(io);assert(status.operations.every(op=>op.state==='succeeded'));
