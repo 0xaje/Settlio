@@ -50,7 +50,8 @@
     "plan:renew:v4": "node script/v4-renew.cjs plan",
     "renew:v4": "node script/v4-renew.cjs renew",
     "plan:window:v4": "node script/v4-renew.cjs plan-window",
-    "window:v4": "node script/v4-renew.cjs window"
+    "window:v4": "node script/v4-renew.cjs window",
+    "verify:release:v4": "node script/verify-v4-release.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

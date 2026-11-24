@@ -1,0 +1,18 @@
+{
+  "recording": "20261124-1841-24.1050201.mp4",
+  "durationSeconds": 78.44425,
+  "sha256": "eec3cce80ceb1b687841b2ba3eefb448e532fd8d90bb3036339f8729670fbc70",
+  "review": "Sampled frames at ten-second intervals, eight frames across the recording.",
+  "observations": [
+    "Confirmed V4 quote 1 shown before closure.",
+    "At sampled 30-second frame the Settlio tab is absent.",
+    "At sampled 50-second frame reopened quote 1 shows Released.",
+    "Later sampled frames show automatic scheduler completion and the recorded terms."
+  ],
+  "limits": [
+    "Sampled visual review, not a complete frame-by-frame audit.",
+    "Does not establish an uninterrupted closed-tab interval across all wall-clock time.",
+    "RPC evidence independently verifies confirmation and release; RPC cannot prove browser actions.",
+    "Raw video was not uploaded to GitHub."
+  ]
+}

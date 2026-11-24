@@ -21,8 +21,8 @@ function event(r,iface,address,name,id){
   const found=r.logs.filter(l=>same(l.address,address)&&!l.removed&&l.transactionHash.toLowerCase()===r.transactionHash.toLowerCase()&&l.blockHash.toLowerCase()===r.blockHash.toLowerCase()&&BigInt(l.blockNumber)===BigInt(r.blockNumber)).flatMap(l=>{try{const p=iface.parseLog(l);return p?.name===name&&(id===undefined||p.args.quoteId===id)?[{log:l,args:p.args}]:[];}catch{return [];}});
   check(found.length===1,'Missing or ambiguous '+name+' event.');return found[0];
 }
-function validate(b){
-  const {escrow,reactive,receiver}=IDENTITY,s=b.state;
+function validate(b,identity=IDENTITY){
+  const {escrow,reactive,receiver}=identity,s=b.state;
   check(BigInt(b.networks.base)===84532n&&BigInt(b.networks.lasna)===5318007n,'RPC network mismatch.');
   for(const n of ['creation','deposit','confirmation','release','confirmationReaction','releaseReaction',...(b.approval?['approval']:[])]){
     const {receipt:r,transaction:t}=b[n];
@@ -81,13 +81,13 @@ function validate(b){
   const job=Q.decodeFunctionResult('jobs',s.job);check(job[0]===q.expiresAt&&job[1]===q.refundCutoff&&job[4]&&job[5]&&job[6]&&job[8]&&job[2]===0n,'Automatic job terminal acknowledgement missing.');
   return {verifiedAt:new Date().toISOString(),readOnly:true,scope:'quote-linked authenticated same-asset automatic release',quoteId:id.toString(),asset:token?'USDC':'ETH',releaseUnits:q.deposit.toString(),outcome:'Released',releaseAtUTC:new Date(Number(BigInt(b.blocks.release.timestamp))*1000).toISOString(),schedulerClosed:true,currentAssetBalance:balance.toString(),currentAssetLiability:liability.toString(),associatedRequestAttempt:attempt.toString(),uniqueRetryAttribution:false,browserEvidence:'See separately reviewed recording/user evidence in M2 acceptance ledger; RPC does not verify browser actions.',limits:['Matching real requests/deliveries do not establish unique protocol return-report attribution.','Strict block-level balance deltas can reject unrelated same-block account activity.','This does not prove continuous browser closure, service delivery, future funding or full M2 acceptance.']};
 }
-async function collect(base,lasna,seed){
+async function collect(base,lasna,seed,identity=IDENTITY){
   const b=structuredClone(seed);delete b.result;delete b.nextTestBudget;
   b.networks={base:await base.send('eth_chainId',[]),lasna:await lasna.send('eth_chainId',[])};
   check(BigInt(b.networks.base)===84532n&&BigInt(b.networks.lasna)===5318007n,'RPC network mismatch.');
   await Promise.all(['creation','deposit','confirmation','release','confirmationReaction','releaseReaction',...(b.approval?['approval']:[])].map(async n=>{const p=n.endsWith('Reaction')?lasna:base,h=seed[n].receipt.transactionHash;const [receipt,transaction]=await Promise.all([p.send('eth_getTransactionReceipt',[h]),p.send('eth_getTransactionByHash',[h])]);check(receipt&&transaction,'Public receipt/transaction unavailable.');b[n]={receipt,transaction};}));
   b.cron=await lasna.send('eth_getTransactionReceipt',[seed.cron.transactionHash]);
-  const {escrow,receiver,reactive}=IDENTITY,id=event(b.creation.receipt,E,escrow,'QuoteCreated').args.quoteId;
+  const {escrow,receiver,reactive}=identity,id=event(b.creation.receipt,E,escrow,'QuoteCreated').args.quoteId;
   const [bh,rh]=await Promise.all([base.send('eth_blockNumber',[]),lasna.send('eth_blockNumber',[])]);b.observationBlocks={base:bh,lasna:rh};
   const call=(p,to,iface,name,args=[],height=bh)=>p.send('eth_call',[{to,data:iface.encodeFunctionData(name,args)},height]);
   b.state={quote:await call(base,escrow,E,'getQuote',[id])};b.blocks={};
