@@ -1,0 +1,166 @@
+{
+  "readOnly": true,
+  "scope": "independent public remaining-budget observation only; not local journal/grant execution verification",
+  "result": {
+    "readOnly": true,
+    "scope": "conditional remaining finite V4 sponsorship budget after quote 1 closure",
+    "identity": {
+      "policyVersion": 4,
+      "escrow": "0x5675C610d6f0aCe9f7933f3584D53dc4F567Dc6B",
+      "callback": "0x49ff0a4Bfa918b0576315C31a0bcE561eEBf3Df0",
+      "reactive": "0xFa1F509E21040bB4fE266B79E9583073914dFe6e",
+      "admission": "0x935Ef09F57B68D08fd9Fd315755b7Daf49871486",
+      "sponsor": "0xbf6301D7bca9F23A63A2d1Ed513d5120Dbb2288E"
+    },
+    "merchant": "0xbf6301D7bca9F23A63A2d1Ed513d5120Dbb2288E",
+    "credits": "1",
+    "validUntil": "1795551634",
+    "fundingObservation": "0x46498fec8568fbdbd7cfbd1834003d9ca11122fdd134fe8780e6dbc74f14c90f",
+    "lifetimeQuotesBudgeted": "5",
+    "attemptBatchesPerQuote": "4",
+    "callbacksPerQuote": "26",
+    "sourceCallAllowance": "1028",
+    "reactiveRequiredWei": "205600000000000000000",
+    "reactiveAvailableWei": "248822367700000000000",
+    "callbackRequiredWei": "1853280000000000",
+    "callbackAvailableWei": "2222230269600000",
+    "canGrant": true,
+    "limits": [
+      "Read-only remaining-lifetime model; one reviewed quote-2 credit, no grant or funding sent.",
+      "Sponsor attestation, not a cross-chain reserve proof or guaranteed future delivery.",
+      "Conditional model: double sampled cadence/prices, present fee parameters, finite lifetime work, six-attempt batches, 15-minute delivery margin. Longer delays, rate/fee changes, traffic or unsafe sponsor actions invalidate it.",
+      "Source balance and customer principal excluded. Arbitrary incremental grants are not supported.",
+      "Requires the sole previous quote closed on both chains, consumed grant, idle capacity and fresh sufficient reserves. Lifetime consumption never resets."
+    ],
+    "completedLifetimeQuotes": "1",
+    "remainingLifetimeQuotes": "5"
+  },
+  "closed": {
+    "destinationClosed": true,
+    "sourceClosed": true,
+    "status": "7",
+    "grantRemaining": "0"
+  },
+  "observation": {
+    "identity": {
+      "policyVersion": 4,
+      "escrow": "0x5675C610d6f0aCe9f7933f3584D53dc4F567Dc6B",
+      "callback": "0x49ff0a4Bfa918b0576315C31a0bcE561eEBf3Df0",
+      "reactive": "0xFa1F509E21040bB4fE266B79E9583073914dFe6e",
+      "admission": "0x935Ef09F57B68D08fd9Fd315755b7Daf49871486",
+      "sponsor": "0xbf6301D7bca9F23A63A2d1Ed513d5120Dbb2288E"
+    },
+    "open": true,
+    "active": "0",
+    "reserved": "0",
+    "admitted": "1",
+    "maxActive": "6",
+    "maxLifetime": "6",
+    "maxHorizon": "900",
+    "maxRetries": "1",
+    "retryInterval": "60",
+    "quoteCount": "1",
+    "activeJobs": "0",
+    "cronActive": false,
+    "paused": false,
+    "maxAttempts": "6",
+    "sourceRetrySeconds": "60",
+    "callbackGas": "1000000",
+    "maxRequests": "2",
+    "maxScans": "8",
+    "reactiveDebt": "0",
+    "reactiveReserves": "248822367700000000000",
+    "reactiveCoeff": "1000",
+    "reactiveExtra": "100000",
+    "callbackDebt": "0",
+    "callbackReserves": "1222230269600000",
+    "callbackCoeff": "1100",
+    "callbackExtra": "80000",
+    "subscriptions": {
+      "originSubscriptions": 10,
+      "cronActive": false,
+      "filterVersion": 14148
+    },
+    "observedAt": "1795548136",
+    "baseChain": "84532",
+    "lasnaChain": "5318007",
+    "baseBlock": "0x3c34ccd",
+    "baseHash": "0xeace20f72d0f95f424cae53a0d7d53e49e24f6f8f305effa5a398d59f7cdbb66",
+    "baseTimestamp": "1795548034",
+    "lasnaBlock": "0x8bc607",
+    "lasnaHash": "0x8a4e6dbe305ed7fa59974dbbb7dc48d71d0a20f39135f71f852e7f280db180c3",
+    "lasnaTimestamp": "1795548039",
+    "callbackBalance": "1000000000000000",
+    "reactivePrice": "100000000000",
+    "callbackPrice": "6000000",
+    "cronTimes": [
+      "1795547615",
+      "1795547722",
+      "1795547829",
+      "1795547935"
+    ],
+    "cronLogs": [
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008bc478"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8bc478",
+        "transactionHash": "0x27bfc0d4b57739508474a1bdb17e07bfe84d298f921e781551f7b212897a8502",
+        "transactionIndex": "0x0",
+        "blockHash": "0x2388c78c03af150f2b4de018c2dcdd36be82898662cbf391c654ea17de5c01c3",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008bc4dc"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8bc4dc",
+        "transactionHash": "0x7ea5c57950f83fbc427b60b07bd3ff4dc148e63e36eb0dc9fe4d3461dc5f6117",
+        "transactionIndex": "0x0",
+        "blockHash": "0x1cf0f4cffbaead84b2d426cfa989b96fb2e5e601456355cb1dfd30b08498b285",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008bc540"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8bc540",
+        "transactionHash": "0xecd6346bfd78aa502b50263b43f61d5d203cc3f96cffb8e91326076102c13e98",
+        "transactionIndex": "0x0",
+        "blockHash": "0x8d8542b73b124cd29a706c795ae3b8ac9a560fa2c49b612a3e234d96549ab009",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      },
+      {
+        "address": "0x0000000000000000000000000000000000ffffff",
+        "topics": [
+          "0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70",
+          "0x00000000000000000000000000000000000000000000000000000000008bc5a4"
+        ],
+        "data": "0x",
+        "blockNumber": "0x8bc5a4",
+        "transactionHash": "0x5c3bb8cc506d267f122b5ee3cd9a3fc1f7cbaee50418c5c8e0a329fd687ed2ed",
+        "transactionIndex": "0x0",
+        "blockHash": "0x01928273b1fa2b60608ded5cb790b153c52c99da9ca479d6f06b9f86ccafd0c9",
+        "blockTimestamp": "0x0",
+        "logIndex": "0x2",
+        "removed": false
+      }
+    ]
+  },
+  "provenance": "Actual public RPC observation via temporary Python HTTP adapter. Model replay uses its recorded observation time; this is not local-journal verification, grant execution, a saved signing plan or a future funding guarantee."
+}

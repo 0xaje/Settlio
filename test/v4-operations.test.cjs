@@ -7,6 +7,7 @@ const {SYSTEM,PROXY,USDC,CRON}=require('../script/m2-network.cjs');
 const configuration={admission:{maxActive:'2',maxLifetimeAdmissions:'2',maxHorizon:'1000',retryInterval:'60',maxRetries:'1'},constructorFunding:{reactive:'100000000000000000',callback:'1000000000000000'}};
 const fixture={'test/V4OperationsProtocol.sol':{content:`// SPDX-License-Identifier: MIT
 pragma solidity 0.8.29;
+import {IReactive} from "@reactive/src/interfaces/IReactive.sol";
 contract V4OperationsProtocol {
  event Cron100(uint256 indexed number);
  mapping(bytes32=>bool) public subscriptions;
@@ -19,6 +20,7 @@ contract V4OperationsProtocol {
  function decimals() external pure returns(uint8){return 6;}
  function symbol() external pure returns(string memory){return "USDC";}
  function emitCron() external {emit Cron100(block.number);}
+ function forward(address target,IReactive.LogRecord calldata record) external {IReactive(payable(target)).react(record);}
  function subscribe(uint256 chain,address target,uint256 t0,uint256 t1,uint256 t2,uint256 t3) external {subscriptions[keccak256(abi.encode(msg.sender,chain,target,t0,t1,t2,t3))]=true;}
  function unsubscribe(uint256 chain,address target,uint256 t0,uint256 t1,uint256 t2,uint256 t3) external {subscriptions[keccak256(abi.encode(msg.sender,chain,target,t0,t1,t2,t3))]=false;}
 }`}};
@@ -80,11 +82,11 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  await funding.fund({...io,caps:{reactive:parseEther('100').toString(),callback:parseEther('100').toString()}});
  assert.equal(await source.provider.getTransactionCount(owner),afterSourceNonce);assert.equal(await base.provider.getTransactionCount(owner),afterBaseNonce);
  await assert.rejects(grants.execute({...io,mode:'open'}),/confirmed/);
- const input={merchant:owner,credits:'2',validSeconds:'600'};
+ const input={merchant:owner,credits:'1',validSeconds:'600'};
  const granted=await grants.execute({...io,mode:'grant',input});assert.equal(granted.admissionOpen,false);
  const grantNonce=await base.provider.getTransactionCount(owner);await grants.execute({...io,mode:'grant',input});assert.equal(await base.provider.getTransactionCount(owner),grantNonce);
  const journalFile=state.paths(directoryRoot).journal,originalJournal=fs.readFileSync(journalFile,'utf8'),corrupt=JSON.parse(originalJournal);corrupt.initialGrant.result.fundingObservation='0x'+'00'.repeat(32);state.save(journalFile,corrupt);await assert.rejects(grants.execute({...io,mode:'grant',input}),/fingerprint/);fs.writeFileSync(journalFile,originalJournal);assert.equal(await base.provider.getTransactionCount(owner),grantNonce);
- await assert.rejects(grants.execute({...io,mode:'grant',input:{...input,credits:'1'}}),/proposal differs/);
+ await assert.rejects(grants.execute({...io,mode:'grant',input:{...input,credits:'2'}}),/proposal differs/);
  // A controlled future local clock must refuse opening before any transaction is prepared.
  const expiredClock=BigInt(state.read(directoryRoot).initialGrant.result.validUntil)+100n;
  await assert.rejects(grants.execute({...io,mode:'open',clock:()=>expiredClock}),/expired/);
@@ -102,11 +104,11 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  const renewalIO={...io,clock:()=>BigInt(renewalTime)};
  const renewalPlan=await renewal.inspect(renewalIO);assert.equal(renewalPlan.result.canGrant,true);assert.equal(state.read(directoryRoot).expiredGrantRenewal,undefined);
  await assert.rejects(renewal.renew({...renewalIO,env:{DEPLOYER_PRIVATE_KEY:base.signers[1].signer.privateKey}}),/differs/);
- const renewed=await renewal.renew(renewalIO);assert.equal(renewed.admissionOpen,true);assert.equal(renewed.grant[0],'2');assert(BigInt(renewed.grant[1])>BigInt(originalGrant.result.validUntil));
+ const renewed=await renewal.renew(renewalIO);assert.equal(renewed.admissionOpen,true);assert.equal(renewed.grant[0],'1');assert(BigInt(renewed.grant[1])>BigInt(originalGrant.result.validUntil));
  const renewalNonce=await base.provider.getTransactionCount(owner);
  const repeated=await renewal.renew(renewalIO);assert.equal(repeated.transactionHash,renewed.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),renewalNonce);
  assert.deepEqual(state.read(directoryRoot).initialGrant,originalGrant);assert.equal(state.read(directoryRoot).operations.grantInitial.hash,initialGrantHash);assert.equal(state.read(directoryRoot).operations.openAdmission.hash,initialOpenHash);
- const validRenewalJournal=fs.readFileSync(journalFile,'utf8'),edited=JSON.parse(validRenewalJournal);edited.expiredGrantRenewal.payload.proposal.credits='1';state.save(journalFile,edited);
+ const validRenewalJournal=fs.readFileSync(journalFile,'utf8'),edited=JSON.parse(validRenewalJournal);edited.expiredGrantRenewal.payload.proposal.credits='2';state.save(journalFile,edited);
  await assert.rejects(renewal.renew(renewalIO),/integrity/);fs.writeFileSync(journalFile,validRenewalJournal);
  await assert.rejects(renewal.inspect({...renewalIO,window:true}),/not expired/);
  const firstRenewal=structuredClone(state.read(directoryRoot).expiredGrantRenewal);
@@ -120,6 +122,30 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  assert.equal((await renewal.renew(windowIO)).transactionHash,windowGrant.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),windowNonce);
  assert.deepEqual(state.read(directoryRoot).expiredGrantRenewal,firstRenewal);assert.deepEqual(state.read(directoryRoot).initialGrant,originalGrant);
  assert.equal((await v4.verify({journal:state.read(directoryRoot),base:base.provider,lasna})).admission.admitted,0n);
+ const next=require('../script/v4-next-grant.cjs');
+ await assert.rejects(next.inspect(windowIO),/Previous grant|exactly one/);
+ const e=new Contract(state.read(directoryRoot).escrow,compile('SettlioEscrowV4').abi,new Wallet(key,base.provider));
+ const customer=await base.signers[1].getAddress(),terms=keccak256('0x123456');
+ await(await e.createQuote(customer,300,100,renewalTime+100,renewalTime+200,terms)).wait();
+ await assert.rejects(next.inspect(windowIO),/exactly one/);
+ await base.provider.send('evm_setNextBlockTimestamp',[renewalTime+100]);await base.provider.send('evm_mine',[]);
+ const callback=state.read(directoryRoot).contracts.SettlioCallbackV4.address;
+ await base.provider.send('anvil_impersonateAccount',[callback]);
+ const expired=await(await e.connect(await base.provider.getSigner(callback)).processPolicy(1)).wait();
+ await base.provider.send('anvil_stopImpersonatingAccount',[callback]);
+ // A destination terminal event alone cannot retire the source liability in the funding model.
+ await assert.rejects(next.inspect(windowIO),/fully closed/);
+ const expiredLog=expired.logs.find(l=>{try{return e.interface.parseLog(l)?.name==='QuoteExpired';}catch{return false;}});
+ const record={chainId:84532,contractAddress:e.target,topic0:BigInt(expiredLog.topics[0]),topic1:1,topic2:0,topic3:0,data:expiredLog.data,blockNumber:expired.blockNumber,opCode:expiredLog.topics.length,blockHash:BigInt(expired.blockHash),txHash:BigInt(expired.hash),logIndex:expiredLog.index};
+ await(await system.connect(new Wallet(key,source.provider)).forward(state.read(directoryRoot).contracts.SettlioReactiveV4.address,record)).wait();
+ renewalTime+=400;
+ for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
+ await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
+ const nextPlan=await next.inspect(windowIO);assert.equal(nextPlan.result.remainingLifetimeQuotes,'1');assert.equal(nextPlan.result.canGrant,true);assert.equal(state.read(directoryRoot).nextQuoteGrant,undefined);
+ const priorWindow=structuredClone(state.read(directoryRoot).operatorWindowGrant);
+ const nextGrant=await next.grant(windowIO);assert.equal(nextGrant.grant[0],'1');
+ const nextNonce=await base.provider.getTransactionCount(owner);assert.equal((await next.grant(windowIO)).transactionHash,nextGrant.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),nextNonce);
+ assert.deepEqual(state.read(directoryRoot).operatorWindowGrant,priorWindow);assert.equal((await v4.verify({journal:state.read(directoryRoot),base:base.provider,lasna})).admission.admitted,1n);
  const final=state.read(directoryRoot);for(const [k,hash]of Object.entries(originalHashes))assert.equal(final.operations[k].hash,hash);
  assert.equal(fs.readFileSync(path.join(directoryRoot,'deployments/testnet-m2.json'),'utf8'),'legacy sentinel');assert.equal(fs.readFileSync(state.paths(directoryRoot).journal,'utf8').includes(key),false);assert.equal(fs.existsSync(state.paths(directoryRoot).lock),false);
  const status=await v4.status(io);assert(status.operations.every(op=>op.state==='succeeded'));
