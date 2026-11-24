@@ -62,3 +62,8 @@ Final full suite: **144 passed, zero failures/skips/cancellations**. The focused
 Official callback authentication/deployment order remains as documented at https://dev.reactive.network/callback-contracts; fee/debt/reserve semantics at https://dev.reactive.network/economy. V4 source and callback remain separate, and customer escrow is never a fee payer.
 
 Next gates: read-only user WSL settings/cost review, explicit bounded wallet operations, rendered browser/mobile/extension journeys and genuine V4 origin-to-Reactive-to-callback evidence. V4 functional interface/shared terms and refund recovery have build/helper verification, not full browser/public acceptance. Do not mark M2 closed from local tests.
+
+
+## Expired unused original grant
+
+Use [V4_RENEWAL.md](V4_RENEWAL.md) for the explicit, once-only `plan:renew:v4` / `renew:v4` recovery. This supersedes the earlier lack of a renewal command only for an entirely unused original allowance. No generic incremental grant, repeated renewal cycle or automatic funding is implemented. Original grant/open/funding intents are preserved. Full regression suite: 148 passed on 24 November 2026; public renewal pending.

@@ -90,6 +90,24 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  await assert.rejects(grants.execute({...io,mode:'open',clock:()=>expiredClock}),/expired/);
  const opened=await grants.execute({...io,mode:'open'});assert.equal(opened.admissionOpen,true);const openedNonce=await base.provider.getTransactionCount(owner);
  await grants.execute({...io,mode:'open'});await grants.execute({...io,mode:'grant',input});assert.equal(await base.provider.getTransactionCount(owner),openedNonce);
+ const renewal=require('../script/v4-renew.cjs');
+ await assert.rejects(renewal.inspect(io),/not expired/);
+ const originalGrant=structuredClone(state.read(directoryRoot).initialGrant);
+ const initialGrantHash=state.read(directoryRoot).operations.grantInitial.hash;
+ const initialOpenHash=state.read(directoryRoot).operations.openAdmission.hash;
+ // Move real fixture chains beyond the grant, then emit fresh indexed CRON samples.
+ let renewalTime=(await source.provider.getBlock('latest')).timestamp+700;
+ for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
+ await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
+ const renewalIO={...io,clock:()=>BigInt(renewalTime)};
+ const renewalPlan=await renewal.inspect(renewalIO);assert.equal(renewalPlan.result.canGrant,true);assert.equal(state.read(directoryRoot).expiredGrantRenewal,undefined);
+ await assert.rejects(renewal.renew({...renewalIO,env:{DEPLOYER_PRIVATE_KEY:base.signers[1].signer.privateKey}}),/differs/);
+ const renewed=await renewal.renew(renewalIO);assert.equal(renewed.admissionOpen,true);assert.equal(renewed.grant[0],'2');assert(BigInt(renewed.grant[1])>BigInt(originalGrant.result.validUntil));
+ const renewalNonce=await base.provider.getTransactionCount(owner);
+ const repeated=await renewal.renew(renewalIO);assert.equal(repeated.transactionHash,renewed.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),renewalNonce);
+ assert.deepEqual(state.read(directoryRoot).initialGrant,originalGrant);assert.equal(state.read(directoryRoot).operations.grantInitial.hash,initialGrantHash);assert.equal(state.read(directoryRoot).operations.openAdmission.hash,initialOpenHash);
+ const validRenewalJournal=fs.readFileSync(journalFile,'utf8'),edited=JSON.parse(validRenewalJournal);edited.expiredGrantRenewal.payload.proposal.credits='1';state.save(journalFile,edited);
+ await assert.rejects(renewal.renew(renewalIO),/integrity/);fs.writeFileSync(journalFile,validRenewalJournal);
  const final=state.read(directoryRoot);for(const [k,hash]of Object.entries(originalHashes))assert.equal(final.operations[k].hash,hash);
  assert.equal(fs.readFileSync(path.join(directoryRoot,'deployments/testnet-m2.json'),'utf8'),'legacy sentinel');assert.equal(fs.readFileSync(state.paths(directoryRoot).journal,'utf8').includes(key),false);assert.equal(fs.existsSync(state.paths(directoryRoot).lock),false);
  const status=await v4.status(io);assert(status.operations.every(op=>op.state==='succeeded'));
