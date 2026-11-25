@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Local renewable escrow integration — 25 November 2026
+
+[Escrow acceptance](RENEWABLE_ESCROW_ACCEPTANCE.md): separate V5 escrow now consumes ledger grants atomically and closes active capacity only with successful terminal transitions. Refund claims bypass closed admission/retry exhaustion; missing source acknowledgement retains work capacity, not customer principal. Final `npm test`: 272/272 passed, zero failures/skips/cancellations; new ledger/escrow compilation and size checks passed. These are isolated local checks, not new public evidence. V4 source/deployment, web ABI and six proofs remain unchanged. M2 stays open. Next: authenticated versioned receiver and source closure with bounded acknowledgement recovery; economics and production settings remain pending. No deployment or spending authorized.
+
 ## Operating-model proposal prepared — 25 November 2026
 
 [Ongoing admission and funding proposal](OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.

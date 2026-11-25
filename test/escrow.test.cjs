@@ -4,7 +4,7 @@ const { test } = require('node:test');
 const { keccak256, toUtf8Bytes, parseEther } = require('ethers');
 const deployEscrow = require('./helpers/deploy-escrow.cjs');
 
-for (const version of [3,4]) test('V'+version+' escrow payment, permissions, deadline races and principal accounting (isolated)', async t => {
+for (const version of [3,4,5]) test('V'+version+' escrow payment, permissions, deadline races and principal accounting (isolated)', async t => {
   const { provider, signers } = await startLocalChain(t);
   const [merchant, customer, receiver, stranger] = signers;
   const escrow = await deployEscrow(version, {merchant,receiver,provider,capacity:4});

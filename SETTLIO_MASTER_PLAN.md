@@ -1,5 +1,9 @@
 # Settlio master build plan
 
+## Local renewable escrow integration — 25 November 2026
+
+[Escrow acceptance](docs/RENEWABLE_ESCROW_ACCEPTANCE.md): separate V5 escrow now consumes ledger grants atomically and closes active capacity only with successful terminal transitions. Refund claims bypass closed admission/retry exhaustion; missing source acknowledgement retains work capacity, not customer principal. Final `npm test`: 272/272 passed, zero failures/skips/cancellations; new ledger/escrow compilation and size checks passed. These are isolated local checks, not new public evidence. V4 source/deployment, web ABI and six proofs remain unchanged. M2 stays open. Next: authenticated versioned receiver and source closure with bounded acknowledgement recovery; economics and production settings remain pending. No deployment or spending authorized.
+
 ## Standalone renewable ledger implemented — 25 November 2026
 
 User authorized the next local implementation step. [Ledger acceptance](docs/RENEWABLE_LEDGER_ACCEPTANCE.md): renewable finite grants, separate active/unsettled work, idempotent two-sided settlement, epoch/profile binding and retained replay records. Combined new-ledger/existing-admission tests passed 10/10; Solidity 0.8.29 compilation passed (4,751-byte runtime). These are local fixture checks only. No public operation or V4 change. Escrow/source/receiver integration and economics remain pending; M2 stays open. Next: local escrow integration with atomic principal-safety tests.

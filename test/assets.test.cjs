@@ -31,7 +31,7 @@ contract TokenFixture {
  }
 }`;
 
-for (const version of [3,4]) test('V'+version+' asset choices, exact custody and same-asset recovery (isolated)', async t => {
+for (const version of [3,4,5]) test('V'+version+' asset choices, exact custody and same-asset recovery (isolated)', async t => {
  const {provider,signers:[merchant,customer,receiver,stranger]}=await startLocalChain(t);
  const escrow=await require('./helpers/deploy-escrow.cjs')(version,{merchant,receiver,provider});
  const artifact=compile('TokenFixture',{'TokenFixture.sol':{content:fixture}});
