@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Local adaptive timer verified — 25 November 2026
+
+[Timer acceptance](RENEWABLE_TIMER_ACCEPTANCE.md): V5 uses an earliest-deadline heap and explicit opt-in coarse/medium/fast CRON tiers; fast-only mode remains available. Final `npm test`: 295/295 passed, zero failures/skips/cancellations; all four renewable contracts compiled below EVM limits. A 128-item queue and exact timer switches were checked locally. Live coarse-event read attempt was unavailable; no public verification is claimed. Offline cost scenarios stay an explicitly labelled always-fast baseline. V4, balances and public evidence are unchanged. M2 stays OPEN. Next: local fee-backed commitment accounting; live timer/profile and deployment decisions remain separate, with no spending authorized.
+
 ## Offline renewable funding review — 25 November 2026
 
 [Cost and duration review](RENEWABLE_COST_REVIEW.md) and its reproducible report inventory 48 archived receipts and explicitly separate transaction-envelope amounts from unknown application service charges. Timer-only scenarios compare 15 minutes/day/week using stale recorded price/cadence, not funding recommendations. New offline-tool tests passed 4/4; normal npm output matches the saved report; all nine inputs match current repository blobs. No new full-suite claim (last full: 287/287), blockchain RPC, contract change or spending. Funding readiness is NOT established; M2 remains OPEN. Next: local timer/profile optimization and commitment accounting before any renewable funding/admission decision. Deployment preparation remains cancelled.

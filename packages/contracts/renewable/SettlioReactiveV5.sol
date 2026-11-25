@@ -18,7 +18,16 @@ contract SettlioReactiveV5 is AbstractReactive {
     uint256 public constant CLOSURE_RETRY_TOPIC = uint256(keccak256("ClosureAcknowledgementRequested(uint256,uint64,bytes32,uint8)"));
     uint8 public constant ACK_ATTEMPTS_PER_BATCH = 3;
     uint8 public constant MAX_ACK_RECOVERIES = 2;
-    struct Closure { uint64 epoch; bytes32 profile; uint8 attempts; uint8 recoveries; bool known; bool settled; bool needsAttention; bool awaitingDelivery; }
+    struct Closure {
+        uint64 epoch;
+        bytes32 profile;
+        uint8 attempts;
+        uint8 recoveries;
+        bool known;
+        bool settled;
+        bool needsAttention;
+        bool awaitingDelivery;
+    }
     mapping(uint256 => Closure) public closures;
     event ClosureCallbackRequested(uint256 indexed quoteId, uint8 attempt);
     event ClosureRequestFailed(uint256 indexed quoteId, uint8 attempt);
@@ -37,6 +46,13 @@ contract SettlioReactiveV5 is AbstractReactive {
     uint256 public constant RELEASED_TOPIC = uint256(keccak256("Released(uint256,uint256)"));
     address public constant CRON_SOURCE = 0x0000000000000000000000000000000000fffFfF;
     uint256 public constant CRON_TOPIC = 0xb49937fb8970e19fd46d48f7e3fb00d659deac0347f79cd7cb542f0fc1503c70;
+    uint256 public constant CRON1000_TOPIC = uint256(keccak256("Cron1000(uint256)"));
+    uint256 public constant CRON10000_TOPIC = uint256(keccak256("Cron10000(uint256)"));
+    // Candidate local profiles: public cadence/layout and lateness need review.
+    uint64 public constant MEDIUM_WINDOW_SECONDS = 1800;
+    uint64 public constant COARSE_WINDOW_SECONDS = 21600;
+    bool public immutable adaptiveTimers;
+    uint256 public currentCronTopic;
     uint256 public constant MAX_SCANS = 8;
     uint256 public constant MAX_REQUESTS = 2;
     uint8 public constant MAX_ATTEMPTS = 6;
@@ -59,7 +75,6 @@ contract SettlioReactiveV5 is AbstractReactive {
     mapping(bytes32 => bool) public processed;
     uint256[] private activeJobs;
     mapping(uint256 => uint256) private position;
-    uint256 public queueCursor;
     bool public schedulerPaused;
     bool public cronSubscribed;
 
@@ -70,11 +85,13 @@ contract SettlioReactiveV5 is AbstractReactive {
     event PolicyNeedsAttention(uint256 indexed quoteId);
     event CronSubscriptionChanged(bool active);
     event SchedulerPaused(bool paused);
+    event CronIntervalChanged(uint256 previousTopic, uint256 nextTopic);
 
-    constructor(uint256 chain) payable {
+    constructor(uint256 chain, bool enableAdaptiveTimers) payable {
         if (chain == 0) revert InvalidConfiguration();
         owner = msg.sender;
         originChain = chain;
+        adaptiveTimers = enableAdaptiveTimers;
     }
 
     function configure(address escrow, address receiver, address ledger) external {
@@ -107,11 +124,11 @@ contract SettlioReactiveV5 is AbstractReactive {
         if (originEscrow == address(0)) return;
         bytes32 originLog = keccak256(abi.encode(log.chainId, log.blockHash, log.txHash, log.logIndex));
         if (processed[originLog]) return;
-        if (log.chainId == block.chainid && log.contractAddress == CRON_SOURCE && log.topic0 == CRON_TOPIC) {
+        if (log.chainId == block.chainid && log.contractAddress == CRON_SOURCE && (log.topic0 == CRON_TOPIC || log.topic0 == CRON1000_TOPIC || log.topic0 == CRON10000_TOPIC)) {
             // Cron100(uint256 indexed number): signature + indexed block number, no data.
             if (log.opCode != 2 || log.data.length != 0 || log.topic2 != 0 || log.topic3 != 0) return;
             processed[originLog] = true;
-            if (cronSubscribed && !schedulerPaused) _tick();
+            if (cronSubscribed && !schedulerPaused && log.topic0 == currentCronTopic) _tick();
             return;
         }
         if (log.chainId == originChain && log.contractAddress == workLedger && log.topic0 == SETTLED_TOPIC) {
@@ -259,7 +276,7 @@ contract SettlioReactiveV5 is AbstractReactive {
     function _requestClosure(uint256 id) private {
         Closure storage closure = closures[id];
         ++closure.attempts;
-        jobs[id].nextAt = uint64(block.timestamp) + RETRY_SECONDS * closure.attempts;
+        _setNextAt(id, uint64(block.timestamp) + RETRY_SECONDS * closure.attempts);
         ISystemContract.CallbackConfiguration_V_1_0 memory config = ISystemContract.CallbackConfiguration_V_1_0({
             chainId: originChain, recipient: callbackReceiver, gasLimit: CALLBACK_GAS_LIMIT,
             payload: abi.encodeWithSignature("acknowledgeClosure(address,uint256,address,uint256,uint64,bytes32)",
@@ -277,22 +294,64 @@ contract SettlioReactiveV5 is AbstractReactive {
         catch { emit ClosureRequestFailed(id, closure.attempts); }
     }
 
+    /// @notice Root deadline is exact; no full queue scan is needed for timer choice.
+    function earliestDue() external view returns (uint64) {
+        return activeJobs.length == 0 ? 0 : jobs[activeJobs[0]].nextAt;
+    }
+
+    function _earlier(uint256 a, uint256 b) private view returns (bool) {
+        return jobs[a].nextAt < jobs[b].nextAt || (jobs[a].nextAt == jobs[b].nextAt && a < b);
+    }
+
+    function _swap(uint256 a, uint256 b) private {
+        uint256 first = activeJobs[a];
+        activeJobs[a] = activeJobs[b];
+        activeJobs[b] = first;
+        position[activeJobs[a]] = a + 1;
+        position[first] = b + 1;
+    }
+
+    function _repair(uint256 index) private {
+        if (index > 0 && _earlier(activeJobs[index], activeJobs[(index - 1) / 2])) {
+            while (index > 0) {
+                uint256 parent = (index - 1) / 2;
+                if (!_earlier(activeJobs[index], activeJobs[parent])) break;
+                _swap(index, parent);
+                index = parent;
+            }
+        } else {
+            while (index * 2 + 1 < activeJobs.length) {
+                uint256 child = index * 2 + 1;
+                if (child + 1 < activeJobs.length && _earlier(activeJobs[child + 1], activeJobs[child])) ++child;
+                if (!_earlier(activeJobs[child], activeJobs[index])) break;
+                _swap(index, child);
+                index = child;
+            }
+        }
+    }
+
+    function _setNextAt(uint256 id, uint64 due) private {
+        jobs[id].nextAt = due;
+        _repair(position[id] - 1);
+    }
+
     function _schedule(uint256 id, uint64 due) private {
         if (position[id] == 0) { activeJobs.push(id); position[id] = activeJobs.length; }
-        jobs[id].nextAt = due;
+        _setNextAt(id, due);
         _syncCron();
     }
 
     function _remove(uint256 id) private {
         uint256 pos = position[id];
         if (pos != 0) {
+            uint256 index = pos - 1;
             uint256 last = activeJobs[activeJobs.length - 1];
-            activeJobs[pos - 1] = last;
+            activeJobs[index] = last;
             position[last] = pos;
             activeJobs.pop();
             delete position[id];
+            if (index < activeJobs.length) _repair(index);
             jobs[id].nextAt = 0;
-            queueCursor = activeJobs.length == 0 ? 0 : queueCursor % activeJobs.length;
         }
         _syncCron();
     }
@@ -302,12 +361,10 @@ contract SettlioReactiveV5 is AbstractReactive {
         uint256 requested;
         uint256 budget = activeJobs.length < MAX_SCANS ? activeJobs.length : MAX_SCANS;
         while (scanned < budget && activeJobs.length > 0 && requested < MAX_REQUESTS) {
-            queueCursor %= activeJobs.length;
-            uint256 id = activeJobs[queueCursor];
-            queueCursor = (queueCursor + 1) % activeJobs.length;
+            uint256 id = activeJobs[0];
             ++scanned;
             Job storage job = jobs[id];
-            if (block.timestamp < job.nextAt) continue;
+            if (block.timestamp < job.nextAt) break;
             if (job.closed) {
                 Closure storage closure = closures[id];
                 if (!closure.known || closure.settled) { _remove(id); continue; }
@@ -329,7 +386,7 @@ contract SettlioReactiveV5 is AbstractReactive {
             }
             ++job.attempts;
             ++requested;
-            job.nextAt = uint64(block.timestamp) + RETRY_SECONDS * job.attempts;
+            _setNextAt(id, uint64(block.timestamp) + RETRY_SECONDS * job.attempts);
             // A request is not delivery. Keep the job until origin completion is
             // observed, and isolate request rejection so other due jobs can run.
             try SYSTEM.requestCallbackV_1_0(_configuration("processPolicy(address,uint256)", id)) {
@@ -338,15 +395,26 @@ contract SettlioReactiveV5 is AbstractReactive {
                 emit PolicyRequestFailed(id, job.attempts);
             }
         }
+        // Even a tick with no due jobs can move from a coarse to a finer tier.
+        _syncCron();
     }
 
     function _syncCron() private {
-        bool wanted = !schedulerPaused && activeJobs.length > 0;
-        if (wanted == cronSubscribed) return;
-        cronSubscribed = wanted;
-        if (wanted) SYSTEM.subscribe(block.chainid, CRON_SOURCE, CRON_TOPIC, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
-        else SYSTEM.unsubscribe(block.chainid, CRON_SOURCE, CRON_TOPIC, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
-        emit CronSubscriptionChanged(wanted);
+        uint256 next;
+        if (!schedulerPaused && activeJobs.length > 0) {
+            uint64 due = jobs[activeJobs[0]].nextAt;
+            next = CRON_TOPIC;
+            if (adaptiveTimers && uint256(due) > block.timestamp + COARSE_WINDOW_SECONDS) next = CRON10000_TOPIC;
+            else if (adaptiveTimers && uint256(due) > block.timestamp + MEDIUM_WINDOW_SECONDS) next = CRON1000_TOPIC;
+        }
+        if (next == currentCronTopic) return;
+        uint256 previous = currentCronTopic;
+        if (previous != 0) SYSTEM.unsubscribe(block.chainid, CRON_SOURCE, previous, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
+        currentCronTopic = next;
+        cronSubscribed = next != 0;
+        if (next != 0) SYSTEM.subscribe(block.chainid, CRON_SOURCE, next, REACTIVE_IGNORE, REACTIVE_IGNORE, REACTIVE_IGNORE);
+        if ((previous == 0) != (next == 0)) emit CronSubscriptionChanged(next != 0);
+        emit CronIntervalChanged(previous, next);
     }
 
     function _configuration(string memory signature, uint256 id)

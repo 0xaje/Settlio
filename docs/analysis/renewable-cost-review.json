@@ -1,5 +1,5 @@
 {
-  "analysisScriptSha256": "fd20b9214aad02dedc00889c24195f3e8ba3853681491d3ee776694cd397203e",
+  "analysisScriptSha256": "3a602c0511504ab0db3ec443814ee22e5a4ab737e667050a2fa04a59b8ad540a",
   "mode": "offline archived evidence and hypothetical sensitivity",
   "readOnly": true,
   "canGrant": false,
@@ -35,7 +35,7 @@
     },
     {
       "file": "packages/contracts/renewable/SettlioReactiveV5.sol",
-      "sha256": "47c211d781868ea1149e27001e9029c437ff3ebd8acf505879f805d995e0221a"
+      "sha256": "6682f6651036b556f2a57586d213a8ce5583d80d91bee76b6b0129e7f7a39129"
     },
     {
       "file": "packages/contracts/renewable/SettlioEscrowV5.sol",
@@ -982,7 +982,7 @@
     }
   },
   "scenarioAnalysis": {
-    "scope": "Partial hypothetical sensitivity only. Not a complete reserve requirement or an admission decision.",
+    "scope": "Hypothetical always-Cron100 baseline, not an adaptive timer forecast, complete reserve requirement or admission decision.",
     "recordedMinimumCronSeconds": "106",
     "modeledTickSeconds": "53",
     "sourceMaximumGasStressUnitWei": "200000000000000000",
@@ -1012,7 +1012,7 @@
     ],
     "assumptions": [
       "Doubles the archived fee prices and sampled cadence; uses maximum source execution gas rather than measured idle gas.",
-      "One continuously active timer subscription during the stated horizon. Concurrent jobs share a subscription; do not multiply these ticks blindly by concurrency.",
+      "Hypothetical continuously active fast Cron100 subscription, even if the current source supports opt-in adaptive timing. Concurrent jobs share a subscription; do not multiply these ticks blindly by concurrency.",
       "Acknowledgement delivery allowance assumes one billed destination attempt per accepted request. Protocol redelivery and changing prices can invalidate it.",
       "No deployment, configuration, ordinary policy/confirmation traffic, full retry/backoff/drain tail, origin observations or reserve contingency is included in these partial numbers.",
       "No V5 funding observation exists. Old V4 reserves are not available credit for another contract. Prices/cadence are historical, not current quotations."

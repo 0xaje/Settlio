@@ -57,13 +57,13 @@ function scenarios(o,constants){
  const sourceUnit=fee(2n*uint(o.reactivePrice,'source price'),uint(o.reactiveCoeff,'source coefficient'),900000n,uint(o.reactiveExtra,'source surcharge'));
  const destUnit=fee(2n*uint(o.callbackPrice,'destination price'),uint(o.callbackCoeff,'destination coefficient'),constants.callbackGas,uint(o.callbackExtra,'destination surcharge'));
  const requestCap=constants.attempts*(1n+constants.recoveries),acceptedCap=1n+constants.recoveries;
- return {scope:'Partial hypothetical sensitivity only. Not a complete reserve requirement or an admission decision.',recordedMinimumCronSeconds:minimum.toString(),modeledTickSeconds:tick.toString(),
+ return {scope:'Hypothetical always-Cron100 baseline, not an adaptive timer forecast, complete reserve requirement or admission decision.',recordedMinimumCronSeconds:minimum.toString(),modeledTickSeconds:tick.toString(),
   sourceMaximumGasStressUnitWei:sourceUnit.toString(),destinationCallbackGasLimitStressUnitWei:destUnit.toString(),acknowledgementRequestCap:requestCap.toString(),
   acceptedAcknowledgementRequestCap:acceptedCap.toString(),acknowledgementSinglePassDestinationAllowanceWei:(acceptedCap*destUnit).toString(),
   profiles:[['15 minutes',900n],['24 hours',86400n],['7 days',604800n]].map(([label,horizon])=>({label,horizonSeconds:horizon.toString(),
    hypotheticalAlwaysSubscribedTicks:ceil(horizon,tick).toString(),timerOnlyMaximumGasStressWei:(ceil(horizon,tick)*sourceUnit).toString()})),
   assumptions:['Doubles the archived fee prices and sampled cadence; uses maximum source execution gas rather than measured idle gas.',
-   'One continuously active timer subscription during the stated horizon. Concurrent jobs share a subscription; do not multiply these ticks blindly by concurrency.',
+   'Hypothetical continuously active fast Cron100 subscription, even if the current source supports opt-in adaptive timing. Concurrent jobs share a subscription; do not multiply these ticks blindly by concurrency.',
    'Acknowledgement delivery allowance assumes one billed destination attempt per accepted request. Protocol redelivery and changing prices can invalidate it.',
    'No deployment, configuration, ordinary policy/confirmation traffic, full retry/backoff/drain tail, origin observations or reserve contingency is included in these partial numbers.',
    'No V5 funding observation exists. Old V4 reserves are not available credit for another contract. Prices/cadence are historical, not current quotations.']};

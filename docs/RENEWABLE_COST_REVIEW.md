@@ -1,5 +1,9 @@
 # Renewable funding and duration review
 
+## Adaptive timer follow-up — 25 November 2026
+
+The [local adaptive timer](RENEWABLE_TIMER_ACCEPTANCE.md) is implemented as an explicit opt-in candidate, with live coarse-layout verification still pending. The derived report's input hashes are refreshed; its scenarios remain a hypothetical always-Cron100 comparison, not an adaptive cost forecast or funding recommendation. The original dated review below is retained.
+
 25 November 2026. **Offline analysis completed; funding readiness NOT established. No transactions or RPC calls.** Code baseline [40d6829](https://github.com/0xaje/Settlio/commit/40d68293c85649df77de917b7f0b7b1c5987ef9b).
 
 ## Recommendation
