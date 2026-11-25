@@ -8,10 +8,64 @@
   "participantRetry": "0xf550fc2dbf043fb5664565f5e03b7444afc950a8da84036890ab5a32d12cf3cc",
   "resume": "0x9113708fad9ad2e5ed405f1ec6b80f3d0b656c9909ca3508b3d847f270d9af6f",
   "expiryEventTransaction": "0x80e72e14b40270466409884920a052a5bd32ee1a686169745217532f16ba5773",
-  "beforeResume": {"paused": true, "cronActive": false, "activeJobs": "1", "admitted": "6", "active": "1", "reserved": "0", "nativeBalance": "0", "nativeLiability": "0", "usdcBalance": "0", "usdcLiability": "0"},
-  "afterResume": {"paused": false, "cronActive": true, "activeJobs": "1"},
-  "terminal": {"paused": false, "cronActive": false, "activeJobs": "0", "admitted": "6", "active": "0", "reserved": "0", "nativeBalance": "0", "nativeLiability": "0", "usdcBalance": "0", "usdcLiability": "0"},
-  "freshRecoveryVerifierUserReproduction": "pending",
+  "beforeResume": {
+    "paused": true,
+    "cronActive": false,
+    "activeJobs": "1",
+    "admitted": "6",
+    "active": "1",
+    "reserved": "0",
+    "nativeBalance": "0",
+    "nativeLiability": "0",
+    "usdcBalance": "0",
+    "usdcLiability": "0"
+  },
+  "afterResume": {
+    "paused": false,
+    "cronActive": true,
+    "activeJobs": "1"
+  },
+  "terminal": {
+    "paused": false,
+    "cronActive": false,
+    "activeJobs": "0",
+    "admitted": "6",
+    "active": "0",
+    "reserved": "0",
+    "nativeBalance": "0",
+    "nativeLiability": "0",
+    "usdcBalance": "0",
+    "usdcLiability": "0"
+  },
+  "freshRecoveryVerifierUserReproduction": "passed",
   "browserClosure": "not recorded",
-  "limits": ["Status observations alone do not authenticate the callback or prove retry ingestion.", "The user successfully scanned for the quote-6 expiry event; this is separate from running the complete recovery verifier."]
+  "limits": [
+    "Status observations alone do not authenticate the callback or prove retry ingestion.",
+    "The initial event scan and status snapshots are separate observations; the later complete fresh recovery verifier also passed, as recorded here. Relayed caller, return-report and browser evidence limits remain."
+  ],
+  "freshVerifier": {
+    "provenance": "User-pasted successful fresh Ubuntu CLI result; separate from independently collected bundle.",
+    "verifiedAt": "2026-11-25T15:10:26.840Z",
+    "sourceCommit": "400447d18a3b4b6c1cf4e58732b1eec7588bb130",
+    "command": "npm run verify:recovery:v4",
+    "environment": {
+      "NODE_OPTIONS": "--dns-result-order=ipv4first --no-network-family-autoselection",
+      "BASE_SEPOLIA_RPC": "https://base-sepolia-rpc.publicnode.com",
+      "LASNA_RPC": "https://lasna-rpc.rnk.dev"
+    },
+    "resultSummary": {
+      "quoteId": "6",
+      "outcome": "Expired",
+      "preRestoreRetryProcessed": true,
+      "schedulerClosed": true,
+      "admissionSlotClosed": true,
+      "schedulerIdle": true,
+      "customerPrincipalObserved": "0",
+      "lifetimeAdmissionsConsumed": "6",
+      "lifetimeCapacityExhausted": true,
+      "uniqueRetryAttribution": false,
+      "browserClosedEvidence": "not recorded",
+      "retryRuntimeHash": "0xeb36ec1f668a313f9984b5eb50a16221d7e1ee23126655699878491a2323b8c3"
+    }
+  }
 }
