@@ -66,7 +66,8 @@
     "grant:recovery:v4": "node script/v4-next-grant.cjs grant-recovery",
     "status:recovery:v4": "node script/v4-recovery.cjs status",
     "pause:recovery:v4": "node script/v4-recovery.cjs pause",
-    "resume:recovery:v4": "node script/v4-recovery.cjs resume"
+    "resume:recovery:v4": "node script/v4-recovery.cjs resume",
+    "verify:recovery:v4": "node script/verify-v4-recovery.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

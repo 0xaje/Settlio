@@ -1,0 +1,17 @@
+{
+  "provenance": "User-pasted Ubuntu terminal outputs in this conversation; timestamps were not included in the status output. Independent receipt/historical-state verification is stored separately.",
+  "quoteId": "6",
+  "policyVersion": 4,
+  "grant": "0x36c086ac6797e5c8c0eafcfa30ce95a1ee4d43442ea23411c1871896dbd7756f",
+  "pause": "0x0e2d517eb5315601012d9db7d0810e53f2b2b1da2b087c26fb12e80a67a07c4d",
+  "creation": "0x1ea3654d1081ad1593f0a14233a52896539d8a43728fabf64feb020aa5c8720e",
+  "participantRetry": "0xf550fc2dbf043fb5664565f5e03b7444afc950a8da84036890ab5a32d12cf3cc",
+  "resume": "0x9113708fad9ad2e5ed405f1ec6b80f3d0b656c9909ca3508b3d847f270d9af6f",
+  "expiryEventTransaction": "0x80e72e14b40270466409884920a052a5bd32ee1a686169745217532f16ba5773",
+  "beforeResume": {"paused": true, "cronActive": false, "activeJobs": "1", "admitted": "6", "active": "1", "reserved": "0", "nativeBalance": "0", "nativeLiability": "0", "usdcBalance": "0", "usdcLiability": "0"},
+  "afterResume": {"paused": false, "cronActive": true, "activeJobs": "1"},
+  "terminal": {"paused": false, "cronActive": false, "activeJobs": "0", "admitted": "6", "active": "0", "reserved": "0", "nativeBalance": "0", "nativeLiability": "0", "usdcBalance": "0", "usdcLiability": "0"},
+  "freshRecoveryVerifierUserReproduction": "pending",
+  "browserClosure": "not recorded",
+  "limits": ["Status observations alone do not authenticate the callback or prove retry ingestion.", "The user successfully scanned for the quote-6 expiry event; this is separate from running the complete recovery verifier."]
+}
