@@ -1,0 +1,25 @@
+{
+  "provenance": "User-pasted Ubuntu-22.04 terminal output; regenerated local snapshot bytes were not supplied or substituted for the independently collected public bundle.",
+  "command": "npm run verify:refund:v4 -- 4",
+  "repositoryCommit": "a9dcf8206ce0d664f0a97c3f6a3a36b676711c93",
+  "verifiedAt": "2026-11-25T10:08:50.256Z",
+  "readOnly": true,
+  "policyVersion": 4,
+  "quoteId": "4",
+  "asset": "USDC",
+  "refundUnits": "1000000",
+  "outcome": "Refunded",
+  "schedulerClosed": true,
+  "currentAssetBalance": "0",
+  "currentAssetLiability": "0",
+  "admissionSlotClosed": true,
+  "schedulerIdle": true,
+  "automaticReleaseEnabled": true,
+  "uniqueRetryAttribution": false,
+  "browserClosedEvidence": "not recorded",
+  "limits": [
+    "Matching requests/deliveries do not uniquely attribute protocol return reports.",
+    "Strict block balance deltas can be affected by unrelated same-block transfers.",
+    "No continuous browser closure, service delivery, future funding or exact latency is proved."
+  ]
+}

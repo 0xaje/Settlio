@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path');
 const {getAddress}=require('ethers');
 const {runOperation}=require('./m2-state.cjs');
 function check(value,message){if(!value){const e=Error(message);e.v4Expected=true;throw e;}}
-const stages={deployReactive:5318007,deployCallback:84532,configure:5318007,fundReactiveInitial:5318007,fundCallbackInitial:84532,grantInitial:84532,openAdmission:84532,renewExpiredGrant:84532,grantOperatorWindow:84532,grantNextQuote:84532,grantRefundQuote:84532,grantUsdcRefundQuote:84532};
+const stages={deployReactive:5318007,deployCallback:84532,configure:5318007,fundReactiveInitial:5318007,fundCallbackInitial:84532,grantInitial:84532,openAdmission:84532,renewExpiredGrant:84532,grantOperatorWindow:84532,grantNextQuote:84532,grantRefundQuote:84532,grantUsdcRefundQuote:84532,grantExpiryQuote:84532};
 function paths(root){const directory=path.join(root,'deployments');return {directory,journal:path.join(directory,'testnet-v4.json'),lock:path.join(directory,'.deploy-v4.lock')};}
 function validate(j){check(j?.milestone==='M2-V4'&&j.schemaVersion===1&&j.policyVersion===4&&j.baseChainId===84532&&j.reactiveChainId===5318007&&j.operations&&j.contracts,'Wrong V4 journal; preserve existing M1/M2 files.');getAddress(j.deployer);}
 function create(deployer,settings){return {milestone:'M2-V4',schemaVersion:1,policyVersion:4,baseChainId:84532,reactiveChainId:5318007,deployer:getAddress(deployer),settings,contracts:{},operations:{}};}

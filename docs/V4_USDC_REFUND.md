@@ -49,3 +49,7 @@ The actual JavaScript public collector observed at 2026-11-25T10:05:03.353Z uses
 No contract/frontend code changed. Four of six lifetime admissions are consumed and do not regenerate. Two remain; no quote-5 credit is implemented or sent here. Remaining V4 unpaid expiry/recovery, admission/journey review, browser/mobile and final M2 acceptance gates stay open.
 
 Validation: full `npm test` passed 181/181 with zero failed/skipped/cancelled. Focused V3/V4 ETH/USDC refund evidence checks passed 26/26; `npm run verify:refund:v4 -- 4 --recorded` passed and syntax check passed. New refusal checks cover altered approval amount/block/order, missing deposit/refund transfers, incorrect token deltas/custody, wrong grant/counters/admission closure, forged callback/CRON route, open source work, late cancellation and changed opt-in. These replay genuine archived receipts and are not additional live transactions. Neither contracts nor frontend changed, so no new web build is claimed. Fresh user WSL quote-4 reproduction is still pending.
+
+## Fresh Ubuntu reproduction — 25 November 2026
+
+User CLI passed at 2026-11-25T10:08:50.256Z. [User-terminal record](../deployments/evidence/v4/quote-4-wsl-verification.json) is separate from the independent public snapshot and supersedes earlier pending reproduction notes. Browser-closure, exact return-report attribution and future-funding limits remain unchanged.

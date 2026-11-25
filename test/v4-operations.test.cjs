@@ -63,7 +63,7 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
   for(const name of ['DEPOSIT_TOPIC','RETRY_TOPIC','POLICY_TOPIC','POLICY_RETRY_TOPIC','CANCEL_TOPIC','CONFIRMED_TOPIC','CHECKED_TOPIC','REFUNDED_TOPIC','EXPIRED_TOPIC','RELEASED_TOPIC']){const topic=await r[name](),lookup=keccak256(AbiCoder.defaultAbiCoder().encode(['address','uint256','address','uint256','uint256','uint256','uint256'],[r.target,84532,j.escrow,topic,ignore,ignore,ignore]));filters.push({ChainId:84532,Contract:j.escrow,Topics:['0x'+topic.toString(16).padStart(64,'0'),null,null,null],Configs:[{Contract:r.target,Active:await system.subscriptions(lookup)}]});}
   return {Version:1,TopicFilters:filters};
  };}});
- const args={config:{...configuration,admission:{...configuration.admission,maxLifetimeAdmissions:'4'}},base:base.provider,lasna,env:{DEPLOYER_PRIVATE_KEY:key},directoryRoot};
+ const args={config:{...configuration,admission:{...configuration.admission,maxLifetimeAdmissions:'5'}},base:base.provider,lasna,env:{DEPLOYER_PRIVATE_KEY:key},directoryRoot};
  const planned=await v4.plan({deployer:owner,...args});assert.equal(planned.readOnly,true);assert.equal(fs.existsSync(state.paths(directoryRoot).journal),false);
  await assert.rejects(v4.deploy(args),/unavailable index/);
  const saved=state.read(directoryRoot);assert.equal(Object.keys(saved.operations).length,3);const originalHashes=Object.fromEntries(Object.entries(saved.operations).map(([k,v])=>[k,v.hash]));
@@ -141,7 +141,7 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  renewalTime+=400;
  for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
  await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
- const nextPlan=await next.inspect(windowIO);assert.equal(nextPlan.result.remainingLifetimeQuotes,'3');assert.equal(nextPlan.result.canGrant,true);assert.equal(state.read(directoryRoot).nextQuoteGrant,undefined);
+ const nextPlan=await next.inspect(windowIO);assert.equal(nextPlan.result.remainingLifetimeQuotes,'4');assert.equal(nextPlan.result.canGrant,true);assert.equal(state.read(directoryRoot).nextQuoteGrant,undefined);
  const priorWindow=structuredClone(state.read(directoryRoot).operatorWindowGrant);
  const nextGrant=await next.grant(windowIO);assert.equal(nextGrant.grant[0],'1');
  const nextNonce=await base.provider.getTransactionCount(owner);assert.equal((await next.grant(windowIO)).transactionHash,nextGrant.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),nextNonce);
@@ -161,7 +161,7 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  renewalTime+=400;
  for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
  await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
- const refundPlan=await next.inspect(refundIO);assert.equal(refundPlan.result.remainingLifetimeQuotes,'2');assert.equal(refundPlan.closed.earlier.length,1);assert.equal(state.read(directoryRoot).refundQuoteGrant,undefined);
+ const refundPlan=await next.inspect(refundIO);assert.equal(refundPlan.result.remainingLifetimeQuotes,'3');assert.equal(refundPlan.closed.earlier.length,1);assert.equal(state.read(directoryRoot).refundQuoteGrant,undefined);
  await assert.rejects(next.grant({...refundIO,env:{DEPLOYER_PRIVATE_KEY:base.signers[1].signer.privateKey}}),/differs/);
  const previousNext=structuredClone(state.read(directoryRoot).nextQuoteGrant);
  const refundedGrant=await next.grant(refundIO),refundNonce=await base.provider.getTransactionCount(owner);
@@ -182,12 +182,26 @@ test('V4 deployment resumes after index failure; capped funding, initial grant a
  await(await system.connect(new Wallet(key,source.provider)).forward(state.read(directoryRoot).contracts.SettlioReactiveV4.address,{...record,topic0:BigInt(log3.topics[0]),topic1:3,data:log3.data,blockNumber:expired3.blockNumber,opCode:log3.topics.length,blockHash:BigInt(expired3.blockHash),txHash:BigInt(expired3.hash),logIndex:log3.index})).wait();
  renewalTime+=400;for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}
  await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
- const usdcPlan=await next.inspect(usdcIO);assert.equal(usdcPlan.result.remainingLifetimeQuotes,'1');assert.equal(usdcPlan.closed.earlier.length,2);assert.equal(state.read(directoryRoot).usdcRefundQuoteGrant,undefined);
+ const usdcPlan=await next.inspect(usdcIO);assert.equal(usdcPlan.result.remainingLifetimeQuotes,'2');assert.equal(usdcPlan.closed.earlier.length,2);assert.equal(state.read(directoryRoot).usdcRefundQuoteGrant,undefined);
  await assert.rejects(next.grant({...usdcIO,env:{DEPLOYER_PRIVATE_KEY:base.signers[1].signer.privateKey}}),/differs/);
  const beforeUsdc=structuredClone(state.read(directoryRoot).refundQuoteGrant),ug=await next.grant(usdcIO),un=await base.provider.getTransactionCount(owner);
  assert.equal(ug.operation,'grantUsdcRefundQuote');assert.equal(ug.grant[0],'1');assert.equal((await next.grant(usdcIO)).transactionHash,ug.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),un);
  assert.deepEqual(state.read(directoryRoot).refundQuoteGrant,beforeUsdc);assert.equal(state.read(directoryRoot).operations.grantRefundQuote.hash,refundedGrant.transactionHash);
  const validUsdc=fs.readFileSync(journalFile,'utf8'),badUsdc=JSON.parse(validUsdc);badUsdc.usdcRefundQuoteGrant.payload.proposal.credits='2';state.save(journalFile,badUsdc);await assert.rejects(next.grant(usdcIO),/integrity/);fs.writeFileSync(journalFile,validUsdc);
+ // The unpaid-expiry credit is a distinct stage after four terminal fixture quotes.
+ const expiryIO={...windowIO,completed:4n};await assert.rejects(next.inspect(expiryIO),/Previous grant|exactly four/);
+ await(await e.createQuote(customer,300,100,renewalTime+100,renewalTime+200,terms)).wait();await assert.rejects(next.inspect(expiryIO),/exactly four/);
+ await base.provider.send('evm_setNextBlockTimestamp',[renewalTime+100]);await base.provider.send('evm_mine',[]);await base.provider.send('anvil_impersonateAccount',[callback]);
+ const expired4=await(await e.connect(await base.provider.getSigner(callback)).processPolicy(4)).wait();await base.provider.send('anvil_stopImpersonatingAccount',[callback]);await assert.rejects(next.inspect(expiryIO),/fully closed/);
+ const log4=expired4.logs.find(l=>{try{return e.interface.parseLog(l)?.name==='QuoteExpired';}catch{return false;}});
+ await(await system.connect(new Wallet(key,source.provider)).forward(state.read(directoryRoot).contracts.SettlioReactiveV4.address,{...record,topic0:BigInt(log4.topics[0]),topic1:4,data:log4.data,blockNumber:expired4.blockNumber,opCode:log4.topics.length,blockHash:BigInt(expired4.blockHash),txHash:BigInt(expired4.hash),logIndex:log4.index})).wait();
+ renewalTime+=400;for(let i=0;i<3;i++){renewalTime+=100;await source.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await(await emitter.emitCron()).wait();}await base.provider.send('evm_setNextBlockTimestamp',[renewalTime]);await base.provider.send('evm_mine',[]);
+ const expiryPlan=await next.inspect(expiryIO);assert.equal(expiryPlan.result.remainingLifetimeQuotes,'1');assert.equal(expiryPlan.closed.earlier.length,3);assert.equal(state.read(directoryRoot).expiryQuoteGrant,undefined);
+ await assert.rejects(next.grant({...expiryIO,env:{DEPLOYER_PRIVATE_KEY:base.signers[1].signer.privateKey}}),/differs/);
+ const beforeExpiry=structuredClone(state.read(directoryRoot).usdcRefundQuoteGrant),eg=await next.grant(expiryIO),en=await base.provider.getTransactionCount(owner);
+ assert.equal(eg.operation,'grantExpiryQuote');assert.equal(eg.grant[0],'1');assert.equal((await next.grant(expiryIO)).transactionHash,eg.transactionHash);assert.equal(await base.provider.getTransactionCount(owner),en);
+ assert.deepEqual(state.read(directoryRoot).usdcRefundQuoteGrant,beforeExpiry);assert.equal(state.read(directoryRoot).operations.grantUsdcRefundQuote.hash,ug.transactionHash);
+ const validExpiry=fs.readFileSync(journalFile,'utf8'),badExpiry=JSON.parse(validExpiry);badExpiry.expiryQuoteGrant.payload.proposal.credits='2';state.save(journalFile,badExpiry);await assert.rejects(next.grant(expiryIO),/integrity/);fs.writeFileSync(journalFile,validExpiry);
  const final=state.read(directoryRoot);for(const [k,hash]of Object.entries(originalHashes))assert.equal(final.operations[k].hash,hash);
  assert.equal(fs.readFileSync(path.join(directoryRoot,'deployments/testnet-m2.json'),'utf8'),'legacy sentinel');assert.equal(fs.readFileSync(state.paths(directoryRoot).journal,'utf8').includes(key),false);assert.equal(fs.existsSync(state.paths(directoryRoot).lock),false);
  const status=await v4.status(io);assert(status.operations.every(op=>op.state==='succeeded'));

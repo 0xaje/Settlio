@@ -1,4 +1,4 @@
-// Separate reviewed quote-2, ETH-refund and USDC-refund credits; no rolling grants.
+// Separate reviewed credits through the unpaid-expiry test; no rolling grants.
 const path=require('node:path');
 const {Wallet,Contract,getAddress,keccak256,toUtf8Bytes}=require('ethers');
 const state=require('./v4-state.cjs'),deployment=require('./v4-deploy.cjs'),budget=require('./admission-budget.cjs'),compile=require('./compile-admission.cjs');
@@ -7,12 +7,18 @@ const root=path.join(__dirname,'..'),plain=v=>JSON.parse(JSON.stringify(v,(_,x)=
 const fingerprint=v=>keccak256(toUtf8Bytes(JSON.stringify(v)));
 let built;const artifacts=()=>built??=Object.fromEntries(['SettlioAdmission','SettlioEscrowV4','SettlioReactiveV4'].map(n=>[n,compile(n).abi]));
 function scope(completed){
- state.check([1n,2n,3n].includes(completed),'Only reviewed quote-2, quote-3 and quote-4 credit stages are supported.');
- return completed===1n?{prior:'operatorWindowGrant',priorKey:'grantOperatorWindow',plan:'nextQuoteGrant',key:'grantNextQuote'}:completed===2n?{prior:'nextQuoteGrant',priorKey:'grantNextQuote',plan:'refundQuoteGrant',key:'grantRefundQuote'}:{prior:'refundQuoteGrant',priorKey:'grantRefundQuote',plan:'usdcRefundQuoteGrant',key:'grantUsdcRefundQuote'};
+ const stages={
+  1:{prior:'operatorWindowGrant',priorKey:'grantOperatorWindow',plan:'nextQuoteGrant',key:'grantNextQuote'},
+  2:{prior:'nextQuoteGrant',priorKey:'grantNextQuote',plan:'refundQuoteGrant',key:'grantRefundQuote'},
+  3:{prior:'refundQuoteGrant',priorKey:'grantRefundQuote',plan:'usdcRefundQuoteGrant',key:'grantUsdcRefundQuote'},
+  4:{prior:'usdcRefundQuoteGrant',priorKey:'grantUsdcRefundQuote',plan:'expiryQuoteGrant',key:'grantExpiryQuote'}
+ };
+ state.check([1n,2n,3n,4n].includes(completed),'Only reviewed quote-2 through quote-5 credit stages are supported.');
+ return stages[Number(completed)];
 }
 function remainingModel(o,closed,proposal,now,completed=1n){
  scope(completed);
- state.check(o.open===true&&o.admitted===completed&&o.quoteCount===completed&&o.active===0n&&o.reserved===0n&&o.activeJobs===0n&&o.cronActive===false&&o.paused===false,`Next credit requires exactly ${completed===1n?'one':completed===2n?'two':'three'} completed quotes and empty, open, idle capacity.`);
+ state.check(o.open===true&&o.admitted===completed&&o.quoteCount===completed&&o.active===0n&&o.reserved===0n&&o.activeJobs===0n&&o.cronActive===false&&o.paused===false,`Next credit requires exactly ${['','one','two','three','four'][Number(completed)]} completed quotes and empty, open, idle capacity.`);
  state.check(closed.destinationClosed===true&&closed.sourceClosed===true&&[5n,6n,7n].includes(closed.status)&&closed.grantRemaining===0n,'Previous quote or consumed grant is not fully closed.');
  if(completed>1n)state.check(closed.earlier?.length===Number(completed-1n)&&closed.earlier.every((q,index)=>q.quoteId===String(index+1)&&q.destinationClosed===true&&q.sourceClosed===true&&[5n,6n,7n].includes(q.status)),'Earlier quote closure proof required.');
  state.check(o.maxLifetime>o.admitted,'Lifetime quote allowance exhausted; it never regenerates.');
@@ -58,6 +64,6 @@ async function grant({base,lasna,env=process.env,directoryRoot=root,clock=()=>Bi
   return {readOnly:false,operation:key,transactionHash:receipt.hash,identity:id,admissionOpen:await gate.open(),grant:plain(await gate.grants(p.proposal.merchant)),note:`One saved quote-${completed+1n} credit. Reruns recover the same hash. No funding, deployment, payment or automatic future grants; lifetime consumption does not reset.`};
  });
 }
-async function main(){const mode=process.argv[2];state.check(['plan','grant','plan-refund','grant-refund','plan-usdc-refund','grant-usdc-refund'].includes(mode),'Use plan or grant.');const base=rpc(process.env.BASE_SEPOLIA_RPC||'https://sepolia.base.org'),lasna=rpc(process.env.LASNA_RPC||'https://lasna-rpc.rnk.dev');try{const completed=mode.endsWith('-usdc-refund')?3n:mode.endsWith('-refund')?2n:1n,isPlan=mode.startsWith('plan');let r=isPlan?await inspect({base,lasna,completed}):await grant({base,lasna,completed});if(isPlan){delete r.journal;r.readOnly=true;}console.log(JSON.stringify(r,null,2));}finally{base.destroy();lasna.destroy();}}
+async function main(){const mode=process.argv[2];state.check(['plan','grant','plan-refund','grant-refund','plan-usdc-refund','grant-usdc-refund','plan-expiry','grant-expiry'].includes(mode),'Use plan or grant.');const base=rpc(process.env.BASE_SEPOLIA_RPC||'https://sepolia.base.org'),lasna=rpc(process.env.LASNA_RPC||'https://lasna-rpc.rnk.dev');try{const completed=mode.endsWith('-expiry')?4n:mode.endsWith('-usdc-refund')?3n:mode.endsWith('-refund')?2n:1n,isPlan=mode.startsWith('plan');let r=isPlan?await inspect({base,lasna,completed}):await grant({base,lasna,completed});if(isPlan){delete r.journal;r.readOnly=true;}console.log(JSON.stringify(r,null,2));}finally{base.destroy();lasna.destroy();}}
 if(require.main===module)main().catch(e=>{console.error(e.v4Expected||e.admissionBudget||e.m2Expected?e.message:'V4 next grant stopped. Preserve journal and inspect status.');process.exitCode=1;});
 module.exports={remainingModel,inspect,grant};
