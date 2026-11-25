@@ -13,7 +13,7 @@ import { createdQuoteFromReceipt } from './recovery';
 import { ensureBaseSepolia } from './wallet';
 import { decodePending, pendingReceipt, recoverPendingTransaction } from './pending';
 import { assets, knownAsset, displayAmount as amount } from './assets';
-import { decodeTerms, encodeTerms, matchesQuote, termsHash, type Quote, type Terms } from './terms';
+import { decodeTerms, encodeTerms, matchesQuote, readQuoteTerms, termsHash, type Quote, type Terms } from './terms';
 
 const statuses = ['Missing', 'Awaiting deposit', 'Confirming booking', 'Confirmed', 'Refund pending', 'Refunded', 'Expired', 'Released'];
 const statusLabel = (quote: Quote, now: number) =>
@@ -31,8 +31,7 @@ const cacheKey = (id: bigint) => 'settlio:84532:' + escrowAddress + ':' + id;
 function loadTerms(id: bigint): Terms | null {
   try {
     const fragment = new URLSearchParams(location.hash.slice(1)).get('terms');
-    const stored = localStorage.getItem(cacheKey(id));
-    return fragment ? decodeTerms(fragment) : stored ? decodeTerms(stored) : null;
+    return readQuoteTerms(fragment, () => localStorage.getItem(cacheKey(id)));
   } catch { return null; }
 }
 function shareLink(id: bigint, terms: Terms): string {

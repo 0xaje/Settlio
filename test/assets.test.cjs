@@ -31,11 +31,9 @@ contract TokenFixture {
  }
 }`;
 
-test('asset choices, exact custody and same-asset recovery', async t => {
+for (const version of [3,4]) test('V'+version+' asset choices, exact custody and same-asset recovery (isolated)', async t => {
  const {provider,signers:[merchant,customer,receiver,stranger]}=await startLocalChain(t);
- const escrowArtifact=compile();
- const escrow=await new ContractFactory(escrowArtifact.abi,escrowArtifact.evm.bytecode.object,merchant).deploy(await receiver.getAddress());
- await escrow.waitForDeployment();
+ const escrow=await require('./helpers/deploy-escrow.cjs')(version,{merchant,receiver,provider});
  const artifact=compile('TokenFixture',{'TokenFixture.sol':{content:fixture}});
  const deployToken=async()=>{const token=await new ContractFactory(artifact.abi,artifact.evm.bytecode.object,merchant).deploy();await token.waitForDeployment();await(await token.mint(await customer.getAddress(),1000000000n)).wait();return token;};
  const token=await deployToken(), second=await deployToken();

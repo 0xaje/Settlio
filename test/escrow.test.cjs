@@ -1,15 +1,13 @@
 const assert = require('node:assert/strict');
 const startLocalChain = require('./helpers/local-chain.cjs');
 const { test } = require('node:test');
-const { ContractFactory, keccak256, toUtf8Bytes, parseEther } = require('ethers');
-const compile = require('../script/compile.cjs');
+const { keccak256, toUtf8Bytes, parseEther } = require('ethers');
+const deployEscrow = require('./helpers/deploy-escrow.cjs');
 
-test('escrow payment, permissions, deadline races and principal accounting', async t => {
+for (const version of [3,4]) test('V'+version+' escrow payment, permissions, deadline races and principal accounting (isolated)', async t => {
   const { provider, signers } = await startLocalChain(t);
   const [merchant, customer, receiver, stranger] = signers;
-  const artifact = compile();
-  const escrow = await new ContractFactory(artifact.abi, artifact.evm.bytecode.object, merchant).deploy(await receiver.getAddress());
-  await escrow.waitForDeployment();
+  const escrow = await deployEscrow(version, {merchant,receiver,provider,capacity:4});
   const terms = keccak256(toUtf8Bytes('Test fixture terms'));
   const deposit = parseEther('0.1');
   const total = parseEther('0.3');

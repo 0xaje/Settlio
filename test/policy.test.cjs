@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const { ContractFactory, Contract, ZeroAddress, keccak256, toUtf8Bytes } = require('ethers');
 const startLocalChain = require('./helpers/local-chain.cjs');
 const compile = require('../script/compile.cjs');
+const compileAdmission = require('../script/compile-admission.cjs');
 const fixtures = { 'test/PolicyFixture.sol': { content: `
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.29;
@@ -28,16 +29,17 @@ contract PolicyTokenFixture {
 }
 ` } };
 
-test('M2 destination policies authenticate, enforce timestamps and preserve reserved principal', async t => {
+for(const version of [3,4]) test('V'+version+' destination policies authenticate, enforce timestamps and preserve reserved principal (isolated)', async t => {
   const { provider, signers: [merchant, customer, reactive, stranger] } = await startLocalChain(t);
   async function deploy(name,args=[]) {
-    const artifact=compile(name,fixtures);
+    const artifact=version===4&&name==='SettlioCallback'?compileAdmission('SettlioCallbackV4',fixtures):compile(name,fixtures);
     const contract=await new ContractFactory(artifact.abi,artifact.evm.bytecode.object,merchant).deploy(...args);
     await contract.waitForDeployment(); return contract;
   }
   const proxy=await deploy('PolicyProxyFixture');
-  const receiver=await deploy('SettlioCallback',[await proxy.getAddress(),await reactive.getAddress()]);
-  const escrow=new Contract(await receiver.escrow(),compile().abi,merchant);
+  const receiver=await deploy('SettlioCallback',version===4?[proxy.target,await reactive.getAddress(),await merchant.getAddress(),8,8,10000,60,2]:[proxy.target,await reactive.getAddress()]);
+  const escrow=new Contract(await receiver.escrow(),version===4?compileAdmission('SettlioEscrowV4').abi:compile().abi,merchant);
+  if(version===4){const gate=new Contract(await escrow.admission(),compileAdmission('SettlioAdmission').abi,merchant),now=(await provider.getBlock('latest')).timestamp;await(await gate.setOpen(true)).wait();await(await gate.setGrant(await merchant.getAddress(),8,now+100000,keccak256(toUtf8Bytes('isolated policy allowance')))).wait();}
   const token=await deploy('PolicyTokenFixture');
   const terms=keccak256(toUtf8Bytes('isolated policy terms; no live customer evidence'));
   const process=id=>proxy.deliver(receiver.target,reactive.getAddress(),id);

@@ -51,6 +51,15 @@ export function encodeTerms(terms: Terms): string {
   return btoa(String.fromCharCode(...bytes)).replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
 }
 
+// The original share link works even when browser storage is unavailable.
+// A present but invalid fragment must not be replaced by unrelated cached terms.
+export function readQuoteTerms(fragment: string | null, readCached: () => string | null): Terms | null {
+  try {
+    const encoded = fragment !== null ? fragment : readCached();
+    return encoded === null ? null : decodeTerms(encoded);
+  } catch { return null; }
+}
+
 export function decodeTerms(encoded: string): Terms {
   if (!encoded || encoded.length > 16000) throw new Error('This quote link has missing or oversized terms.');
   const bytes = Uint8Array.from(atob(encoded.replaceAll('-', '+').replaceAll('_', '/')), char => char.charCodeAt(0));

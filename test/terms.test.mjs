@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { encodeTerms, decodeTerms, matchesQuote, termsHash } from '../apps/web/src/terms.ts';
+import { encodeTerms, decodeTerms, matchesQuote, readQuoteTerms, termsHash } from '../apps/web/src/terms.ts';
 
 const terms = {
   version: 1, service: 'Portrait session', description: 'Two hours · Àkúrẹ',
@@ -71,4 +71,23 @@ test('version 3 binds release consent to both share terms and the recorded polic
   assert.throws(()=>decodeTerms(encodeTerms({...policy,automaticRelease:'true'})));
   const legacy={...terms,version:2,options};
   assert.equal(matchesQuote(legacy,{...recorded,termsHash:termsHash(legacy)}),false);
+});
+
+
+test('complete share links remain verifiable when browser storage is denied', () => {
+  const restored = readQuoteTerms(encodeTerms(terms), () => { throw Error('Storage denied'); });
+  assert.deepEqual(restored, terms);
+  assert.equal(matchesQuote(restored, quote), true);
+});
+test('invalid or changed link terms cannot be hidden by a valid cached copy', () => {
+  for (const fragment of ['', 'invalid%encoding']) {
+    assert.equal(readQuoteTerms(fragment, () => encodeTerms(terms)), null);
+  }
+  const changed = readQuoteTerms(encodeTerms({...terms, description:'Changed scope'}), () => encodeTerms(terms));
+  assert.equal(matchesQuote(changed, quote), false);
+});
+test('missing share fragments use verified cached terms or fail safely when unavailable', () => {
+  assert.deepEqual(readQuoteTerms(null, () => encodeTerms(terms)), terms);
+  assert.equal(readQuoteTerms(null, () => null), null);
+  assert.equal(readQuoteTerms(null, () => { throw Error('Storage denied'); }), null);
 });

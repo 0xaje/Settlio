@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const { ContractFactory, Contract, AbiCoder, keccak256, toUtf8Bytes, ZeroAddress } = require('ethers');
 const startLocalChain = require('./helpers/local-chain.cjs');
 const compile = require('../script/compile.cjs');
+const compileAdmission = require('../script/compile-admission.cjs');
 const systemAddress='0x8888888888888888888888888888888888888888';
 const fixtures={ 'test/SchedulerFixture.sol':{content:`
 // SPDX-License-Identifier: MIT
@@ -42,15 +43,16 @@ contract SchedulerProtocolFixture {
 }
 `}};
 
-test('M2 bounded CRON scheduling, acknowledgements, retry isolation and idle funding controls',async t=>{
+for(const version of [3,4]) test('V'+version+' bounded CRON scheduling, acknowledgements, retry isolation and idle funding controls (isolated)',async t=>{
  const {provider,signers:[owner,customer,stranger]}=await startLocalChain(t);
- async function deploy(name,args=[]) {const a=compile(name,fixtures);const c=await new ContractFactory(a.abi,a.evm.bytecode.object,owner).deploy(...args);await c.waitForDeployment();return c;}
+ async function deploy(name,args=[]) {const a=version===4&&['SettlioReactive','SettlioCallback'].includes(name)?compileAdmission(name+'V4',fixtures):compile(name,fixtures);const c=await new ContractFactory(a.abi,a.evm.bytecode.object,owner).deploy(...args);await c.waitForDeployment();return c;}
  const prototype=await deploy('SchedulerProtocolFixture');
  await provider.send('anvil_setCode',[systemAddress,await provider.getCode(prototype.target)]);
  const system=new Contract(systemAddress,compile('SchedulerProtocolFixture',fixtures).abi,owner);
  const reactive=await deploy('SettlioReactive',[84532]);
- const receiver=await deploy('SettlioCallback',[prototype.target,reactive.target]);
- const escrow=new Contract(await receiver.escrow(),compile().abi,owner);
+ const receiver=await deploy('SettlioCallback',version===4?[prototype.target,reactive.target,await owner.getAddress(),8,8,10000,60,2]:[prototype.target,reactive.target]);
+ const escrow=new Contract(await receiver.escrow(),version===4?compileAdmission('SettlioEscrowV4').abi:compile().abi,owner);
+ if(version===4){const gate=new Contract(await escrow.admission(),compileAdmission('SettlioAdmission').abi,owner),time=(await provider.getBlock('latest')).timestamp;await(await gate.setOpen(true)).wait();await(await gate.setGrant(await owner.getAddress(),8,time+100000,keccak256(toUtf8Bytes('isolated scheduler allowance')))).wait();}
  await (await reactive.configure(escrow.target,receiver.target)).wait();
  const coder=AbiCoder.defaultAbiCoder();let sequence=0;
  const now=async()=>Number((await provider.getBlock('latest')).timestamp);
