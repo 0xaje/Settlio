@@ -1,0 +1,21 @@
+{
+  "readOnly": true,
+  "transport": "Actual JS collector with Python HTTP transport",
+  "observedAt": "2026-11-25T13:38:07.182Z",
+  "observationBlocks": {
+    "base": "0x3c85145",
+    "lasna": "0x8cb2f8"
+  },
+  "historyPages": 47,
+  "largestPageBlocks": 1000,
+  "historyLogs": 4,
+  "outcome": "Expired",
+  "schedulerIdle": true,
+  "admissionSlotClosed": true,
+  "limits": [
+    "Diagnostic metadata from a fresh read-only public collection, not a new expiry transaction.",
+    "The original user endpoint failure was generic and its underlying cause remains unconfirmed.",
+    "The official endpoint returned HTTP 403 from this executor; an alternate public RPC accepted the original wide range as well as the paginated collection.",
+    "Normal ethers CLI reproduction in the user WSL is still pending."
+  ]
+}

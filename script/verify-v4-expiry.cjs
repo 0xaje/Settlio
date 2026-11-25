@@ -7,6 +7,31 @@ const I=new Interface(['function POLICY_VERSION() view returns(uint256)','functi
 const J=new Interface(['function jobs(uint256) view returns(uint64 expiresAt,uint64 refundCutoff,uint64 nextAt,uint8 attempts,bool automaticRelease,bool registered,bool confirmed,bool cancelled,bool closed,bool needsAttention,bool retryRequested)']);
 const same=(a,b)=>getAddress(a)===getAddress(b),u=v=>A.decode(['uint256'],v)[0],bool=v=>A.decode(['bool'],v)[0];
 function check(ok,message){if(!ok){const e=Error(message);e.expiryVerification=true;throw e;}}
+function observedProvider(provider,network){return {send:async(method,params)=>{
+ try{return await provider.send(method,params);}catch(error){
+  if(error.expiryVerification)throw error;
+  const code=typeof error.code==='string'&&/^[A-Z0-9_]{1,40}$/.test(error.code)?error.code:'unknown';
+  const rpcCode=error.info?.error?.code;
+  check(false,network+' '+method+' read failed ('+code+(Number.isSafeInteger(rpcCode)?', RPC '+rpcCode:'')+'). No successful snapshot written.');
+ }
+}};}
+async function readHistory(provider,filter,fromBlock,toBlock){
+ const start=BigInt(fromBlock),end=BigInt(toBlock),size=1000n;
+ check(start>=0n&&end>=start,'Invalid history block range.');
+ const pages=Number((end-start)/size+1n);check(pages<=1000,'History exceeds the bounded 1,000-page scan. Preserve the archived proof.');
+ const logs=[],seen=new Set();
+ for(let offset=0;offset<pages;offset+=4){
+  const batch=await Promise.all(Array.from({length:Math.min(4,pages-offset)},async(_,i)=>{
+   const first=start+BigInt(offset+i)*size,last=first+size-1n>end?end:first+size-1n;
+   const rows=await provider.send('eth_getLogs',[{...filter,fromBlock:'0x'+first.toString(16),toBlock:'0x'+last.toString(16)}]);
+   check(Array.isArray(rows),'History page did not return an array.');
+   for(const row of rows)check(BigInt(row.blockNumber)>=first&&BigInt(row.blockNumber)<=last,'History log outside its requested page.');
+   return rows;
+  }));
+  for(const rows of batch)for(const row of rows){const key=row.transactionHash.toLowerCase()+':'+BigInt(row.logIndex);check(!seen.has(key),'Duplicate history log.');seen.add(key);logs.push(row);}
+ }
+ return logs;
+}
 function gateEvent(r,name){const found=r.logs.filter(l=>same(l.address,GATE)&&!l.removed&&l.transactionHash.toLowerCase()===r.transactionHash.toLowerCase()&&l.blockHash.toLowerCase()===r.blockHash.toLowerCase()&&BigInt(l.blockNumber)===BigInt(r.blockNumber)).flatMap(l=>{try{const p=I.parseLog(l);return p?.name===name&&p.args.quoteId===5n?[p.args]:[];}catch{return [];}});check(found.length===1,'Missing/ambiguous admission '+name);return found[0];}
 function validate(b){
  const result=core.validateBundle(b,{...IDENTITY,policyVersion:4}),s=b.v4,q=E.decodeFunctionResult('getQuote',s.quote)[0];
@@ -33,6 +58,7 @@ function validate(b){
  return {...result,policyVersion:4,scope:'V4 quote 5 admitted unpaid quote, authenticated CRON expiry and both-chain closure',identity:IDENTITY,admission:GATE,admissionSlotClosed:true,schedulerIdle:true,noDepositOrParticipantRetryObserved:true,browserClosedEvidence:'Qualified tab closure/reopening reviewed separately; continuous closed interval not established.',limits:[...result.limits,'RPC event history does not prove browser actions; video provenance is recorded separately.']};
 }
 async function collect(base,lasna,seed){
+ base=observedProvider(base,'Base Sepolia');lasna=observedProvider(lasna,'Reactive Lasna');
  const b={quoteId:'5',policyVersion:4,identity:IDENTITY,networks:{base:await base.send('eth_chainId',[]),lasna:await lasna.send('eth_chainId',[])}};
  check(BigInt(b.networks.base)===84532n&&BigInt(b.networks.lasna)===5318007n,'RPC network mismatch.');
  await Promise.all([['creation',base],['cron',lasna],['reaction',lasna],['callback',base]].map(async([key,p])=>{b[key]=await p.send('eth_getTransactionReceipt',[seed[key].transactionHash]);check(b[key],'Receipt unavailable: '+key);}));
@@ -47,7 +73,7 @@ async function collect(base,lasna,seed){
  b.originalPolicyProcessed=bool(await call(lasna,IDENTITY.reactive,I,'processed',[fingerprint],rheight));
  const wiring={escrowReceiver:[IDENTITY.escrow,'callbackReceiver'],receiverEscrow:[IDENTITY.receiver,'escrow'],receiverProxy:[IDENTITY.receiver,'_SERVICE_PROVIDER'],receiverSender:[IDENTITY.receiver,'_CALLBACK_SENDER']};
  b.wiring=Object.fromEntries(await Promise.all(Object.entries(wiring).map(async([k,[to,name]])=>[k,A.decode(['address'],await call(base,to,I,name))[0]])));
- [b.creationBlock,b.reactionBlock,b.callbackBlock,b.history]=await Promise.all([base.send('eth_getBlockByNumber',[b.creation.blockNumber,false]),lasna.send('eth_getBlockByNumber',[b.reaction.blockNumber,false]),base.send('eth_getBlockByNumber',[b.callback.blockNumber,false]),base.send('eth_getLogs',[{address:IDENTITY.escrow,fromBlock:b.creation.blockNumber,toBlock:height,topics:[null,'0x'+(5n).toString(16).padStart(64,'0')]}])]);
+ [b.creationBlock,b.reactionBlock,b.callbackBlock,b.history]=await Promise.all([base.send('eth_getBlockByNumber',[b.creation.blockNumber,false]),lasna.send('eth_getBlockByNumber',[b.reaction.blockNumber,false]),base.send('eth_getBlockByNumber',[b.callback.blockNumber,false]),readHistory(base,{address:IDENTITY.escrow,topics:[null,'0x'+(5n).toString(16).padStart(64,'0')]},b.creation.blockNumber,height)]);
  const hash=seed.grant.receipt.transactionHash;const [receipt,transaction]=await Promise.all([base.send('eth_getTransactionReceipt',[hash]),base.send('eth_getTransactionByHash',[hash])]);check(receipt&&transaction,'Grant unavailable.');b.grant={receipt,transaction};
  b.observedAt=new Date().toISOString();return JSON.parse(JSON.stringify(b,(_,v)=>typeof v==='bigint'?v.toString():v));
 }
@@ -55,4 +81,4 @@ async function main(){const args=process.argv.slice(2);check(args.length<=1&&(!a
  if(args[0]==='--recorded'){console.log(JSON.stringify({...validate(saved.bundle),sourceObservedAt:saved.bundle.observedAt,mode:'recorded public evidence replay; no fresh RPC'},null,2));return;}
  const base=rpc(process.env.BASE_SEPOLIA_RPC||'https://sepolia.base.org'),lasna=rpc(process.env.LASNA_RPC||'https://lasna-rpc.rnk.dev');try{const bundle=await collect(base,lasna,saved.bundle),result=validate(bundle);fs.writeFileSync(file+'.tmp',JSON.stringify({result,bundle},null,2)+'\n');fs.renameSync(file+'.tmp',file);console.log(JSON.stringify(result,null,2));}finally{base.destroy();lasna.destroy();}}
 if(require.main===module)main().catch(e=>{console.error(e.expiryVerification?e.message:'V4 expiry verification stopped; no transaction sent or successful snapshot written.');process.exitCode=1;});
-module.exports={collect,validate};
+module.exports={collect,validate,readHistory,observedProvider};
