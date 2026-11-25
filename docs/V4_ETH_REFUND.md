@@ -46,3 +46,7 @@ Earlier setup screenshots show a missing automatic-release option before restart
 No contract or frontend code changes are needed for this verifier. V4 USDC refund, unpaid expiry/recovery, remaining admission/journey review and browser/mobile acceptance stay open. No additional payment or cancellation is needed for quote 3, and no generic quote-4 credit is created by these commands.
 
 Validation: full `npm test` passed 173/173, zero failed/skipped/cancelled; focused existing/V4 refund evidence tests passed 19/19, and `npm run verify:refund:v4 -- --recorded` passed. Initial collection stopped at a verifier ABI mismatch (`setGrant` credits were declared uint256 instead of the deployed uint32); corrected before successful validation/snapshot creation. This was a verifier error, not a failed public transaction. All refund authentication/delta checks and V4 admission/closure guards passed after correction. Neither contracts nor frontend changed, so no additional web build is claimed. Fresh user WSL CLI reproduction remains pending.
+
+## Fresh Ubuntu reproduction — 25 November 2026
+
+User CLI passed at 2026-11-25T09:39:22.125Z. [Terminal provenance](../deployments/evidence/v4/quote-3-wsl-verification.json) records the result separately from the independent public snapshot. Earlier pending user reproduction text is historical and superseded. Browser-closure and attribution limits remain unchanged.

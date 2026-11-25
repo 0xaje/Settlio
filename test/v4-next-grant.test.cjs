@@ -14,5 +14,13 @@ test('quote-3 refund credit budgets only four remaining lifetime admissions and 
  const r=remainingModel(o,c,proposal,1000n,2n);assert.equal(r.remainingLifetimeQuotes,'4');assert.equal(r.completedLifetimeQuotes,'2');assert.equal(r.lifetimeQuotesBudgeted,'4');assert.equal(o.maxLifetime,6n);
  for(const change of [{earlier:[]},{earlier:[{...c.earlier[0],sourceClosed:false}]},{earlier:[{...c.earlier[0],status:3n}]}])assert.throws(()=>remainingModel(o,{...c,...change},proposal,1000n,2n));
  for(const change of [{admitted:1n},{quoteCount:3n},{reserved:1n},{activeJobs:1n}])assert.throws(()=>remainingModel({...o,...change},c,proposal,1000n,2n));
- assert.throws(()=>remainingModel(o,c,proposal,1000n,3n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,2n).canGrant,false);
+ assert.throws(()=>remainingModel(o,c,proposal,1000n,4n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,2n).canGrant,false);
+});
+
+test('quote-4 USDC refund preparation budgets three remaining slots and requires both earlier closures',()=>{
+ const o={...input(),admitted:3n,quoteCount:3n},earlier=[{quoteId:'1',destinationClosed:true,sourceClosed:true,status:7n},{quoteId:'2',destinationClosed:true,sourceClosed:true,status:7n}],c={...closed,status:5n,earlier};
+ const r=remainingModel(o,c,proposal,1000n,3n);assert.equal(r.remainingLifetimeQuotes,'3');assert.equal(r.completedLifetimeQuotes,'3');assert.equal(r.lifetimeQuotesBudgeted,'3');assert.equal(o.admitted,3n);assert.equal(o.maxLifetime,6n);
+ for(const earlier of [c.earlier.slice(0,1),[c.earlier[0],c.earlier[0]],[c.earlier[1],c.earlier[0]],[c.earlier[0],{...c.earlier[1],sourceClosed:false}]])assert.throws(()=>remainingModel(o,{...c,earlier},proposal,1000n,3n));
+ for(const change of [{admitted:2n},{quoteCount:2n},{active:1n},{reserved:1n},{activeJobs:1n},{paused:true}])assert.throws(()=>remainingModel({...o,...change},c,proposal,1000n,3n));
+ assert.throws(()=>remainingModel({...o,observedAt:800n},c,proposal,1000n,3n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,3n).canGrant,false);
 });
