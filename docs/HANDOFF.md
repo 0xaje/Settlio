@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Local-only V5 issuer orchestrator verified — 26 November 2026
+
+[`renewable-issuer.cjs`](../script/renewable-issuer.cjs) (`localOnly: true`, injected local signer only) now verifies the end-to-end `reader` → revisioned `commitments` → `SettlioWorkLedger.setGrant` → `reconcile` → epoch-2 renewal loop on isolated Anvil chains (`21/21` passed in `155.92s` across issuer/reader/commitments). No live keys, public transactions, or token spend. M2 remains OPEN. Next: user review of [V5 readiness review](V5_READINESS_REVIEW.md) and [candidate operating profile spec](V5_OPERATING_PROFILE_SPEC.md) before any V5 profile, deployment, or M3 UI authorization. Earlier entries below are historical checkpoints.
+
 ## Quote 6 post-repair desktop UI check confirmed — 25 November 2026
 
 Desktop screenshots (`localhost:5174/?quote=6#terms=...`, `0xbf63...288E`) visually confirm the post-repair **"Deposit amount"** (`0.0001 test ETH`) label on expired V4 Quote 6, with `Copy quote link` and no payment/retry controls; clipboard copy and clean console are **user-reported** working well. M2 remains OPEN for physical-mobile/approval checks, continuous browser-closed interval evidence, and V5 economic/public gates. Earlier entries below are historical checkpoints.
