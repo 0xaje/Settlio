@@ -50,15 +50,25 @@ All V5 work lives separately under [`packages/contracts/renewable/`](../packages
 
 ---
 
-## 3. Native protocol compatibility checks remaining
+## 3. Native protocol compatibility checks (read-only observations & remaining items)
 
-Before any V5 deployment or live grant could be considered, the following live Base Sepolia / Reactive Lasna behaviors must be checked **read-only** against real network nodes and official documentation:
+### Verified read-only public observations — 25 November 2026 (~22:09 UTC / 23:09 WAT)
 
-1. **Coarse CRON event layouts (`Cron1000`, `Cron10000`):** Confirm whether live Lasna emits `Cron1000` and `Cron10000` with the same indexed-`uint256` two-topic, empty-data layout observed on `Cron100` (and contradicting the unindexed prose in older docs). An earlier bounded read attempt failed with `URLError` ([timer acceptance](RENEWABLE_TIMER_ACCEPTANCE.md)).
-2. **Modern `CallbackRequest` & `getCallbacks` report schema:** Verify live Lasna `CallbackRequest` event encoding, zero-based callback ordinal mapping, `getCallbacks` return tuple structure/semantics, and whether return-report population lags or omits delivered callbacks as observed in V4 (`CALLBACK_NOT_POSTED` despite successful Base delivery).
-3. **Native `finalized` RPC tag support:** Confirm that both Base Sepolia and Reactive Lasna RPC endpoints reliably support the `finalized` block tag required by `renewable-reader.cjs` without silent downgrade or unsupported-tag errors.
-4. **`rnk_getFilters` live index stability & casing:** Confirm live PascalCase/camelCase schema, pagination/completeness behavior for 13 subscriptions (12 escrow + 1 ledger) plus dynamic CRON tier switches.
-5. **Service runtime provenance:** Verify exact deployed bytecode/runtime hashes of the Base callback proxy and Lasna system contract against the manifest hashes expected by `renewable-reader.cjs`.
+Strictly read-only RPC queries against Base Sepolia (`https://base-sepolia-rpc.publicnode.com`, chain `84532`) and Reactive Lasna (`https://lasna-rpc.rnk.dev`, chain `5318007`) with **zero tokens spent and zero transactions sent** established:
+
+| Check | Observed result | Implication for V5 |
+|---|---|---|
+| `Cron1000` & `Cron10000` on Lasna (`0x000...fffFfF`) | `Cron1000` at block `9249000` (tx `0x8fada85defdcc8b029d61a285ae45a665925187f75193cbac13b40eb5567cea8`) and `Cron10000` at block `9240000` (tx `0xca3e3de8b3a5811bef106f0ab39067a8064f8015b1d335b775822ff18534bd39`) both emit **`topics.length == 2`** and **`data == "0x"`** | Confirms live Lasna coarse CRON events match the indexed-`uint256` layout expected by [`SettlioReactiveV5.sol`](../packages/contracts/renewable/SettlioReactiveV5.sol) |
+| `finalized` RPC tag support | Base Sepolia `latest` `63,613,245` / `finalized` `63,608,570` (4,675-block lag). Lasna `finalized` `9,249,141` (then `9,249,190` while `latest` read `9,249,189` in sequential calls) | Both chains support `finalized`; however, Lasna `finalized` tracks head closely and can appear 1 block ahead of `latest` across concurrent/sequential load-balanced RPC calls, which would trip `finalized <= latest` in [`renewable-reader.cjs`](../script/renewable-reader.cjs) |
+| Service runtime hashes & fee parameters | Base `PROXY` (`0x476f44b11f5c942c58f4c8e3d0300e5710743585`): `keccak256` `0xe9180319ff981b2d5933544a0ae074e451a6e82a7e1da45c1452539e15338f52`, `_gasPriceCoeffPer1000() == 1100`, `_extraGas() == 80000`. Lasna `SYSTEM` (`0x8888888888888888888888888888888888888888`): `keccak256` `0xcd91126ed666997bcf1522fd3f502aea129c440b353b8a8f3aa73636938010ad`, `_gasPriceCoeffPer1000() == 1000`, `_extraGas() == 100000` | Concrete runtime hashes and current fee parameters are now observed for manifest pinning |
+| `rnk_getFilters` schema | Returned PascalCase `["Version", "TopicFilters"]` with `8,021` filters | Consistent with the PascalCase wrapper already handled |
+| `CallbackRequest` & `getCallbacks` | `CallbackRequest` (`0xef94dbc6...`) emitted 22 logs in 2,000 blocks (`topics.length == 4`, non-empty data). Sample `getCallbacks(0xdabfe999...)` returned an empty array (`0x...20` + `0x...00`) | Matches earlier V4 observations: `getCallbacks` can be empty for `CallbackRequest` txs, which would keep [`renewable-reader.cjs`](../script/renewable-reader.cjs) holds in `pending` unless populated for V5 or reconciled by an approved destination-delivery proof |
+
+### Compatibility items still remaining
+
+1. **Populated `getCallbacks` tuple layout:** Because the sampled `CallbackRequest` returned an empty `getCallbacks` array, the exact 6-field tuple encoding and zero-based ordinal mapping of a *non-empty* live `getCallbacks` return report remain unverified on public Lasna.
+2. **Lasna `finalized <= latest` race handling:** `renewable-reader.cjs` should be reviewed for fast-advancing/load-balanced Lasna `finalized` vs `latest` skew.
+3. **13-subscription dynamic CRON switching:** Live `rnk_getFilters` tracking across `Cron100` / `Cron1000` / `Cron10000` transitions has not been observed on a deployed V5 contract.
 
 ---
 

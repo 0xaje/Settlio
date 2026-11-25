@@ -2,7 +2,7 @@
 
 ## V5 readiness review and M2 gates consolidated — 25 November 2026
 
-[V5 readiness review](V5_READINESS_REVIEW.md) consolidates V4 public evidence versus local-only V5 verification (`canGrant: false`), remaining native protocol compatibility checks, unapproved operating-profile/economic parameters, issuer/checkpoint/recovery gaps, minimum future public evidence if separately authorized, and no-spend work items. No tokens spent, no deployment authorized, and no new test/build pass claimed. M2 remains OPEN. Next: no-spend live read-only compatibility checks or candidate full-obligation operating-profile specification. Earlier entries below are historical checkpoints.
+[V5 readiness review](V5_READINESS_REVIEW.md) consolidates V4 public evidence versus local-only V5 verification (`canGrant: false`) and records live **read-only** Base/Lasna compatibility checks (22:09 UTC): `Cron1000`/`Cron10000` indexed-`uint256` shapes confirmed, `finalized` tag supported on both chains (noting 1-block Lasna `finalized > latest` skew risk), `PROXY`/`SYSTEM` runtime hashes and fee parameters recorded, `rnk_getFilters` PascalCase (`8,021` filters), and sampled `getCallbacks` empty. No tokens spent, no deployment authorized, and no new test/build pass claimed. M2 remains OPEN. Next: no-spend reader `finalized`-skew / candidate operating-profile specification or incremental checkpoint design. Earlier entries below are historical checkpoints.
 
 ## Read-only V5 reconciliation verified locally — 25 November 2026
 
