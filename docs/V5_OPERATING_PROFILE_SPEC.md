@@ -59,10 +59,10 @@ Live read-only checks at `22:09 UTC` on `https://lasna-rpc.rnk.dev` observed `la
 
 Currently, `renewable-reader.cjs` scans all contiguous logs from `baseCreationHash` / `sourceCreationHash` up to `finalized`, bounded by `pageSize <= 2000` and `maxPages <= 1000`. On Base Sepolia (~2s blocks), `2,000,000` blocks is ~46 days, and RPC `eth_getLogs` windows may be smaller in practice.
 
-**Required incremental checkpoint contract:**
-1. **Trusted checkpoint input:** Accept an optional `previousCheckpoint` containing pinned `base` and `source` finalized block `{ number, hash, timestamp }`, the exact serialized `grants`, `jobs`, `requests`, and `processed` backlog state at that block, and a `checkpointHash` bound to `identity` + `profileHash`.
-2. **Continuity verification:** Verify `previousCheckpoint.base` and `previousCheckpoint.source` hashes against `eth_getBlockByNumber` on the live chain before scanning `[prev + 1, finalized]`. Any hash mismatch (reorg or tampered checkpoint) must fail closed.
-3. **Finalized-only advancement:** Never persist or advance a checkpoint past `finalized`; re-verify `totalAdmitted`, `reserved`, `active`, `unsettled`, and `quoteCount` at the new `finalized` head against the accumulated state.
+**Implemented & locally verified (25 November 2026) in [`renewable-reader.cjs`](../script/renewable-reader.cjs):**
+1. **Signed/bound checkpoint output & input (`settlio-renewable-checkpoint/v1`):** `collect` returns `checkpoint` containing pinned `base`/`source` finalized blocks, `open`, `grants`, `jobs`, `unresolvedOrigins`, `unresolvedRequests`, `successfulClosure`, and `checkpointHash` bound to `identity`, `profileHash`, and `manifestHash`.
+2. **Continuity & anti-reorg verification:** When `previousCheckpoint` is passed, `collect` verifies schema, identity/profile/manifest match, `checkpointHash`, creation/finalized bounds, and live canonical block hashes for both `previousCheckpoint.base` and `previousCheckpoint.source` before scanning `[prev + 1, finalized]`.
+3. **Regression coverage:** [`test/renewable-reader.test.cjs`](../test/renewable-reader.test.cjs) verifies incremental resumption where a full scan exceeds `maxPages=1, pageSize=5` while incremental resume reconciles and releases held backing, and verifies tampered `checkpointHash` and reorged block hashes fail closed. Targeted suite `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **20/20** (175.70s).
 
 ---
 

@@ -1,5 +1,9 @@
 # Settlio current status
 
+## V5 reader incremental checkpointing verified locally — 25 November 2026
+
+[`renewable-reader.cjs`](../script/renewable-reader.cjs) now supports `settlio-renewable-checkpoint/v1` incremental resumption (`checkpoint` / `previousCheckpoint`) with `checkpointHash` integrity binding and live canonical block-hash checks on resume. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **20/20** (175.70s); no new full `npm test` run, public transaction, or token spend is claimed. `canGrant` remains `false` and M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## V5 reader finalized-skew hardening verified locally — 25 November 2026
 
 [`renewable-reader.cjs`](../script/renewable-reader.cjs) now queries `finalized` before `latest` per chain with at most one `latest` re-fetch on transient `finalized > latest` skew, failing closed if skew persists. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **19/19** (144.48s) using pinned `npm ci` + `npm run setup:reactive`; no new full `npm test` run, public transaction, or token spend is claimed. `canGrant` remains `false` and M2 remains OPEN. Earlier entries below are historical checkpoints.

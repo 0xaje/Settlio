@@ -33,11 +33,11 @@ function filterIndex(raw,identity,topics,ledgerTopic,cron,cronTopics){
  for(const topic of cronTopics)check(found(identity.sourceChainId,'0x0000000000000000000000000000000000ffffff',topic)===(topic===cron),'V5 timer filter differs from pinned state');
  return{version,requiredOriginFilters:topics.length+1};
 }
-async function collect({base,source,state,manifest,now,pageSize=2000,maxPages=1000}){
- try{const result=freeze(await collectChecked({base,source,state,manifest,now,pageSize,maxPages}));collectedReports.add(result);return result;}
+async function collect({base,source,state,manifest,now,pageSize=2000,maxPages=1000,previousCheckpoint=null}){
+ try{const result=freeze(await collectChecked({base,source,state,manifest,now,pageSize,maxPages,previousCheckpoint}));collectedReports.add(result);return result;}
  catch(e){if(e.readerExpected)throw e;const safe=Error('V5 read-only collection unavailable; no successful reconciliation produced');safe.readerExpected=true;throw safe;}
 }
-async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}){
+async function collectChecked({base,source,state,manifest,now,pageSize,maxPages,previousCheckpoint}){
  accounting.validateState(state);check(Number.isSafeInteger(pageSize)&&pageSize>0&&pageSize<=2000&&Number.isSafeInteger(maxPages)&&maxPages>0&&maxPages<=1000,'Invalid history scan bounds');
  check(manifest&&Object.keys(manifest).sort().join(',')==='baseCreationHash,configuration,serviceRuntimeHashes,sourceCreationHash','Invalid public V5 manifest');
  const cfg=manifest.configuration;
@@ -83,6 +83,17 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
  }
  const baseStart=await creation('base',manifest.baseCreationHash,id.receiver,a.SettlioCallbackV5,[PROXY,id.reactive,id.sponsor,p.maxWork,cfg.maxActive,p.maxHorizonSeconds,cfg.retryInterval,cfg.maxRetries],cfg.destinationConstructorWei);
  const sourceStart=await creation('source',manifest.sourceCreationHash,id.reactive,a.SettlioReactiveV5,[84532,p.adaptiveTimers],cfg.sourceConstructorWei);
+ const manifestHash=digest(manifest);
+ if(previousCheckpoint!==null){
+  check(previousCheckpoint&&typeof previousCheckpoint==='object'&&previousCheckpoint.schema==='settlio-renewable-checkpoint/v1','Invalid incremental checkpoint schema');
+  check(JSON.stringify(plain(previousCheckpoint.identity))===JSON.stringify(plain(id))&&same(previousCheckpoint.profileHash,state.profileHash)&&same(previousCheckpoint.manifestHash,manifestHash),'Checkpoint identity or profile mismatch');
+  const {checkpointHash,...body}=previousCheckpoint;
+  check(same(checkpointHash,digest(body)),'Checkpoint integrity hash mismatch');
+  check(BigInt(previousCheckpoint.base.number)>=BigInt(baseStart.number)&&BigInt(previousCheckpoint.source.number)>=BigInt(sourceStart.number),'Checkpoint precedes contract creation');
+  check(BigInt(previousCheckpoint.base.number)<=BigInt(finalized.base.number)&&BigInt(previousCheckpoint.source.number)<=BigInt(finalized.source.number),'Checkpoint ahead of finalized head');
+  const [cb,cs]=await Promise.all([canonicalBlock('base',previousCheckpoint.base.number),canonicalBlock('source',previousCheckpoint.source.number)]);
+  check(same(cb.hash,previousCheckpoint.base.hash)&&same(cs.hash,previousCheckpoint.source.hash),'Checkpoint block hash mismatch');
+ }
  const originNames=['WorkRegistered','ClosureAcknowledgementRequested','DepositReceived','ConfirmationRequested','PolicyRegistered','PolicyRequested','CancellationRequested','BookingConfirmed','PolicyChecked','Refunded','QuoteExpired','Released'];
  const originTopics=originNames.map(n=>ei.getEvent(n).topicHash),settledTopic=gi.getEvent('Settled').topicHash;
  const cronTopics=await Promise.all(['CRON_TOPIC','CRON1000_TOPIC','CRON10000_TOPIC'].map(n=>scall(id.reactive,ri,n).then(v=>'0x'+v[0].toString(16).padStart(64,'0'))));
@@ -90,8 +101,10 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
  check(cronSubscribed===(currentCron!==0n)&&(!paused||currentCron===0n),'Inconsistent timer state');
  const cron=currentCron===0n?null:'0x'+currentCron.toString(16).padStart(64,'0');
  check(cron===null||cronTopics.includes(cron),'Unsupported current timer');const subscriptions=filterIndex(filtersBefore,id,originTopics,settledTopic,cron,cronTopics);
- async function logs(chain,from,address,topics){
-  const R=chain==='base'?B:S,end=BigInt(finalized[chain].number),begin=BigInt(from),size=BigInt(pageSize);check(end>=begin,'Creation lies beyond finalized history');
+ async function logs(chain,from,address,topics,allowEmpty=false){
+  const R=chain==='base'?B:S,end=BigInt(finalized[chain].number),begin=BigInt(from),size=BigInt(pageSize);
+  if(allowEmpty&&begin>end)return[];
+  check(end>=begin,'Creation lies beyond finalized history');
   check((end-begin+size)/size<=BigInt(maxPages),'History exceeds bounded scan; no partial reconciliation');
   const result=[],seen=new Set();
   for(let start=begin;start<=end;start+=size){const stop=start+size-1n<end?start+size-1n:end;const page=await R('eth_getLogs',[{address,topics,fromBlock:toQuantity(start),toBlock:toQuantity(stop)}]);check(Array.isArray(page),'Malformed log page');
@@ -104,8 +117,10 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
   }
   return result.sort((a,b)=>Number(uint(a.blockNumber)-uint(b.blockNumber))||Number(uint(a.transactionIndex)-uint(b.transactionIndex))||Number(uint(a.logIndex??a.index)-uint(b.logIndex??b.index)));
  }
- const ledgerLogs=await logs('base',baseStart.number,id.workLedger,[]),originLogs=await logs('base',baseStart.number,id.escrow,[originTopics]);
- const grants=[],jobs=new Map();let open=false;
+ const baseFrom=previousCheckpoint?(BigInt(previousCheckpoint.base.number)+1n).toString():baseStart.number;
+ const sourceFrom=previousCheckpoint?(BigInt(previousCheckpoint.source.number)+1n).toString():sourceStart.number;
+ const ledgerLogs=await logs('base',baseFrom,id.workLedger,[],Boolean(previousCheckpoint)),originLogs=await logs('base',baseFrom,id.escrow,[originTopics],Boolean(previousCheckpoint));
+ const grants=previousCheckpoint?structuredClone(previousCheckpoint.grants):[],jobs=new Map(previousCheckpoint?structuredClone(previousCheckpoint.jobs).map(j=>[j.quoteId,j]):[]);let open=previousCheckpoint?Boolean(previousCheckpoint.open):false;
  for(const l of ledgerLogs){const e=gi.parseLog(l),v=e.args;const eventEvidence={identity:id,base:await canonicalBlock('base',uint(l.blockNumber).toString()),source:finalized.source,evidenceHash:digest({chain:id.baseChainId,log:l})};
   if(e.name==='OpenChanged'){open=v.open;continue;}
   if(e.name==='GrantSet'){
@@ -132,36 +147,43 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
  for(const merchant of new Set(grants.map(g=>g.merchant))){const g=grants.filter(g=>g.merchant===merchant).at(-1),live=await bcall(id.workLedger,gi,'grants',[merchant],finalizedBase);check(live[0]===BigInt(g.remaining)&&live[1]===BigInt(g.expiresAt)&&live[2]===BigInt(g.epoch)&&same(live[3],g.profileHash),'Grant view differs from history');const latest=await bcall(id.workLedger,gi,'grants',[merchant]);check(live.every((v,n)=>typeof v==='string'?same(v,latest[n]):v===latest[n]),'Latest grant changes are not finalized');}
  const latestCounters=await Promise.all(['totalAdmitted','reserved','active','unsettled'].map(n=>bcall(id.workLedger,gi,n).then(v=>v[0])));
  check(latestCounters.every((v,n)=>v===[admitted,reserved,active,unsettled][n]),'Latest ledger changes are not finalized; reconciliation is incomplete');
- const backlog=new Map([...jobs.keys()].map(q=>[q,0]));
+ const backlog=new Map([...jobs.keys()].map(q=>[q,0])),unresolvedOrigins=[];
+ const priorOrigins=previousCheckpoint?previousCheckpoint.unresolvedOrigins:[];
+ for(const item of priorOrigins){
+  check(jobs.has(item.quoteId),'Checkpoint origin without admitted quote');
+  if(!(await scall(id.reactive,ri,'processed',[item.originKey],finalizedSource))[0]){backlog.set(item.quoteId,backlog.get(item.quoteId)+1);unresolvedOrigins.push(item);}
+ }
  for(const l of originLogs.concat(ledgerLogs.filter(l=>same(l.topics[0],settledTopic)))){
   const q=uint(l.topics[1]).toString();check(jobs.has(q),'Origin event without admitted quote');
   const originKey=keccak256(coder.encode(['uint256','uint256','uint256','uint256'],[84532,uint(l.blockHash),uint(l.transactionHash),uint(l.logIndex??l.index)]));
-  if(!(await scall(id.reactive,ri,'processed',[originKey],finalizedSource))[0])backlog.set(q,backlog.get(q)+1);
+  if(!(await scall(id.reactive,ri,'processed',[originKey],finalizedSource))[0]){backlog.set(q,backlog.get(q)+1);unresolvedOrigins.push({quoteId:q,originKey});}
  }
  const acceptedTopics=['ConfirmationCallbackRequested','PolicyCallbackRequested','ClosureCallbackRequested'].map(n=>ri.getEvent(n).topicHash);
- const acceptedLogs=await logs('source',sourceStart.number,id.reactive,[acceptedTopics]);
- const callbackLogs=await logs('source',sourceStart.number,SYSTEM,[systemI.getEvent('CallbackRequest').topicHash,null,zeroPadValue(id.reactive,32),zeroPadValue(id.receiver,32)]);
+ const acceptedLogs=await logs('source',sourceFrom,id.reactive,[acceptedTopics],Boolean(previousCheckpoint));
+ const callbackLogs=await logs('source',sourceFrom,SYSTEM,[systemI.getEvent('CallbackRequest').topicHash,null,zeroPadValue(id.reactive,32),zeroPadValue(id.receiver,32)],Boolean(previousCheckpoint));
  const callbackGas=(await scall(id.reactive,ri,'CALLBACK_GAS_LIMIT'))[0];
- const pending=new Map([...jobs.keys()].map(q=>[q,0])),requests=[],usedDeliveries=new Set(),successfulClosure=new Set();
+ const pending=new Map([...jobs.keys()].map(q=>[q,0])),requests=[],usedDeliveries=new Set(),successfulClosure=new Set(previousCheckpoint?previousCheckpoint.successfulClosure:[]),unresolvedRequests=[];
  check(acceptedLogs.length===callbackLogs.length,'Accepted-request history is incomplete');
  for(const l of acceptedLogs)check(callbackLogs.some(c=>same(c.transactionHash,l.transactionHash)),'Accepted request is absent from system history');
- const requestTransactions=[...new Set(callbackLogs.map(l=>l.transactionHash.toLowerCase()))];
+ const newRequestHashes=new Set(callbackLogs.map(l=>l.transactionHash.toLowerCase()));
+ const requestTransactions=[...new Set([...(previousCheckpoint?previousCheckpoint.unresolvedRequests:[]),...newRequestHashes])];
  for(const requestHash of requestTransactions){
   const r=await receipt('source',requestHash);
   const all=r.receipt.logs.filter(l=>same(l.address,SYSTEM)&&same(l.topics[0],systemI.getEvent('CallbackRequest').topicHash));
   const reports=(await scall(SYSTEM,feeI,'getCallbacks',[BigInt(requestHash)],finalizedSource))[0];
   for(const report of reports)check(same(report[1],id.reactive)&&report[3]===84532n&&report[2]<BigInt(all.length),'Unsupported or mismatched callback report');
+  let requestPending=false;
   for(let index=0;index<all.length;index++){
    const ev=systemI.parseLog(all[index]).args,configuration=coder.decode([CONFIG],ev.configuration)[0];
    check(configuration.gasLimit===callbackGas&&ev.chainId===84532n&&same(ev.sender,id.reactive)&&same(ev.recipient,id.receiver)&&ev.version===0n&&configuration.chainId===84532n&&same(configuration.recipient,id.receiver),'Mixed or unsupported callback request envelope');
    const payload=ci.parseTransaction({data:configuration.payload});check(payload&&['confirmBooking','processPolicy','acknowledgeClosure'].includes(payload.name)&&same(payload.args[0],ZeroAddress),'Unsupported callback payload');
-   check(acceptedLogs.some(l=>same(l.transactionHash,requestHash)&&ri.parseLog(l).args.quoteId===(payload.name==='acknowledgeClosure'?payload.args[3]:payload.args[1])),'Request lacks matching application event');
+   if(newRequestHashes.has(requestHash))check(acceptedLogs.some(l=>same(l.transactionHash,requestHash)&&ri.parseLog(l).args.quoteId===(payload.name==='acknowledgeClosure'?payload.args[3]:payload.args[1])),'Request lacks matching application event');
    const q=(payload.name==='acknowledgeClosure'?payload.args[3]:payload.args[1]).toString(),job=jobs.get(q);check(job,'Request refers to an unknown admitted quote');
    if(payload.name==='acknowledgeClosure')check(payload.args[1]===84532n&&same(payload.args[2],id.escrow)&&payload.args[4]===BigInt(job.epoch)&&same(payload.args[5],job.profileHash),'Closure request identity mismatch');
    const matches=reports.filter(v=>v[2]===BigInt(index)),deliveries=[];
-   if(matches.length===0)pending.set(q,pending.get(q)+1);
+   if(matches.length===0){pending.set(q,pending.get(q)+1);requestPending=true;}
    for(const report of matches){
-    if(report[4]===0n){pending.set(q,pending.get(q)+1);continue;}
+    if(report[4]===0n){pending.set(q,pending.get(q)+1);requestPending=true;continue;}
     const deliveryHash='0x'+report[4].toString(16).padStart(64,'0');check(!usedDeliveries.has(deliveryHash),'Delivery report reused across requests');usedDeliveries.add(deliveryHash);
     const delivered=await receipt('base',deliveryHash),tx=delivered.transaction;
     check(same(tx.to,PROXY)&&uint(tx.value)===0n,'Delivery did not use the expected proxy');
@@ -174,6 +196,7 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
    }
    requests.push({requestHash,index,quoteId:q,method:payload.name,reports:matches.length,deliveries});
   }
+  if(requestPending)unresolvedRequests.push(requestHash);
  }
  for(const job of jobs.values()){
   const [gateJob,quote,closure]=await Promise.all([bcall(id.workLedger,gi,'jobs',[job.quoteId],finalizedBase),bcall(id.escrow,ei,'getQuote',[job.quoteId],finalizedBase),scall(id.reactive,ri,'closures',[job.quoteId],finalizedSource)]);
@@ -194,7 +217,9 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
  const observedAt=now??Math.floor(Date.now()/1000);
  const snapshot={identity:id,observedAt:String(observedAt),base:heads.base,source:heads.source,runtimeHashes,configuration:{maxHorizonSeconds:p.maxHorizonSeconds,maxWork:p.maxWork,adaptiveTimers:p.adaptiveTimers},sourceFees,destinationFees,evidenceHash:digest({heads,finalized,runtimeHashes,sourceFees,destinationFees,subscriptions})};
  accounting.observe(state,snapshot,observedAt); // Validate freshness/schema without changing the caller's state.
- return plain({readOnly:true,canGrant:false,profileHash:state.profileHash,manifestHash:digest(manifest),scope:'RPC-backed pinned/finalized-prefix V5 reconciliation; trusted RPC completeness, not a light-client proof',snapshot,finalized,subscriptions,grants,jobs:[...jobs.values()],requests,history:{ledgerLogs:ledgerLogs.length,originLogs:originLogs.length,callbackRequests:callbackLogs.length},limits:['No journal writes, signing or grant authorization.','Empty callback reports remain pending; unsupported report schemas or delivery envelopes stop collection.','Native report index/codec compatibility and live coarse timer shape still require public validation.','This reader relies on honest RPC data and its finalized tag; it is not a consensus proof.']});
+ const checkpointBody=plain({schema:'settlio-renewable-checkpoint/v1',identity:id,profileHash:state.profileHash,manifestHash,base:finalized.base,source:finalized.source,open,grants,jobs:[...jobs.values()],unresolvedOrigins,unresolvedRequests,successfulClosure:[...successfulClosure]});
+ const checkpoint={...checkpointBody,checkpointHash:digest(checkpointBody)};
+ return plain({readOnly:true,canGrant:false,profileHash:state.profileHash,manifestHash,scope:'RPC-backed pinned/finalized-prefix V5 reconciliation; trusted RPC completeness, not a light-client proof',snapshot,finalized,checkpoint,subscriptions,grants,jobs:[...jobs.values()],requests,history:{ledgerLogs:ledgerLogs.length,originLogs:originLogs.length,callbackRequests:callbackLogs.length,incremental:Boolean(previousCheckpoint)},limits:['No journal writes, signing or grant authorization.','Empty callback reports remain pending; unsupported report schemas or delivery envelopes stop collection.','Native report index/codec compatibility and live coarse timer shape still require public validation.','This reader relies on honest RPC data and its finalized tag; it is not a consensus proof.']});
 }
 function reconciliationCommands(state,report){
  accounting.validateState(state);check(collectedReports.has(report),'Reconciliation requires an original immutable reader result');check(report?.readOnly===true&&report.canGrant===false&&report.profileHash===state.profileHash&&Object.keys(state.identity).every(k=>report.snapshot.identity[k]===state.identity[k]),'Invalid reader report identity');

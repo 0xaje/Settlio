@@ -1,5 +1,9 @@
 # Settlio master build plan
 
+## V5 reader incremental checkpointing verified locally — 25 November 2026
+
+[`renewable-reader.cjs`](script/renewable-reader.cjs) now emits and accepts `settlio-renewable-checkpoint/v1` incremental checkpoints (`checkpoint` / `previousCheckpoint`) bound by `checkpointHash` to `identity`, `profileHash`, and `manifestHash`, verifying live canonical block hashes on resume before scanning `[prev + 1, finalized]`. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **20/20** (zero failures/skips/cancellations, 175.70s), including incremental reconciliation beyond a full-scan `maxPages=1` limit and rejection of tampered/reorged checkpoints. No new full `npm test` run, public transaction, or token spend is claimed; `canGrant` remains `false` and M2 remains OPEN. Next: dry-run local Anvil issuer orchestrator or read-only V4 Quote 6 browser checks on `localhost:5174`. Earlier entries below are historical checkpoints.
+
 ## V5 reader finalized-skew hardening verified locally — 25 November 2026
 
 [`renewable-reader.cjs`](script/renewable-reader.cjs) now queries `finalized` before `latest` per chain and allows at most one `latest` re-fetch on transient 1-block Lasna `finalized > latest` skew, failing closed (`Unstable finalized checkpoint`) if skew persists. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **19/19** (zero failures/skips/cancellations, 144.48s) after installing pinned `npm ci` + `npm run setup:reactive` (`3ade0dc...`). No new full `npm test` run, public RPC transaction, or token spend is claimed; `canGrant` remains `false` and M2 remains OPEN. Next: incremental checkpointing in `renewable-reader.cjs` or read-only V4 Quote 6 browser checks on `localhost:5174`. Earlier entries below are historical checkpoints.

@@ -112,3 +112,25 @@ test('V5 reader binds multiple callbacks in the same source transaction to disti
  assert.equal(new Set(r.requests.flatMap(x=>x.deliveries.map(d=>d.transactionHash))).size,4);
  for(const command of reader.reconciliationCommands(state,r))state=accounting.apply(state,command,await f.now());assert.equal(accounting.totals(state).sourceHeldWei,'0');
 });
+
+test('V5 reader resumes incrementally from a verified finalized checkpoint and rejects tampered or reorged checkpoints',async t=>{
+ const f=await setup(t);let state=accounting.create(f.identity,f.profile),r=await f.observe(state);state=accounting.observe(state,r.snapshot,await f.now());
+ const now=await f.now(),proposal={id:'inc-1',merchant:f.identity.sponsor,epoch:'1',credits:'1',expiresAt:String(now+500)};state=accounting.reserve(state,proposal,now);
+ await(await f.gate.setOpen(true)).wait();await(await f.gate.setGrant(proposal.merchant,1,1,proposal.expiresAt,state.profileHash,keccak256('0xabcd'))).wait();
+ await f.forward(await(await f.escrow.createQuote(await f.base.signers[1].getAddress(),300,100,now+100,now+200,keccak256('0x1234'))).wait());
+ const cp1=await f.observe(state,{previousCheckpoint:r.checkpoint});
+ assert.equal(cp1.history.incremental,true);assert.equal(cp1.jobs.length,1);assert.equal(cp1.jobs[0].reconciled,false);
+ for(const c of [f.base,f.source]){await c.provider.send('evm_setNextBlockTimestamp',[now+100]);await c.provider.send('evm_mine',[]);}
+ await f.forward(await f.deliver(await f.tick()));
+ await f.forward(await f.deliver(await f.tick()));
+ // Full scan with tiny maxPages=1, pageSize=5 fails, while incremental resume from cp1.checkpoint succeeds.
+ await assert.rejects(f.observe(state,{pageSize:5,maxPages:1}),/bounded scan/);
+ const cp2=await f.observe(state,{previousCheckpoint:cp1.checkpoint,pageSize:200,maxPages:2});
+ assert.equal(cp2.history.incremental,true);assert.equal(cp2.jobs[0].reconciled,true);
+ for(const command of reader.reconciliationCommands(state,cp2))state=accounting.apply(state,command,await f.now());
+ assert.equal(accounting.totals(state).sourceHeldWei,'0');
+ const tampered=structuredClone(cp1.checkpoint);tampered.open=!tampered.open;
+ await assert.rejects(f.observe(state,{previousCheckpoint:tampered}),/integrity hash/);
+ const reorged={send:async(m,p)=>{const res=await f.baseRPC.send(m,p);if(m==='eth_getBlockByNumber'&&p[0]!=='latest'&&p[0]!=='finalized'&&BigInt(p[0])===BigInt(cp1.checkpoint.base.number))return{...res,hash:keccak256('0xbeef')};return res;}};
+ await assert.rejects(f.observe(state,{base:reorged,previousCheckpoint:cp1.checkpoint}),/block hash mismatch/);
+});
