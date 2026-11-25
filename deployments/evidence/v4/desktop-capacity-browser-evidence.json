@@ -1,0 +1,31 @@
+{
+  "reviewedDate": "2026-11-25",
+  "source": "User-uploaded desktop browser recording; visual review, separate from RPC evidence.",
+  "filename": "20261125-1530-24.3430127.mp4",
+  "sha256": "77af85e40808aff6c2dda10b70e836c080e911f0b94497a4cb3c5604c79128ee",
+  "durationSeconds": 13.567979,
+  "videoDimensions": {
+    "width": 1920,
+    "height": 1020
+  },
+  "visibleURL": "http://localhost:5174/?screen=new",
+  "sourceCommitVisible": false,
+  "deploymentAddressVisible": false,
+  "observations": [
+    {
+      "sampleSeconds": 0,
+      "observed": "Create quote page displays Booking capacity: This test deployment has used its quote allowance; sponsored quotes remaining 0; active bookings 0 of 6; lifetime quotes used 6 of 6."
+    },
+    {
+      "sampleSeconds": 12,
+      "observed": "Bottom of creation form shows faded Create share link button; pointer has the unavailable/disabled icon."
+    }
+  ],
+  "scope": "COMPLETE for observed desktop capacity message/counts and disabled creation control.",
+  "limits": [
+    "Form fields were blank; no completed-form submit rejection was attempted or claimed.",
+    "The recording does not display the wallet address, build commit or configured escrow address; V4 context comes from the user's preceding launch configuration and independently recorded public state.",
+    "This does not prove mobile layout, terminal-quote display, approval/payment interactions, storage-denied browser behaviour or browser-closed automation.",
+    "Raw video is user-provided media and is not uploaded to the public Git repository."
+  ]
+}
