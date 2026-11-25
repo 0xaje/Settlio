@@ -55,7 +55,8 @@
     "plan:next:v4": "node script/v4-next-grant.cjs plan",
     "grant:next:v4": "node script/v4-next-grant.cjs grant",
     "plan:refund:v4": "node script/v4-next-grant.cjs plan-refund",
-    "grant:refund:v4": "node script/v4-next-grant.cjs grant-refund"
+    "grant:refund:v4": "node script/v4-next-grant.cjs grant-refund",
+    "verify:refund:v4": "node script/verify-v4-refund.cjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
