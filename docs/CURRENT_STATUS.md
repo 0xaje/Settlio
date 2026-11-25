@@ -1,5 +1,9 @@
 # Settlio current status
 
+## Operating-model proposal prepared — 25 November 2026
+
+[Ongoing admission and funding proposal](OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.
+
 Updated 25 November 2026 (Africa/Lagos). Reviewed code/evidence baseline: [73dc15b](https://github.com/0xaje/Settlio/commit/73dc15b8d1fa5fd62b9131a7f131d2aa04264fd6). This is a concise status index; [the master plan](../SETTLIO_MASTER_PLAN.md) remains the implementation source of truth. Dated logs below old “current status” headings are historical, not newer results.
 
 ## Milestones

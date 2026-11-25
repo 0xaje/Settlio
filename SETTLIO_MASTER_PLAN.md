@@ -1,5 +1,9 @@
 # Settlio master build plan
 
+## Operating-model proposal prepared — 25 November 2026
+
+[Ongoing admission and funding proposal](docs/OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.
+
 ## Current continuation checkpoint — 25 November 2026
 
 Read [CURRENT_STATUS.md](docs/CURRENT_STATUS.md) for the concise current record and [HANDOFF.md](docs/HANDOFF.md) before continuing in another chat/IDE. This source-of-truth plan and latest explicit user decisions govern implementation; older “current” paragraphs below are dated history. Their older counts and pending labels must not override newer accepted evidence. The old navy/yellow/Archivo design baseline is superseded by the later green/orange and Georgia/Inter approval below.

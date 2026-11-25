@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Operating-model proposal prepared — 25 November 2026
+
+[Ongoing admission and funding proposal](OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.
+
 Updated 25 November 2026. Read [CURRENT_STATUS.md](CURRENT_STATUS.md) first, then [AGENTS.md](../AGENTS.md), [SETTLIO_MASTER_PLAN.md](../SETTLIO_MASTER_PLAN.md), [V4 acceptance](V4_ACCEPTANCE.md), and relevant source/evidence. Work in public repository **0xaje/Settlio**, directly on **main**. Baseline reviewed for this handoff: `73dc15b8d1fa5fd62b9131a7f131d2aa04264fd6`; check actual current main before editing. Do not reset to that SHA if newer work exists.
 
 ## Start prompt for Antigravity or a new chat

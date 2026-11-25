@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Operating-model proposal prepared — 25 November 2026
+
+[Ongoing admission and funding proposal](OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.
+
 ## Current milestone status — 25 November 2026
 
 **M0 complete; M1 accepted for its defined scope; six V4 M2 public journeys verified; formal M2 OPEN; M3/M4 pending.** [Current status](CURRENT_STATUS.md) contains the evidence map, exact scope and current constraints; [handoff](HANDOFF.md) is the continuation entry point.
