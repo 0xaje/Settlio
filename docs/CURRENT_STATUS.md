@@ -1,5 +1,9 @@
 # Settlio current status
 
+## V5 readiness review and M2 gates consolidated — 25 November 2026
+
+[V5 readiness review](V5_READINESS_REVIEW.md) maps V4 public evidence, local-only V5 verification (`canGrant: false`), remaining native protocol compatibility checks (`Cron1000`/`Cron10000`, `finalized` tags, `getCallbacks`, `rnk_getFilters`, service runtimes), unapproved economic/profile parameters, issuer/checkpoint/recovery gaps, minimum separately authorized future public evidence, and zero-spend next steps. No tokens spent, no deployment authorized, and no new test/build run claimed. M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## Read-only V5 reconciliation verified locally — 25 November 2026
 
 [Reader acceptance](RENEWABLE_READER_ACCEPTANCE.md): runtime/constructor/wiring checks, pinned fee resources, finalized contiguous history, subscription checks and protocol-report/delivery reconciliation now feed the local commitment guard. Missing reports/backlog retain holds; unknown outside grants stop reconciliation. Full regression passed 313/313; after adding multi-callback ordinal coverage, expanded reader/accounting checks passed 19/19. No full 314-test run is claimed. Two isolated local chains and an explicit protocol fixture provide test evidence only. The reader remains canGrant: false; no public V5 compatibility, economic profile approval, funding, grant or deployment is claimed. M2 remains OPEN. Next: consolidate V5 readiness and remaining M2 gates without spending, requesting tokens or repeating the six verified V4 journeys. Earlier entries below are historical checkpoints.

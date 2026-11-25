@@ -2,6 +2,8 @@
 
 ## Current scope — 25 November 2026
 
+[V5 readiness review](V5_READINESS_REVIEW.md) consolidates the boundary between verified V4 public journeys and local-only V5 renewable engineering (`canGrant: false`), listing remaining native protocol compatibility checks, unapproved operating-profile/economic assumptions, issuer/checkpoint/recovery gaps, remaining browser/mobile UI gates, and zero-spend next steps.
+
 Six V4 public journeys and user CLI reproductions are verified: ETH/USDC release, ETH/USDC refund, unpaid expiry and controlled pause/retry/restore recovery. See [current V4 checklist](V4_ACCEPTANCE.md), [current status](CURRENT_STATUS.md) and [M2 final source review](M2_FINAL_REVIEW.md). **Formal M2 remains OPEN** for an explicit ongoing admission/funding decision and original strict unattended browser-evidence qualifications. This summary does not silently waive an acceptance condition.
 
 The current deployment is permanently at six of six lifetime admissions. That is not evidence that all prepaid REACT has been spent. Fresh deployment preparation was cancelled; no new deployment, funding, grant or repeated proof transaction is authorized. The wallet conflict is FIXED AS USER-REPORTED; no independent clean-console pass is claimed. Full six-screen UI is M3; public submission video is M4. Those later deliverables must not be called failed M2 transaction tests.
