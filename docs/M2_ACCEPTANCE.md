@@ -1,5 +1,21 @@
 # M2 unattended policies — acceptance ledger
 
+## Current scope — 25 November 2026
+
+Six V4 public journeys and user CLI reproductions are verified: ETH/USDC release, ETH/USDC refund, unpaid expiry and controlled pause/retry/restore recovery. See [current V4 checklist](V4_ACCEPTANCE.md), [current status](CURRENT_STATUS.md) and [M2 final source review](M2_FINAL_REVIEW.md). **Formal M2 remains OPEN** for an explicit ongoing admission/funding decision and original strict unattended browser-evidence qualifications. This summary does not silently waive an acceptance condition.
+
+The current deployment is permanently at six of six lifetime admissions. That is not evidence that all prepaid REACT has been spent. Fresh deployment preparation was cancelled; no new deployment, funding, grant or repeated proof transaction is authorized. The wallet conflict is FIXED AS USER-REPORTED; no independent clean-console pass is claimed. Full six-screen UI is M3; public submission video is M4. Those later deliverables must not be called failed M2 transaction tests.
+
+The current implementation test checkpoint is 245/245 with later copy-only web-build evidence. Historical V3 results below stay valid only for their stated versions/scope. The [handoff](HANDOFF.md) supplies the next no-spend proposal task.
+
+## Preserved historical acceptance entries
+
+The original ledger below is retained as dated history, including earlier open/failed states and later corrections. Use the current index above to determine today's status.
+
+---
+
+# M2 unattended policies — acceptance ledger
+
 Status: **IN PROGRESS / LIVE EXPIRY, ETH/USDC REFUNDS, ETH/USDC RELEASES AND FEE RECOVERY VERIFIED / REMAINING ACCEPTANCE OPEN / NOT ACCEPTED**, started 23 November 2026.
 M1 remains complete under [its acceptance record](M1_ACCEPTANCE.md). User WSL reports successful M2 creation/configuration receipts; full deployment/subscription verification passed from user WSL on 23 November; the existing M1 contracts, quote links and principal are unchanged.
 

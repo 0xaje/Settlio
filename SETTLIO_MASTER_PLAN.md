@@ -1,4 +1,19 @@
 # Settlio master build plan
+
+## Current continuation checkpoint — 25 November 2026
+
+Read [CURRENT_STATUS.md](docs/CURRENT_STATUS.md) for the concise current record and [HANDOFF.md](docs/HANDOFF.md) before continuing in another chat/IDE. This source-of-truth plan and latest explicit user decisions govern implementation; older “current” paragraphs below are dated history. Their older counts and pending labels must not override newer accepted evidence. The old navy/yellow/Archivo design baseline is superseded by the later green/orange and Georgia/Inter approval below.
+
+M0 and scoped M1 are complete. Six V4 M2 public policy journeys and fresh user CLI reproductions are verified. M2 formal acceptance remains OPEN: the operating/admission policy is not settled for ongoing use, and original strict browser-evidence qualifications are retained rather than silently waived. M3 complete approved interface is not complete or newly started here. M4 hosted release/submission is pending. The final video is M4, not another failed M2 transaction test.
+
+The current V4 instance has six of six immutable lifetime admissions consumed and cannot create quote 7. This was bounded test policy, not an approved permanent product limit. Fee reserves and lifetime admission are different; more tokens or a new wallet cannot reset that counter. The user cancelled fresh deployment preparation and has authorized no new deployment, funding, grant or proof transaction. Reuse the six genuine proofs; no token spending is needed for current documentation or design analysis. Wallet-extension conflict is FIXED AS USER-REPORTED; independent clean-console evidence is not claimed and it must not be repeatedly presented as a contract failure.
+
+Next authorized continuation preparation: preserve a complete handoff and propose, without implementation/spending, an ongoing admission/funding model with realistic service horizons and explicit trust/cost assumptions. A later policy/deployment decision needs a concrete reviewed proposal. This checkpoint does not approve another operating policy, close M2 or begin M3. All historical source, commitments and proof records are retained.
+
+Last full test checkpoint: 245/245 in 4038b52; latest wording-only patch 73dc15b had a fresh web build, no new full-suite claim. This documentation-only consolidation adds no contract/browser test result. Equal-weight self-assessment remains Execution 20/25, Integration 20/25, Usefulness 15/25, Craft 15/25 (70/100).
+
+## Preserved plan and dated amendments
+
 Version 2.0 · 19 November 2026
 
 ## Current payment scope · approved 20 November 2026

@@ -1,6 +1,6 @@
 # Current V4 acceptance checklist
 
-Updated 25 November 2026. This is the current V4 checklist within M2. Historical M1 and V3 proof remains valid for those versions; it does not prove every V4 journey. M2 is open and M3 has not started.
+Updated 25 November 2026. Read [CURRENT_STATUS.md](CURRENT_STATUS.md) for the consolidated current scope and user constraints. Historical M1/V3 proof remains version-specific. Six scoped V4 public journeys are verified, but formal M2 is open and M3 has not started. Full interface work is M3; final submission video is M4. These are not additional failed M2 contract tests.
 
 | Gate | Current evidence | Remaining action |
 | --- | --- | --- |
@@ -14,10 +14,10 @@ Updated 25 November 2026. This is the current V4 checklist within M2. Historical
 | Permissions, deadlines, replay and custody | COMPLETE for source and isolated V4 regression review: actor/callback authentication, exact native/token expiry, cancellation priority, failed transfers, replay, finite admission and bounded scheduling | [Item-by-item review](M2_FINAL_REVIEW.md) maps tests/source to public evidence separately. This does not claim new public negative-path transactions or a complete external security audit |
 | Desktop exhausted-capacity screen | COMPLETE for the observed desktop check: user recording shows lifetime 6/6, no remaining credits, exhaustion message and disabled Create share link | [Recording provenance](../deployments/evidence/v4/desktop-capacity-browser-evidence.json); blank form only, no submit/rejection or mobile claim |
 | Quote-6 terminal and emulated mobile display | COMPLETE for observed rendering: terminal screenshot and 390 × 644 Chrome emulation show Expired, payment blocked, readable wrapped/stacked sections and no payment/retry controls | [Visual evidence](../deployments/evidence/v4/quote-6-terminal-mobile-browser-evidence.json). Not a physical-mobile wallet test; clipboard and post-repair label confirmation pending |
-| Wallet environment | OPEN: MetaMask provider-assignment error plus content-script warnings are visible in the mobile recording | Clean single-wallet-extension reload and fresh console review; exact conflicting extension and all-warning attribution unproven |
+| Wallet environment | FIXED AS USER-REPORTED after the recording; the historical warnings remain recorded | No independent clean-console recheck was supplied. Do not keep presenting this as an unresolved contract failure or repeatedly request the same fix |
 | Approval usability and browser/mobile journeys | Fresh-allowance approval correction and denied-storage share-link repair pass code/tests/build; browser connection unavailable during this review | OPEN: actual wallet approval/payment retest and remaining browser/mobile checks. Observed desktop terminal and emulated narrow-screen rendering are separately complete. [Read-only first checks](M2_FINAL_REVIEW.md) require no transaction; new paid journey capacity is exhausted |
 | Browser-closed automation | Qualified quote-1 tab evidence; quote-2 release occurred while open | Preserve limitations; obtain clearly timed closure evidence for outstanding unattended demonstration requirements |
-| Documentation and submission | Public repository and scoped receipts recorded | Finish acceptance review, deployed proof details and a public demo strictly under three minutes; no submission-complete claim |
+| Documentation and submission | Public repository and scoped receipts recorded; concise status and backup handoff prepared | Final public video strictly under three minutes and hosted release are M4, not an additional M2 policy test. Submission is not complete |
 
 Do not create another quote merely to find a button or repeat proof already accepted. Each live credit consumes finite lifetime capacity. New commands are bounded stages, not automatic recurring sponsorship. Funding estimates are conditional sponsor observations, not guaranteed future delivery or measured production cost.
 
@@ -66,3 +66,8 @@ The same recording shows a MetaMask global-provider assignment error matching [M
 M2 remains OPEN for a clean wallet-environment reproduction, remaining approval/payment journey checks, post-repair wording confirmation, physical/mobile-browser scope where required and demo/deployment availability after six lifetime admissions. The console is not labelled error-free. M3 has not started; the four equally weighted self-review scores remain unchanged. This update records user media and changes one display label. The earlier 245/245 tests remain dated prior evidence; no new full test run is claimed for this text-only repair.
 
 Validation of the display-label repair: fresh `npm run build:web` passed (TypeScript and Vite). The existing approximately 540 kB minified-bundle warning persists. No new full test run or public transaction was performed for this wording-only change.
+
+
+## Continuation boundary — 25 November 2026
+
+The user's wallet fix is recorded above as user-reported; historical recording warnings are not deleted. Fresh deployment preparation remains cancelled. Do not infer permission to spend from old CLI examples. Next is the [no-spend operating-model proposal](HANDOFF.md#next-task). Original strict unattended-evidence conditions are not silently waived, M2 is not closed, and no new M3 work is started by this handoff. The current design is green/orange with Georgia/Inter; old palette baselines are historical.

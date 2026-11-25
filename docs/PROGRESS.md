@@ -1,5 +1,25 @@
 # Settlio progress
 
+## Current milestone status — 25 November 2026
+
+**M0 complete; M1 accepted for its defined scope; six V4 M2 public journeys verified; formal M2 OPEN; M3/M4 pending.** [Current status](CURRENT_STATUS.md) contains the evidence map, exact scope and current constraints; [handoff](HANDOFF.md) is the continuation entry point.
+
+Last full regression: **245/245**, zero failures/skips/cancellations, checkpoint 4038b52. Builds passed there; the subsequent wording-only correction 73dc15b had a fresh TypeScript/Vite build, not a new full-suite run. Desktop and 390 × 644 emulated terminal-state checks are qualified visual evidence, not a physical-mobile wallet test. The wallet-extension issue was later fixed as reported by the user; no independent clean-console pass is claimed.
+
+All six immutable lifetime admissions on the current V4 deployment are consumed. Extra reserves cannot reset capacity. A dated read-only observation at 16:53 WAT on 25 November found 248.1593678 prepaid test REACT, 0.1 contract balance and zero source debt/jobs; it is not a fresh balance promise. The user cancelled replacement deployment preparation; no deployment, funding, grant, new quote or public proof transaction is authorized. Do not repeat accepted tests merely to produce another video.
+
+## Documentation and backup handoff checkpoint — 25 November 2026
+
+Consolidated the current status, replaced the unwieldy README with a concise entry point, preserved its complete previous content in [README_HISTORY.md](../README_HISTORY.md), and created [HANDOFF.md](HANDOFF.md) with a copyable prompt for Antigravity/new chats. Current summaries distinguish completed public scope, unresolved acceptance decisions, later UI work and submission tasks. Historical logs, evidence and Git history are preserved. Current work continues here; the handoff is a backup.
+
+Next task: a no-spend operating-model proposal, not another deployment. M3 remains the full approved six-screen UI; M4 remains hosted release/submission and video strictly under three minutes. Docs-only validation is recorded in CURRENT_STATUS/HANDOFF; no new build/test/network observation is claimed. Judging assessment remains the dated 70/100 self-review, not an external score or progress percentage.
+
+## Preserved historical record
+
+Entries below, including older sections called “current”, retain their original dates and values. They are superseded where later evidence/current decisions explicitly say so; do not read the old 95/147-test summaries as today's count.
+
+---
+
 ## Current milestone status — 23 November 2026
 **M0 complete; M1 completed for its defined engineering scope; M2 in progress; M3/M4 pending.** [M1 acceptance checklist](M1_ACCEPTANCE.md) maps each completed requirement to its evidence and limits. The log below is chronological history: earlier open/failed/blocked entries are retained and superseded only by later explicit results. Completion does not imply zero defects, exhaustive browser/device testing or unimplemented later-stage features.
 
@@ -1211,3 +1231,8 @@ The same recording shows a MetaMask global-provider assignment error matching [M
 M2 remains OPEN for a clean wallet-environment reproduction, remaining approval/payment journey checks, post-repair wording confirmation, physical/mobile-browser scope where required and demo/deployment availability after six lifetime admissions. The console is not labelled error-free. M3 has not started; the four equally weighted self-review scores remain unchanged. This update records user media and changes one display label. The earlier 245/245 tests remain dated prior evidence; no new full test run is claimed for this text-only repair.
 
 Validation of the display-label repair: fresh `npm run build:web` passed (TypeScript and Vite). The existing approximately 540 kB minified-bundle warning persists. No new full test run or public transaction was performed for this wording-only change.
+
+
+## Handoff checkpoint validation — 25 November 2026
+
+The six documented archived CLI commands were run successfully in explicit recorded/no-fresh-RPC mode: release quotes 1/2, refund quotes 3/4, expiry quote 5 and recovery quote 6. Outcomes were Released, Released, Refunded, Refunded, Expired and Expired. New README/current-status/handoff relative links were checked against repository paths; command names were checked against package.json. The complete previous README and M2 ledger text were preserved in their stated historical locations. No public RPC observation, transaction, build or new full regression run is claimed by these documentation checks.

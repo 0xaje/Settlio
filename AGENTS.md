@@ -18,3 +18,5 @@ Act as the senior developer responsible for Settlio through implementation, veri
 14. Report each milestone with what changed, checks actually run, evidence, remaining weaknesses, judging assessment, and the next action. Never promise a prize.
 
 15. Maintain an item-by-item acceptance record for every milestone, following docs/M1_ACCEPTANCE.md. Mark an item COMPLETE only with linked source/test/transaction/user evidence, date, environment and limits. Reconcile current README/master/evidence/progress status when a milestone closes. Preserve past logs as dated history, never silently replace failed/blocked results with success, and keep later milestones pending. Do not label the whole product finished when only one milestone is accepted.
+
+16. Before continuing, read docs/CURRENT_STATUS.md for the latest user constraints and docs/HANDOFF.md when moving between chats or IDEs. Historical operational examples are not current authorization to deploy, fund, grant, replace a nonce or repeat public tests. Honor the latest explicit user decision rather than stale status paragraphs.
