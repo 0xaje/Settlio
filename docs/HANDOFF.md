@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Read-only V5 reconciliation verified locally — 25 November 2026
+
+[Reader acceptance](RENEWABLE_READER_ACCEPTANCE.md): runtime/constructor/wiring checks, pinned fee resources, finalized contiguous history, subscription checks and protocol-report/delivery reconciliation now feed the local commitment guard. Missing reports/backlog retain holds; unknown outside grants stop reconciliation. Full regression passed 313/313; after adding multi-callback ordinal coverage, expanded reader/accounting checks passed 19/19. No full 314-test run is claimed. Two isolated local chains and an explicit protocol fixture provide test evidence only. The reader remains canGrant: false; no public V5 compatibility, economic profile approval, funding, grant or deployment is claimed. M2 remains OPEN. Next: consolidate V5 readiness and remaining M2 gates without spending, requesting tokens or repeating the six verified V4 journeys. Earlier entries below are historical checkpoints.
+
 ## Local fee commitment accounting verified — 25 November 2026
 
 [Commitment acceptance](RENEWABLE_COMMITMENT_ACCEPTANCE.md): independent source/destination allowances now remain reserved across grant/admission/terminal states until reconciled settlement. Revisioned atomic journals and exclusive locks prevent competing writers from promising the same local backing. Final targeted checks: 18/18 passed (14 new accounting cases plus four cost-review cases), including a two-process race and normal npm inspection. Last full suite remains 295/295; no new full-suite/build/public-funding claim. This is a local sponsor guard using attested inputs, not on-chain monetary enforcement or independently verified balances; canGrant remains false. No production journal, grant, transaction or contract change. M2 remains OPEN. Next: verified read-only snapshot/event reconciliation against the local V5 stack; no spending or deployment authorized.
