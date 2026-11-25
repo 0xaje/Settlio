@@ -61,7 +61,12 @@
     "grant:usdc-refund:v4": "node script/v4-next-grant.cjs grant-usdc-refund",
     "plan:expiry:v4": "node script/v4-next-grant.cjs plan-expiry",
     "grant:expiry:v4": "node script/v4-next-grant.cjs grant-expiry",
-    "verify:expiry:v4": "node script/verify-v4-expiry.cjs"
+    "verify:expiry:v4": "node script/verify-v4-expiry.cjs",
+    "plan:recovery:v4": "node script/v4-next-grant.cjs plan-recovery",
+    "grant:recovery:v4": "node script/v4-next-grant.cjs grant-recovery",
+    "status:recovery:v4": "node script/v4-recovery.cjs status",
+    "pause:recovery:v4": "node script/v4-recovery.cjs pause",
+    "resume:recovery:v4": "node script/v4-recovery.cjs resume"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

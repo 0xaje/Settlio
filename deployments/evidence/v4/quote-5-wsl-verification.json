@@ -1,0 +1,23 @@
+{
+  "provenance": "User-pasted Ubuntu terminal output; regenerated local snapshot bytes were not supplied or substituted for the independent public bundle.",
+  "command": "npm run verify:expiry:v4",
+  "repositoryCommit": "4ba05fef829a487893a11a08573396e71dc876d1",
+  "baseRpc": "https://base-sepolia-rpc.publicnode.com",
+  "verifiedAt": "2026-11-25T13:44:12.937Z",
+  "readOnly": true,
+  "policyVersion": 4,
+  "quoteId": "5",
+  "outcome": "Expired",
+  "schedulerClosed": true,
+  "admissionSlotClosed": true,
+  "schedulerIdle": true,
+  "associatedRequestAttempt": "1",
+  "noDepositOrParticipantRetryObserved": true,
+  "uniqueRetryAttribution": false,
+  "browserClosedEvidence": "Qualified tab closure/reopening reviewed separately; continuous closed interval not established.",
+  "limits": [
+    "The original Base RPC failed eth_getLogs; the alternate endpoint succeeded. Exact original transport/provider cause is not established beyond that read path.",
+    "Matching requests/deliveries do not uniquely establish protocol return-report attribution.",
+    "RPC cannot prove browser actions or future funding/delivery."
+  ]
+}

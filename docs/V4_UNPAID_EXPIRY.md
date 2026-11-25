@@ -48,3 +48,7 @@ No payment, cancellation, retry, new credit, funding or deployment was sent by e
 ## Reader correction after user CLI failure — 25 November 2026
 
 The original user RPC error was hidden by a generic catch and remains unconfirmed. The reader now paginates history in 1,000-block pages, four concurrent calls, through the pinned head (maximum 1,000 pages), failing closed on any failed or malformed page. Network/method and safe codes are reported without provider URLs or raw errors. Proof checks are unchanged. [Fresh alternate-transport read metadata](../deployments/evidence/v4/quote-5-history-read-check.json) confirms 47 pages/four events and terminal closure; this does not prove the original endpoint cause. Retry the same fresh CLI command above and preserve any specific error. Recorded replay remains explicitly historical, not a replacement for successful fresh user reproduction.
+
+## Fresh Ubuntu reproduction complete — 25 November 2026
+
+User CLI passed at 2026-11-25T13:44:12.937Z using `https://base-sepolia-rpc.publicnode.com`. [Terminal provenance](../deployments/evidence/v4/quote-5-wsl-verification.json) supersedes earlier reproduction-pending notes, without substituting the user's local snapshot for the independent public proof. The other endpoint failed `eth_getLogs`; deeper provider cause remains unconfirmed. Qualified browser and return-report limits are unchanged.

@@ -14,7 +14,7 @@ test('quote-3 refund credit budgets only four remaining lifetime admissions and 
  const r=remainingModel(o,c,proposal,1000n,2n);assert.equal(r.remainingLifetimeQuotes,'4');assert.equal(r.completedLifetimeQuotes,'2');assert.equal(r.lifetimeQuotesBudgeted,'4');assert.equal(o.maxLifetime,6n);
  for(const change of [{earlier:[]},{earlier:[{...c.earlier[0],sourceClosed:false}]},{earlier:[{...c.earlier[0],status:3n}]}])assert.throws(()=>remainingModel(o,{...c,...change},proposal,1000n,2n));
  for(const change of [{admitted:1n},{quoteCount:3n},{reserved:1n},{activeJobs:1n}])assert.throws(()=>remainingModel({...o,...change},c,proposal,1000n,2n));
- assert.throws(()=>remainingModel(o,c,proposal,1000n,5n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,2n).canGrant,false);
+ assert.throws(()=>remainingModel(o,c,proposal,1000n,6n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,2n).canGrant,false);
 });
 
 test('quote-4 USDC refund preparation budgets three remaining slots and requires both earlier closures',()=>{
@@ -30,5 +30,11 @@ test('quote-5 expiry preparation budgets the final two slots without regeneratin
  const r=remainingModel(o,c,proposal,1000n,4n);assert.equal(r.remainingLifetimeQuotes,'2');assert.equal(r.completedLifetimeQuotes,'4');assert.equal(r.lifetimeQuotesBudgeted,'2');assert.equal(o.maxLifetime,6n);assert.equal(o.admitted,4n);
  for(const earlier of [c.earlier.slice(0,2),[c.earlier[0],c.earlier[1],c.earlier[1]],[c.earlier[0],c.earlier[1],{...c.earlier[2],sourceClosed:false}]])assert.throws(()=>remainingModel(o,{...c,earlier},proposal,1000n,4n));
  for(const change of [{quoteCount:3n},{active:1n},{reserved:1n},{activeJobs:1n},{cronActive:true},{paused:true}])assert.throws(()=>remainingModel({...o,...change},c,proposal,1000n,4n));
- assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,4n).canGrant,false);assert.throws(()=>remainingModel({...o,observedAt:800n},c,proposal,1000n,4n));assert.throws(()=>remainingModel(o,c,proposal,1000n,5n));
+ assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,4n).canGrant,false);assert.throws(()=>remainingModel({...o,observedAt:800n},c,proposal,1000n,4n));assert.throws(()=>remainingModel(o,c,proposal,1000n,6n));
+});
+
+test('final recovery credit budgets one remaining slot and rejects exhausted or reopened capacity',()=>{
+ const o={...input(),admitted:5n,quoteCount:5n},c={...closed,status:6n,earlier:[1,2,3,4].map(n=>({quoteId:String(n),destinationClosed:true,sourceClosed:true,status:n<3?7n:5n}))};
+ const r=remainingModel(o,c,proposal,1000n,5n);assert.equal(r.remainingLifetimeQuotes,'1');assert.equal(r.lifetimeQuotesBudgeted,'1');assert.equal(r.completedLifetimeQuotes,'5');assert.equal(o.maxLifetime,6n);
+ assert.throws(()=>remainingModel(o,{...c,earlier:c.earlier.slice(0,3)},proposal,1000n,5n));assert.throws(()=>remainingModel({...o,admitted:6n,quoteCount:6n},c,proposal,1000n,5n));assert.throws(()=>remainingModel({...o,reserved:1n},c,proposal,1000n,5n));assert.throws(()=>remainingModel(o,c,proposal,1000n,6n));assert.equal(remainingModel({...o,reactiveReserves:0n},c,proposal,1000n,5n).canGrant,false);
 });
