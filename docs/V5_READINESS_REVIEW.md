@@ -67,7 +67,7 @@ Strictly read-only RPC queries against Base Sepolia (`https://base-sepolia-rpc.p
 ### Compatibility items still remaining
 
 1. **Populated `getCallbacks` tuple layout:** Because the sampled `CallbackRequest` returned an empty `getCallbacks` array, the exact 6-field tuple encoding and zero-based ordinal mapping of a *non-empty* live `getCallbacks` return report remain unverified on public Lasna.
-2. **Lasna `finalized <= latest` race handling:** `renewable-reader.cjs` should be reviewed for fast-advancing/load-balanced Lasna `finalized` vs `latest` skew.
+2. **Lasna `finalized <= latest` race handling:** `renewable-reader.cjs` should be reviewed for fast-advancing/load-balanced Lasna `finalized` vs `latest` skew (see [candidate operating profile & reader hardening spec](V5_OPERATING_PROFILE_SPEC.md)).
 3. **13-subscription dynamic CRON switching:** Live `rnk_getFilters` tracking across `Cron100` / `Cron1000` / `Cron10000` transitions has not been observed on a deployed V5 contract.
 
 ---

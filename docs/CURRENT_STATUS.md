@@ -2,7 +2,7 @@
 
 ## V5 readiness review and M2 gates consolidated — 25 November 2026
 
-[V5 readiness review](V5_READINESS_REVIEW.md) maps V4 public evidence, local-only V5 verification (`canGrant: false`), and live **read-only** Base/Lasna compatibility observations (22:09 UTC): `Cron1000`/`Cron10000` indexed-`uint256` layouts confirmed, `finalized` tag supported on both chains (with 1-block Lasna `finalized > latest` skew risk across calls), `PROXY`/`SYSTEM` runtime hashes and fee parameters recorded, `rnk_getFilters` PascalCase (`8,021` filters), and sampled `getCallbacks` empty (non-empty tuple layout still unverified live). No tokens spent, no deployment authorized, and no new test/build run claimed. M2 remains OPEN. Earlier entries below are historical checkpoints.
+[V5 readiness review](V5_READINESS_REVIEW.md) and [candidate operating profile & reader spec](V5_OPERATING_PROFILE_SPEC.md) map V4 public evidence, local-only V5 verification (`canGrant: false`), live **read-only** Base/Lasna compatibility observations (22:09 UTC: `Cron1000`/`Cron10000` indexed-`uint256` layouts confirmed, `finalized` supported with 1-block Lasna skew risk, `PROXY`/`SYSTEM` runtime hashes and fee parameters recorded, `rnk_getFilters` PascalCase `8,021` filters, sampled `getCallbacks` empty), and candidate 24h/7d profile, `finalized`-skew hardening, and incremental checkpointing specs. No tokens spent, no deployment authorized, and no new test/build run claimed (`node_modules` absent in this checkout). M2 remains OPEN. Earlier entries below are historical checkpoints.
 
 ## Read-only V5 reconciliation verified locally — 25 November 2026
 
