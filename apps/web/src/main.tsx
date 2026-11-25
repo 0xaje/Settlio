@@ -7,6 +7,7 @@ import '@fontsource/inter/latin-600.css';
 import './style.css';
 import { asQuote, configured, errorMessage, escrowAddress, explorer, reader, readContract, walletContract, readPolicyDeployment, readAutomationStatus } from './chain';
 import { readPolicyVersion } from './policy';
+import { approvalKey as tokenApprovalKey, approvalValue, prepareDepositApproval, type ApprovalState } from './approval';
 import { readAdmissionState, creationUnavailable, assertCreationAllowed, retryUnavailable, type AdmissionState } from './admission';
 import { createdQuoteFromReceipt } from './recovery';
 import { ensureBaseSepolia } from './wallet';
@@ -98,12 +99,13 @@ function App() {
       setAccount(await (await new BrowserProvider(window.ethereum).getSigner()).getAddress());
     } catch (failure) { setError(errorMessage(failure)); }
   }
-  async function transact(send: () => Promise<TransactionResponse>, after?: (receipt: TransactionReceipt) => void) {
+  async function transact(send: () => Promise<TransactionResponse | null>, after?: (receipt: TransactionReceipt) => void) {
     if (transactionLock.current || pending) return;
     transactionLock.current = true;
     setBusy(true); setError(''); setMessage('Review this action in your wallet.'); setTransaction('');
     try {
       const tx = await send();
+      if (!tx) { setMessage('Approval is already sufficient. You can now pay the deposit.'); return; }
       setTransaction(tx.hash);
       setPending(tx.hash); setUnresolved(false);
       let saved = false;
@@ -223,7 +225,7 @@ function App() {
     </main>
   </div>;
 }
-type Transact = (send: () => Promise<TransactionResponse>, after?: (receipt: TransactionReceipt) => void) => Promise<void>;
+type Transact = (send: () => Promise<TransactionResponse | null>, after?: (receipt: TransactionReceipt) => void) => Promise<void>;
 
 function QuoteList({ account, refresh, navigate, connect }: { account: string; refresh: number; navigate: (route: string) => void; connect: () => void }) {
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -408,7 +410,13 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   const [error, setError] = useState('');
   const [terms] = useState(() => loadTerms(id));
   const [selected, setSelected] = useState(0);
-  const [allowance, setAllowance] = useState(0n);
+  const [approval, setApproval] = useState<ApprovalState | null>(null);
+  const [approvalError, setApprovalError] = useState('');
+  const [approvalRefresh, setApprovalRefresh] = useState(0);
+  const approvalAsset = quote?.options?.[selected]?.asset ?? ZeroAddress;
+  const currentApprovalKey = tokenApprovalKey(approvalAsset, account, escrowAddress);
+  const allowance = approvalValue(approval, currentApprovalKey);
+  const knownAllowance = allowance ?? 0n;
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState('');
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
@@ -453,14 +461,14 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   }, [id, refresh]);
   useEffect(() => {
     let active = true;
-    setAllowance(0n);
-    const option = quote?.options?.[selected];
-    if (account && option && option.asset !== ZeroAddress && knownAsset(option.asset)) {
-      void readContract().then(contract => new Contract(option.asset, ['function allowance(address,address) view returns(uint256)'], contract.runner).allowance(account, escrowAddress))
-        .then(value => { if (active) setAllowance(BigInt(value)); }).catch(() => {});
+    setApproval(null); setApprovalError('');
+    if (account && approvalAsset !== ZeroAddress && knownAsset(approvalAsset)) {
+      void readContract().then(contract => new Contract(approvalAsset, ['function allowance(address,address) view returns(uint256)'], contract.runner).allowance(account, escrowAddress))
+        .then(value => { if (active) setApproval({ key: currentApprovalKey, value: BigInt(value) }); })
+        .catch(() => { if (active) { setApproval(null); setApprovalError('Could not read token approval. Retry the approval check before continuing.'); } });
     }
     return () => { active = false; };
-  }, [quote, selected, account, refresh]);
+  }, [currentApprovalKey, approvalRefresh, refresh]);
   if (error) return <section><h1>Quote unavailable</h1><p role="alert" className="error">{error}</p><p>Refresh this page to retry the connection.</p></section>;
   if (!quote) return <section><h1>Quote #{id.toString()}</h1><p role="status">{configured ? 'Reading quote…' : 'Waiting for deployment setup.'}</p></section>;
   const choice = quote.options?.[quote.status === 1 ? selected : quote.selectedOption ?? 0];
@@ -468,7 +476,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   const deposit = choice ? BigInt(choice.deposit) : quote.deposit;
   const total = choice ? BigInt(choice.total) : quote.total;
   const supported = !!knownAsset(asset);
-  const needsApproval = asset !== ZeroAddress && allowance < deposit;
+  const needsApproval = asset !== ZeroAddress && knownAllowance < deposit;
   const verified = terms !== null && matchesQuote(terms, quote);
   const customer = account && getAddress(account) === getAddress(quote.customer);
   const merchant = account && getAddress(account) === getAddress(quote.merchant);
@@ -497,11 +505,16 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
       {!supported && <p role="alert" className="error">This token is not verified for this interface. Payment is disabled.</p>}
       <strong>{amount(deposit, asset)}</strong><dl><dt>Total</dt><dd>{amount(total, asset)}</dd><dt>Remaining balance</dt><dd>{amount(total - deposit, asset)}</dd></dl>
       {quote.status === 1 && !expired && (!account ? <button className="primary wide" onClick={connect}>Connect wallet</button> :
-      <><p className="helper">Paying accepts the service terms and refund cutoff above.</p>{needsApproval ? <><p className="helper">First approve only this deposit amount. Then return here to pay. Approval alone does not pay your deposit. Test ETH is still needed for gas.</p><button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
+      <><p className="helper">Paying accepts the service terms and refund cutoff above.</p>{asset !== ZeroAddress && allowance === null ? <><p role={approvalError ? 'alert' : 'status'} className="helper">{approvalError || 'Reading token approval…'}</p><button className="primary wide" disabled>Checking token approval…</button>{approvalError && <button className="secondary wide" disabled={busy} onClick={() => setApprovalRefresh(value => value + 1)}>Retry approval check</button>}</> : needsApproval ? <><p className="helper">First approve only this deposit amount. Then return here to pay. Approval alone does not pay your deposit. Test ETH is still needed for gas.</p><button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
         const contract = await walletContract(account);
-        const token = new Contract(asset, ['function approve(address,uint256) returns(bool)'], contract.runner);
-        return token.approve(escrowAddress, allowance > 0n ? 0n : deposit);
-      })}>{allowance > 0n ? 'Reset previous approval' : 'Approve deposit amount'}</button></> :
+        const token = new Contract(asset, ['function allowance(address,address) view returns(uint256)', 'function approve(address,uint256) returns(bool)'], contract.runner);
+        const prepared = await prepareDepositApproval<TransactionResponse>({
+          allowance: async (owner, spender) => BigInt(await token.allowance(owner, spender)),
+          approve: (spender, value) => token.approve(spender, value)
+        }, account, escrowAddress, deposit);
+        setApproval({ key: currentApprovalKey, value: prepared.allowance });
+        return prepared.transaction;
+      })}>{knownAllowance > 0n ? 'Reset previous approval' : 'Approve deposit amount'}</button></> :
       <button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
         const contract = await walletContract(account);
         const payment = { value: asset === ZeroAddress ? deposit : 0n };

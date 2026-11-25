@@ -1,0 +1,17 @@
+{
+  "recording": "20261125-0824-21.3588783.mp4",
+  "durationSeconds": 46.4333,
+  "sha256": "872f1c8fb75e57a40ce1a11b26ef382571460e662e4f8370778e4fde698885d8",
+  "review": "Ten-second overview plus one-second samples across the first sixteen seconds.",
+  "observations": [
+    "Confirmed quote 2, 1 test USDC deposit and 09:25/09:32 WAT terms shown.",
+    "Around 12 seconds the quote is already Released while the page remains open.",
+    "Navigation/closure and subsequent reopening/loading/Released occur afterward."
+  ],
+  "limits": [
+    "Shows automatic state update and successful reopening, not closure before the release transaction.",
+    "Sampled review, not every frame or continuous wall-clock closure proof.",
+    "RPC independently verifies token transfer; browser actions cannot be proved by RPC.",
+    "Raw video not uploaded to GitHub."
+  ]
+}

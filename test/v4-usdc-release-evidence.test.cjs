@@ -1,0 +1,9 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {validate}=require('../script/verify-v4-release.cjs');
+const load=()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../deployments/evidence/v4/quote-2-release-verified.json'),'utf8')).bundle;
+const bad=edit=>{const b=load();edit(b);assert.throws(()=>validate(b,'2'));};
+const word=n=>'0x'+BigInt(n).toString(16).padStart(64,'0');
+test('archived V4 USDC trace proves exact payout and closure without promoting browser claims',()=>{const r=validate(load(),'2');assert.equal(r.asset,'USDC');assert.equal(r.releaseUnits,'1000000');assert.equal(r.schedulerIdle,true);assert.equal(r.admissionSlotClosed,true);assert.equal(r.uniqueRetryAttribution,false);});
+test('two approvals must be distinct, successful, block-bound and precede the one deposit',()=>{bad(b=>delete b.extraApproval);bad(b=>b.extraApproval.receipt.status='0x0');bad(b=>b.extraApproval.receipt.transactionHash=b.approval.receipt.transactionHash);bad(b=>b.blocks.extraApproval.hash='0x'+'11'.repeat(32));bad(b=>b.approval.receipt.blockNumber=b.deposit.receipt.blockNumber);});
+test('duplicate approvals cannot be labelled replacement if allowance or amount differs',()=>{bad(b=>b.v4.allowanceAfterFirst=word(2000000));bad(b=>b.v4.allowanceAfterSecond=word(2000000));bad(b=>b.v4.allowanceCurrent=word(1000000));bad(b=>b.extraApproval.receipt.logs.find(l=>l.address.toLowerCase()==='0x036cbd53842c5426634e7929541ec2318f3dcf7e').data=word(2000000));});
+test('USDC trace requires same-asset transfer, current custody clearance and exact quote identity',()=>{bad(b=>b.release.receipt.logs=b.release.receipt.logs.filter(l=>l.address.toLowerCase()!=='0x036cbd53842c5426634e7929541ec2318f3dcf7e'));bad(b=>b.v4.usdcLiability=word(1));bad(b=>b.v4.admitted=word(1));assert.throws(()=>validate(load(),'1'));});
