@@ -1,5 +1,9 @@
 # Settlio current status
 
+## V5 reader finalized-skew hardening verified locally — 25 November 2026
+
+[`renewable-reader.cjs`](../script/renewable-reader.cjs) now queries `finalized` before `latest` per chain with at most one `latest` re-fetch on transient `finalized > latest` skew, failing closed if skew persists. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **19/19** (144.48s) using pinned `npm ci` + `npm run setup:reactive`; no new full `npm test` run, public transaction, or token spend is claimed. `canGrant` remains `false` and M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## V5 readiness review and M2 gates consolidated — 25 November 2026
 
 [V5 readiness review](V5_READINESS_REVIEW.md) and [candidate operating profile & reader spec](V5_OPERATING_PROFILE_SPEC.md) map V4 public evidence, local-only V5 verification (`canGrant: false`), live **read-only** Base/Lasna compatibility observations (22:09 UTC: `Cron1000`/`Cron10000` indexed-`uint256` layouts confirmed, `finalized` supported with 1-block Lasna skew risk, `PROXY`/`SYSTEM` runtime hashes and fee parameters recorded, `rnk_getFilters` PascalCase `8,021` filters, sampled `getCallbacks` empty), and candidate 24h/7d profile, `finalized`-skew hardening, and incremental checkpointing specs. No tokens spent, no deployment authorized, and no new test/build run claimed (`node_modules` absent in this checkout). M2 remains OPEN. Earlier entries below are historical checkpoints.

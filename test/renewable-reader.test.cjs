@@ -79,6 +79,13 @@ test('V5 adapter rejects wrong chains, runtime/wiring drift, truncated history a
  await assert.rejects(f.observe(state,{maxPages:1,pageSize:1}),/bounded scan/);
  const changed={send:async(m,p)=>{const result=await f.baseRPC.send(m,p);if(m==='eth_getBlockByNumber'&&p[0]!=='latest'&&p[0]!=='finalized')return{...result,hash:keccak256('0xdead')};return result;}};
  await assert.rejects(f.observe(state,{base:changed}),/Noncanonical|Checkpoint/);
+ let latestCalls=0;
+ const transientSkew={send:async(m,p)=>{const result=await f.sourceRPC.send(m,p);if(m==='eth_getBlockByNumber'&&p[0]==='latest'&&latestCalls++===0){const fin=await f.sourceRPC.send('eth_getBlockByNumber',['finalized',false]);return{...result,number:'0x'+((BigInt(fin.number)-1n).toString(16))};}return result;}};
+ const recovered=await f.observe(state,{source:transientSkew});
+ assert.equal(recovered.canGrant,false);
+ assert.equal(latestCalls,2);
+ const persistentSkew={send:async(m,p)=>{const result=await f.sourceRPC.send(m,p);if(m==='eth_getBlockByNumber'&&p[0]==='latest'){const fin=await f.sourceRPC.send('eth_getBlockByNumber',['finalized',false]);return{...result,number:'0x'+((BigInt(fin.number)-1n).toString(16))};}return result;}};
+ await assert.rejects(f.observe(state,{source:persistentSkew}),/Unstable finalized checkpoint/);
 });
 
 test('V5 adapter refuses missing native filters and omitted admission history instead of releasing backing',async t=>{

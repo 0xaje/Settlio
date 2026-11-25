@@ -45,10 +45,10 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages}
  for(const value of Object.values(cfg))check(typeof value==='string'&&/^(0|[1-9][0-9]*)$/.test(value),'Invalid constructor value');
  const id=state.identity,p=state.profile,B=rpc(base),S=rpc(source),a=built();
  const ei=new Interface(a.SettlioEscrowV5.abi),ri=new Interface(a.SettlioReactiveV5.abi),ci=new Interface(a.SettlioCallbackV5.abi),gi=new Interface(a.SettlioWorkLedger.abi);
- const [bc,sc,bh,sh,bf,sf,filtersBefore]=await Promise.all([B('eth_chainId',[]),S('eth_chainId',[]),B('eth_getBlockByNumber',['latest',false]),S('eth_getBlockByNumber',['latest',false]),B('eth_getBlockByNumber',['finalized',false]),S('eth_getBlockByNumber',['finalized',false]),S('rnk_getFilters',[])]);
+ const pinnedHeads=async(R)=>{const f=header(await R('eth_getBlockByNumber',['finalized',false]));let rawLatest=await R('eth_getBlockByNumber',['latest',false]),l=header(rawLatest);if(BigInt(f.number)>BigInt(l.number)){rawLatest=await R('eth_getBlockByNumber',['latest',false]);l=header(rawLatest);}check(BigInt(f.number)<=BigInt(l.number),'Unstable finalized checkpoint');return{finalized:f,latest:l,rawLatest};};
+ const [bc,sc,bp,sp,filtersBefore]=await Promise.all([B('eth_chainId',[]),S('eth_chainId',[]),pinnedHeads(B),pinnedHeads(S),S('rnk_getFilters',[])]);
  check(uint(bc)===84532n&&uint(sc)===5318007n,'Wrong reader networks');
- const heads={base:header(bh),source:header(sh)},finalized={base:header(bf),source:header(sf)};
- for(const chain of ['base','source'])check(BigInt(finalized[chain].number)<=BigInt(heads[chain].number),'Unstable finalized checkpoint');
+ const bh=bp.rawLatest,sh=sp.rawLatest,heads={base:bp.latest,source:sp.latest},finalized={base:bp.finalized,source:sp.finalized};
  const call=async(R,to,I,name,args=[],block)=>I.decodeFunctionResult(name,await R('eth_call',[{to,data:I.encodeFunctionData(name,args)},toQuantity(BigInt(block))]));
  const bcall=(to,I,name,args=[],block=heads.base.number)=>call(B,to,I,name,args,block),scall=(to,I,name,args=[],block=heads.source.number)=>call(S,to,I,name,args,block);
  const runtimeHashes={};

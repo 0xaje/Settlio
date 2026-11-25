@@ -48,10 +48,10 @@ Live read-only checks at `22:09 UTC` on `https://lasna-rpc.rnk.dev` observed `la
 - Fetches `latest` and `finalized` in `Promise.all(...)` and asserts `BigInt(finalized[chain].number) <= BigInt(heads[chain].number)`.
 - Under a 1-block advancement between the two responses, this throws `'Unstable finalized checkpoint'` even on a healthy node.
 
-**Required fix (to be implemented & tested when `node_modules` / test runner is available):**
-1. Query `eth_getBlockByNumber('finalized', false)` **before** `eth_getBlockByNumber('latest', false)` on each chain (sequentially per chain, Base and Source still in parallel), so `latest` is never sampled earlier than `finalized`.
-2. If `finalized.number > latest.number` still occurs on a load-balanced endpoint, allow **at most 1 re-fetch** of `latest` after `finalized` rather than silently downgrading `finalized` to `latest`, and still fail closed if `finalized > latest` persists or if `finalized` regresses.
-3. Add a unit test in `test/renewable-reader.test.cjs` simulating a 1-block Lasna `finalized > latest` skew on initial concurrent read and verifying fail-closed behavior if persistent skew remains.
+**Implemented & locally verified (25 November 2026) in [`renewable-reader.cjs`](../script/renewable-reader.cjs#L48-L51):**
+1. Queries `eth_getBlockByNumber('finalized', false)` **before** `eth_getBlockByNumber('latest', false)` on each chain (Base and Source in parallel), preserving `rawLatest` (`bh`/`sh`) for gas-price base-fee comparisons.
+2. If `BigInt(f.number) > BigInt(l.number)`, performs **at most 1 re-fetch** of `latest` rather than silently downgrading `finalized` to `latest`, and still fails closed with `'Unstable finalized checkpoint'` if skew persists.
+3. Regression coverage in [`test/renewable-reader.test.cjs`](../test/renewable-reader.test.cjs) verifies both 1-block transient skew recovery (`latestCalls === 2`, `canGrant === false`) and persistent skew rejection (`Unstable finalized checkpoint`). Targeted suite `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **19/19** (144.48s).
 
 ---
 
