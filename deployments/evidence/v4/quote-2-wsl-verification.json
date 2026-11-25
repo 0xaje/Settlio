@@ -1,0 +1,24 @@
+{
+  "provenance": "User-pasted Ubuntu terminal output in this conversation; independently collected public bundle remains separate.",
+  "command": "npm run verify:release:v4 -- 2",
+  "repositoryCommit": "bcd656520c2bb08a9a28770c7f2dd61f2868e615",
+  "verifiedAt": "2026-11-25T08:54:41.984Z",
+  "readOnly": true,
+  "policyVersion": 4,
+  "quoteId": "2",
+  "asset": "USDC",
+  "releaseUnits": "1000000",
+  "outcome": "Released",
+  "releaseAtUTC": "2026-11-25T08:33:41.000Z",
+  "schedulerClosed": true,
+  "currentAssetBalance": "0",
+  "currentAssetLiability": "0",
+  "admissionSlotClosed": true,
+  "schedulerIdle": true,
+  "uniqueRetryAttribution": false,
+  "limits": [
+    "User's regenerated local snapshot bytes were not supplied or substituted for the independently collected public bundle.",
+    "Matching requests and deliveries do not uniquely attribute protocol return reports.",
+    "This terminal result does not prove continuous browser closure, service delivery, future funding or full M2 acceptance."
+  ]
+}

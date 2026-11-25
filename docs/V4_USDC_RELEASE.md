@@ -55,3 +55,7 @@ The 46.4333-second recording shows Released around 12 seconds while the page is 
 Do not pay quote 2 again. Its credit is consumed and its slot closed. No generic quote-3 grant is authorized by the existing quote-2 command. V4 refund/expiry/recovery/admission and remaining M2 acceptance gates stay open.
 
 Validation for this checkpoint: `npm test` passed 165/165, with zero failed, skipped or cancelled; `npm run build:web` passed TypeScript and Vite production build. Existing >500 kB bundle warning remains. Focused approval tests passed 3/3 and V4 ETH/USDC evidence tests passed 10/10; these are included in the full count. No browser-extension/mobile retest is claimed.
+
+## Fresh user CLI result — 25 November 2026
+
+Ubuntu reproduction passed at 2026-11-25T08:54:41.984Z. [User-terminal provenance](../deployments/evidence/v4/quote-2-wsl-verification.json) records the successful fresh result separately from the independently collected snapshot. Earlier pending reproduction text above is historical; browser closure and return-report limits remain unchanged.
