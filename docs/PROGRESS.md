@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Standalone renewable ledger implemented — 25 November 2026
+
+User authorized the next local implementation step. [Ledger acceptance](RENEWABLE_LEDGER_ACCEPTANCE.md): renewable finite grants, separate active/unsettled work, idempotent two-sided settlement, epoch/profile binding and retained replay records. Combined new-ledger/existing-admission tests passed 10/10; Solidity 0.8.29 compilation passed (4,751-byte runtime). These are local fixture checks only. No public operation or V4 change. Escrow/source/receiver integration and economics remain pending; M2 stays open. Next: local escrow integration with atomic principal-safety tests.
+
 ## Renewable admission planning — 25 November 2026
 
 The user's continuation approves the operating-model direction for implementation planning: renewable finite sponsorship and bounded unsettled cross-chain work. [Implementation plan](RENEWABLE_ADMISSION_PLAN.md) defines components, invariants, failures and acceptance tests. This does not approve numeric production settings, public operations or deployment. Current V4 and its six proofs remain unchanged; M2 remains open. Planning checks only; no new test/build result.
