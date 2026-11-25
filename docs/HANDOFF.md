@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Local fee commitment accounting verified — 25 November 2026
+
+[Commitment acceptance](RENEWABLE_COMMITMENT_ACCEPTANCE.md): independent source/destination allowances now remain reserved across grant/admission/terminal states until reconciled settlement. Revisioned atomic journals and exclusive locks prevent competing writers from promising the same local backing. Final targeted checks: 18/18 passed (14 new accounting cases plus four cost-review cases), including a two-process race and normal npm inspection. Last full suite remains 295/295; no new full-suite/build/public-funding claim. This is a local sponsor guard using attested inputs, not on-chain monetary enforcement or independently verified balances; canGrant remains false. No production journal, grant, transaction or contract change. M2 remains OPEN. Next: verified read-only snapshot/event reconciliation against the local V5 stack; no spending or deployment authorized.
+
 ## Local adaptive timer verified — 25 November 2026
 
 [Timer acceptance](RENEWABLE_TIMER_ACCEPTANCE.md): V5 uses an earliest-deadline heap and explicit opt-in coarse/medium/fast CRON tiers; fast-only mode remains available. Final `npm test`: 295/295 passed, zero failures/skips/cancellations; all four renewable contracts compiled below EVM limits. A 128-item queue and exact timer switches were checked locally. Live coarse-event read attempt was unavailable; no public verification is claimed. Offline cost scenarios stay an explicitly labelled always-fast baseline. V4, balances and public evidence are unchanged. M2 stays OPEN. Next: local fee-backed commitment accounting; live timer/profile and deployment decisions remain separate, with no spending authorized.
