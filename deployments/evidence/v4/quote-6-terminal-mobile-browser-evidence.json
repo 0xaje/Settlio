@@ -1,0 +1,64 @@
+{
+  "reviewedDate": "2026-11-25",
+  "scope": "User-provided visual evidence for quote-6 terminal display and emulated narrow-screen rendering; independent from RPC proof.",
+  "assets": [
+    {
+      "filename": "image(20261125-153448).png",
+      "sha256": "fd769ccac53c2d9a290a48d8aaa4971ccc68d9db3b434aacadeb72852dee0ad3",
+      "width": 545,
+      "height": 657,
+      "observed": "Full quote-6 terminal screenshot: Expired, payment explicitly unavailable, complete service terms, original amounts and scheduler completion. Only Copy quote link is visible in the payment summary."
+    },
+    {
+      "filename": "image(20261125-153740).png",
+      "sha256": "7653d93a27fa67fab2ebec8697ac095db6466bc2e260d776cf743effd5d805f6",
+      "width": 390,
+      "height": 633,
+      "observed": "Narrow Quotes page top: navigation, connected merchant wallet ending 288E, explanatory text and New quote control fit the visible width."
+    },
+    {
+      "filename": "20261125-1538-40.4010958.mp4",
+      "sha256": "6ccec4b21ec06d4ef60f8784160d9dd9ceb818de30f006d72b43d44a7265c726",
+      "durationSeconds": 24.3333,
+      "width": 1920,
+      "height": 1020,
+      "emulatedViewport": {
+        "width": 390,
+        "height": 644
+      },
+      "observed": "Chrome Responsive toolbar explicitly shows 390 x 644. User scrolls quote cards, opens quote 6 with a terms fragment, scrolls terminal quote, and expands Contract details."
+    }
+  ],
+  "visualFindings": [
+    "Quote cards and navigation are readable in the shown emulated viewport.",
+    "Quote 6 title and wallet addresses wrap; Expired and payment-blocked message are visible.",
+    "Payment summary stacks above service/payment terms, showing 0.0001 test ETH deposit, 0.0003 total and 0.0002 remaining; Copy quote link is visible.",
+    "No payment, approval or policy-retry control is visible for the expired quote.",
+    "Automation status shows completion, attempt 1 of 6, and funding caveats; Contract details expands with fingerprint wrapping and explorer link.",
+    "No obvious horizontal clipping appears in the reviewed screens; no DOM overflow measurement or physical-phone test was made."
+  ],
+  "consoleFindings": [
+    {
+      "finding": "MetaMask reports failure setting the global Ethereum provider because window.ethereum has only a getter; its message identifies another wallet extension as a likely cause.",
+      "attribution": "Message matches MetaMask provider-injection source; exact conflicting extension and complete cause not independently identified.",
+      "reference": "https://github.com/MetaMask/providers/blob/main/src/initializeInpageProvider.ts",
+      "status": "OPEN: clean single-provider reload/reproduction required."
+    },
+    {
+      "finding": "MaxListenersExceededWarning and ObjectMultiplex orphaned-data warnings reference content-script/inpage extension files.",
+      "attribution": "Observed only; not all warnings are conclusively attributed or resolved.",
+      "status": "OPEN: distinguish fresh warnings from old console history after a clean reload."
+    }
+  ],
+  "copyDefect": {
+    "observed": "Expired quote incorrectly labels its summary Deposit due today.",
+    "repair": "For terminal or deadline-passed quotes the summary now says Deposit amount; only a still-payable awaiting-deposit quote says Deposit due today.",
+    "validation": "Fresh web build recorded separately; post-repair user visual reproduction pending."
+  },
+  "limits": [
+    "Emulated Chrome viewport only; not a physical mobile wallet or complete mobile-browser compatibility test.",
+    "No approval/payment transaction, wallet signature, clipboard result, storage-denied browser case or continuous tab closure was demonstrated.",
+    "The recording does not show a build commit or configured deployment address; context and RPC proof are separate.",
+    "Raw user media is not published to the Git repository."
+  ]
+}
