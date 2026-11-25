@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Renewable admission planning — 25 November 2026
+
+The user's continuation approves the operating-model direction for implementation planning: renewable finite sponsorship and bounded unsettled cross-chain work. [Implementation plan](RENEWABLE_ADMISSION_PLAN.md) defines components, invariants, failures and acceptance tests. This does not approve numeric production settings, public operations or deployment. Current V4 and its six proofs remain unchanged; M2 remains open. Planning checks only; no new test/build result.
+
 ## Operating-model proposal prepared — 25 November 2026
 
 [Ongoing admission and funding proposal](OPERATING_MODEL_PROPOSAL.md) is ready for review. Recommended direction: renewable sponsored finite batches with bounded unsettled cross-chain work; no permanent six-booking product cap. This is proposed design only. Exact quotas, duration profiles and pricing remain undecided; no contracts, operating commands or deployment permissions changed. M2 remains open and replacement deployment preparation remains cancelled. Next: user policy review before implementation.
