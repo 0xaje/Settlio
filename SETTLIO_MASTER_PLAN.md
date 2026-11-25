@@ -1,5 +1,9 @@
 # Settlio master build plan
 
+## Quote 6 post-repair desktop UI check confirmed — 25 November 2026
+
+Two desktop screenshots (`localhost:5174/?quote=6#terms=...`, connected `0xbf63...288E`) visually confirm the post-repair **"Deposit amount"** (`0.0001 test ETH`) label on expired V4 Quote 6, alongside `Expired` status, `Copy quote link`, scheduler completion, and absent payment/retry controls. Clipboard copy and clean console are recorded as **user-reported** working well (no console screenshot attached). Physical-mobile wallet testing, continuous browser-closed interval capture, and V5 profile/execution gates remain open; M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## V5 reader incremental checkpointing verified locally — 25 November 2026
 
 [`renewable-reader.cjs`](script/renewable-reader.cjs) now emits and accepts `settlio-renewable-checkpoint/v1` incremental checkpoints (`checkpoint` / `previousCheckpoint`) bound by `checkpointHash` to `identity`, `profileHash`, and `manifestHash`, verifying live canonical block hashes on resume before scanning `[prev + 1, finalized]`. Targeted `node --test test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **20/20** (zero failures/skips/cancellations, 175.70s), including incremental reconciliation beyond a full-scan `maxPages=1` limit and rejection of tampered/reorged checkpoints. No new full `npm test` run, public transaction, or token spend is claimed; `canGrant` remains `false` and M2 remains OPEN. Next: dry-run local Anvil issuer orchestrator or read-only V4 Quote 6 browser checks on `localhost:5174`. Earlier entries below are historical checkpoints.

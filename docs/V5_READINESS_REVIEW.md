@@ -23,7 +23,7 @@ On Base Sepolia (`84532`) and Reactive Lasna (`5318007`), the immutable V4 deplo
 | Unpaid scheduled expiry | Quote 5 CRON/request/authenticated expiry, closed jobs, zero custody ([V4_UNPAID_EXPIRY.md](V4_UNPAID_EXPIRY.md)) | Qualified closure/reopening video; continuous closed interval not recorded |
 | Controlled owner pause, retry, restore & expiry | Quote 6 owner pause, consumed participant retry, restore, CRON/request/authenticated expiry ([V4_CONTROLLED_RECOVERY.md](V4_CONTROLLED_RECOVERY.md)) | Controlled owner recovery, not an untouched unattended run or protocol outage; exact relayed retry caller not traced |
 | Finite V4 admission exhaustion & zero residual principal | All 6/6 immutable lifetime admissions consumed, all 6 quotes terminal, zero customer principal held | Permanent cap by design; cannot be reset by more tokens or another wallet |
-| Desktop capacity & emulated narrow-screen terminal UI | 1920×1020 exhausted-capacity recording ([provenance](../deployments/evidence/v4/desktop-capacity-browser-evidence.json)); 390×644 Chrome emulation of terminal Quote 6 ([provenance](../deployments/evidence/v4/quote-6-terminal-mobile-browser-evidence.json)) | Blank-form capacity check only; not physical-mobile wallet testing; clipboard copy and post-repair `"Deposit amount"` label check remain pending |
+| Desktop capacity & terminal UI | 1920×1020 exhausted-capacity recording ([provenance](../deployments/evidence/v4/desktop-capacity-browser-evidence.json)); 390×644 Chrome emulation of terminal Quote 6 ([provenance](../deployments/evidence/v4/quote-6-terminal-mobile-browser-evidence.json)); **25 November 23:46 WAT desktop screenshots** confirm post-repair **"Deposit amount"** label on Quote 6 | Blank-form capacity check only; not physical-mobile wallet testing; clipboard copy and clean console reported working by user (no console screenshot attached) |
 | Wallet extension conflict | Marked **FIXED AS REPORTED BY USER** after last recording | No independent clean-console recheck supplied |
 
 **What V4 does NOT satisfy for M2 closure:** ongoing renewable admission/funding policy, strict uninterrupted both-session-closed unattended proof, physical-mobile wallet/approval retesting, and post-repair UI visual checks.
@@ -99,11 +99,9 @@ No production V5 profile has been approved. The following parameters and economi
 4. **Persistence & availability:** `renewable-commitments.cjs` uses single-host filesystem locks (`renewable-commitments.local.json`). Multi-host or HA operation would require a single authoritative coordinator or distributed transactional store, plus an explicit migration procedure for profile/identity changes that preserves all outstanding holds.
 5. **Exhausted acknowledgement recovery policy:** After 9 cumulative source acknowledgement attempts (3 initial + 2 participant recovery signals), `SettlioReactiveV5` sets `needsAttention` and stops CRON. Base work capacity remains reserved (`unsettled`) until an authenticated closure arrives; an operator/evidence-backed reconciliation runbook is still needed for permanently lost cross-chain messages.
 6. **Remaining M2 UI & browser gates:**
-   - Post-repair visual confirmation of `"Deposit amount"` on expired/terminal quotes.
-   - Clipboard copy verification on share links.
-   - Independent clean-console verification of the user-reported wallet-extension fix.
    - Physical-mobile browser/wallet usability and actual wallet approval/payment retest (blocked on V4 by 6/6 exhaustion; requires either local Anvil UI testing or a separately authorized future deployment).
    - Continuous browser-closed automation interval recording.
+   - *(Completed/cleared 25 November 23:46 WAT: desktop Quote 6 screenshots confirm post-repair `"Deposit amount"` label; user-reported clipboard copy and clean console working well without separate console screenshot.)*
 
 ---
 
