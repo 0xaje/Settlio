@@ -1,0 +1,18 @@
+{
+  "recording": "20261125-1101-41.9878810.mp4",
+  "durationSeconds": 50.3333,
+  "sha256": "f89a30731e325e47663e852bd3467e66df1cd2be72cc42e5737dccfe4477abd4",
+  "review": "Sampled five-second overview across the recording; not every frame.",
+  "observations": [
+    "Creation confirmation notification, quote 5 and payment deadline 12:03 / refund cutoff 12:08 Africa/Lagos are visible.",
+    "Quote initially shows unpaid test ETH deposit and automatic checks scheduled; merchant-release opt-in is unchecked.",
+    "Around 30 seconds the Settlio quote tab is absent; the recording interface shows a Pause recording control.",
+    "The quote is subsequently reopened/loading and shows Expired with scheduler completion."
+  ],
+  "limits": [
+    "The 50-second recording does not continuously capture the full wall-clock wait from creation to expiry.",
+    "Qualified closure/reopening evidence only; continuous closure across the actual callback timestamp is not established.",
+    "No payment/retry is shown in sampled frames; the independent RPC event-history check supplies separate evidence of no deposit/participant retry.",
+    "RPC cannot verify browser actions. Raw video was not uploaded to GitHub."
+  ]
+}

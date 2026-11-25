@@ -15,10 +15,15 @@ const reactionI=new Interface(['event PolicyCallbackRequested(uint256 indexed qu
 const systemI=new Interface(['event CallbackRequest(uint256 indexed chainId,address indexed sender,address indexed recipient,uint8 version,bytes configuration)']);
 const recordConfig='tuple(uint256 chainId,address recipient,uint64 gasLimit,bytes payload)';
 function event(receipt,iface,address,name,id){return receipt.logs.filter(l=>same(l.address,address)&&l.removed!==true&&l.transactionHash?.toLowerCase()===receipt.transactionHash?.toLowerCase()&&l.blockHash?.toLowerCase()===receipt.blockHash?.toLowerCase()&&BigInt(l.blockNumber)===BigInt(receipt.blockNumber)).map(l=>{try{return {log:l,event:iface.parseLog(l)};}catch{return null;}}).find(x=>x?.event?.name===name&&(id===undefined||x.event.args.quoteId===id));}
-function validateBundle(b){
- const id=BigInt(b.quoteId),j=b.journal;
- check(id>0n&&j.milestone==='M2'&&j.schemaVersion===1&&j.policyVersion===3&&j.baseChainId===BASE&&j.reactiveChainId===LASNA,'Wrong M2 quote/journal identity.');
- const escrow=getAddress(j.escrow),reactive=getAddress(j.contracts.SettlioReactive.address),receiver=getAddress(j.contracts.SettlioCallback.address);
+function validateBundle(b,expectedV4=null){
+ const id=BigInt(b.quoteId),j=b.journal;let identity;
+ if(expectedV4){
+  check(id>0n&&expectedV4.policyVersion===4&&b.policyVersion===4&&b.identity&&['escrow','reactive','receiver'].every(k=>same(b.identity[k],expectedV4[k])),'Wrong explicit V4 expiry identity.');identity=expectedV4;
+ }else{
+  check(id>0n&&j.milestone==='M2'&&j.schemaVersion===1&&j.policyVersion===3&&j.baseChainId===BASE&&j.reactiveChainId===LASNA,'Wrong M2 quote/journal identity.');
+  identity={escrow:j.escrow,reactive:j.contracts.SettlioReactive.address,receiver:j.contracts.SettlioCallback.address};
+ }
+ const escrow=getAddress(identity.escrow),reactive=getAddress(identity.reactive),receiver=getAddress(identity.receiver);
  check(BigInt(b.networks.base)===BigInt(BASE)&&BigInt(b.networks.lasna)===BigInt(LASNA),'RPC network mismatch.');
  for(const r of [b.creation,b.cron,b.reaction,b.callback])check(r&&BigInt(r.status)===1n&&Array.isArray(r.logs),'Missing or unsuccessful evidence receipt.');
  check(same(b.wiring.escrowReceiver,receiver)&&same(b.wiring.receiverEscrow,escrow)&&same(b.wiring.receiverProxy,PROXY)&&same(b.wiring.receiverSender,reactive),'Callback authentication wiring mismatch.');
