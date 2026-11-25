@@ -1,0 +1,1026 @@
+{
+  "analysisScriptSha256": "fd20b9214aad02dedc00889c24195f3e8ba3853681491d3ee776694cd397203e",
+  "mode": "offline archived evidence and hypothetical sensitivity",
+  "readOnly": true,
+  "canGrant": false,
+  "admissionDecision": "NOT_EVALUATED",
+  "inputs": [
+    {
+      "file": "deployments/evidence/v4/next-quote-budget-observation.json",
+      "sha256": "1ffe510720ec53aeae4552680a2d947ef867e38767f2640f0be5f9185faea15f"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-1-release-verified.json",
+      "sha256": "a6a8b9079159c0df879b36c7db09fc6ff842f8f63daf93a97e7b5a03bba3a069"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-2-release-verified.json",
+      "sha256": "dc086b405f0825d7845ca6f3704054614a9938935e66f159ace5a2f469c0a68e"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+      "sha256": "aa4462caf6831301f1ac149b9aac4978866f6c2cd003c9eace4d8bae3e1a6b4e"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+      "sha256": "68ff719b7da991ca27043aa6686ce362e68d804f9328555289a671d5bd0fe680"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+      "sha256": "bc90645bfc71a47dca923f4a18107f81abf07cfb9a197f1570b1c6b2c87d9342"
+    },
+    {
+      "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+      "sha256": "916ad547a3262689ab994fc672171dea971d084c222f42946eb538ae6f6fd3be"
+    },
+    {
+      "file": "packages/contracts/renewable/SettlioReactiveV5.sol",
+      "sha256": "47c211d781868ea1149e27001e9029c437ff3ebd8acf505879f805d995e0221a"
+    },
+    {
+      "file": "packages/contracts/renewable/SettlioEscrowV5.sol",
+      "sha256": "2ae2395f961e94fe52a0c6852524b1af7b5e3c52fd9b3ebfa57da1ecdfa8a0e8"
+    }
+  ],
+  "archivedFeeReference": {
+    "file": "deployments/evidence/v4/next-quote-budget-observation.json",
+    "observedAtUnix": "1795548136",
+    "recordedAtUTC": "2026-11-24T19:22:16.000Z",
+    "sourcePriceWei": "100000000000",
+    "destinationPriceWei": "6000000",
+    "fresh": false
+  },
+  "receiptInventory": {
+    "receipts": [
+      {
+        "hash": "0x05a8c90f18505a83a6409d0d60202e8b33f40737bd9970e7c70d23966a6de77c",
+        "chainId": "84532",
+        "blockHash": "0xf5a321bd78bd6f59ce6e6025938acd9a316966a07d767ac2300f8c43291433d7",
+        "gasUsed": "273809",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "5113",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.deposit.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1642854273809",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x0e2d517eb5315601012d9db7d0810e53f2b2b1da2b087c26fb12e80a67a07c4d",
+        "chainId": "5318007",
+        "blockHash": "0x1bd8d954dab58fe6b16c1d82f7793e6b781dd981ff77b6bba9bb81176c806d3c",
+        "gasUsed": "45157",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0xfa1f509e21040bb4fe266b79e9583073914dfe6e",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.control.pause.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x19dc9658753aded4496f6de1ba24781677c66b1b302c93ebe8f73c4ed7ada5fd",
+        "chainId": "84532",
+        "blockHash": "0x5a85eaad22b96e96d1474242c6abd66addfc5982089a1d99d590fdf794cfdf2b",
+        "gasUsed": "514593",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "2845",
+        "from": "0xc066ac5d385419b1a8c43a0e146fa439837a8b8c",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.creation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "3087558514593",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x1ea3654d1081ad1593f0a14233a52896539d8a43728fabf64feb020aa5c8720e",
+        "chainId": "84532",
+        "blockHash": "0x1eef49385a6a663d2268a9cf98c342b825a9dfea07f29c3d8b1dab570b45630f",
+        "gasUsed": "477291",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "479432998864",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.creation"
+          }
+        ],
+        "envelopeExecutionWei": "2863746477291",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x282dfd1d28ed6d2e3e3904a0a9944c9228decc4acd36fc9bd85f6bbe8a888a1f",
+        "chainId": "84532",
+        "blockHash": "0x9aa13fa005a5df46f071fbc0b3a86fdea754be3abaff5e81c4f8b6e6505f9e00",
+        "gasUsed": "71130",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "357",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.confirmation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "426780000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x2bb12c7d975ddffd62b1e7bdb7bd0ca0925d3604766a01b7f1a899f6144f47a5",
+        "chainId": "5318007",
+        "blockHash": "0xbe443b9d6a66aff6eb38c9d86d8bcdf7784a80e57ccd7eb43e30a6043e3cd1d7",
+        "gasUsed": "117236",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.reaction"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x36c086ac6797e5c8c0eafcfa30ce95a1ee4d43442ea23411c1871896dbd7756f",
+        "chainId": "84532",
+        "blockHash": "0xd82dd6aad42fa6bc215b9250e6a9c3d2d3c74da8df012eef4fca40617b3b9777",
+        "gasUsed": "41415",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "70151657589",
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0x935ef09f57b68d08fd9fd315755b7daf49871486",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.grant.receipt"
+          },
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.control.grant.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "248490000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x4566532304188e5689a86ab2a37f4b8a1ef5f99d42ace62d2fcc2262a5233de3",
+        "chainId": "84532",
+        "blockHash": "0xedf23623266f32342a0307a7f60f9423dceb2956fabace8b77599347e39df2d6",
+        "gasUsed": "71130",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "5606",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.confirmation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "426780000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x45d1ec116a5589e05c19fcb60e3fc7cdb43793962be4c564ee29825d47921213",
+        "chainId": "84532",
+        "blockHash": "0xed802fe84395da078f310e40f52eea0c34c0edbeb02d715b332dcfc08f12d02f",
+        "gasUsed": "318811",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "19165",
+        "from": "0xb42f812a44c22cc6b861478900401ee759ebead6",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.deposit.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1912866318811",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x47f31f9fee141a75042e6da7aac9e3ab98f7ee2c6a67b89b713f31081c4a8c11",
+        "chainId": "84532",
+        "blockHash": "0x399928cfda381eace28e5e19619f409babde6c93a3c2cd32e7071a8c00e4af6a",
+        "gasUsed": "125701",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "6739",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.refund.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "754206000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x4a0dc4b82405a48223d6badf421edb888605b17365a3cee52bf63fcd0a69337b",
+        "chainId": "84532",
+        "blockHash": "0xf2e8e910682448e388805bfdf620fbede4c6f8d9954b4ae79ba0f52274828653",
+        "gasUsed": "218162",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "1174",
+        "from": "0xb42f812a44c22cc6b861478900401ee759ebead6",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.extraApproval.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1308972218162",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x4b127fc6fd7ee8c833765acd83430d104d60d5124b866536a3db645d80f290da",
+        "chainId": null,
+        "blockHash": "0x7c8559f7dcf7b770a5fdd90b9d51dcdf46e2dafa00e0034de5d2722a629fc3e4",
+        "gasUsed": "26780",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x5788d2770d4a9658ea71472df25a23da6079e881b0b4c5f163f1e92d2c9b17ad",
+        "chainId": "84532",
+        "blockHash": "0x69a9c64b56bf913b88aba86d1afdd855b9b7e576c166318180e8469027bc499a",
+        "gasUsed": "90354",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "16991",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+            "location": "$.bundle.callback"
+          }
+        ],
+        "envelopeExecutionWei": "542124000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x5a9359dc6952863c825777f06443e604ee7918008738491c75ea5a0b7d7db125",
+        "chainId": null,
+        "blockHash": "0x154cbe407202f86a6978872b9a6df38e22e6f2a181660c1efee229ec9052bf19",
+        "gasUsed": "25425",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+            "location": "$.bundle.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x5b33a769f3969dda1df59fac02ba012f02cec5c54427ccb37035f2b3023a1a01",
+        "chainId": "84532",
+        "blockHash": "0x7d1f83e2ca2ea7c8192f89af2c6e9358597b5fa869e2b088041445abbd79402b",
+        "gasUsed": "218162",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "16835",
+        "from": "0xb42f812a44c22cc6b861478900401ee759ebead6",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.approval.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1308972218162",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x64ee9e8eb784446cf8c0ff5041e377260c56944b53a6540116ebada9921359fe",
+        "chainId": null,
+        "blockHash": "0x0fc76bb66d8ffe68b386b082e7cab3e49625c647741a5bafa964dbf8d86d6ef2",
+        "gasUsed": "25425",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.authentication.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x672674d8c0f7c239e44491b857d610c723fbe69121c3e90208478d5d9daee8c3",
+        "chainId": "5318007",
+        "blockHash": "0xbc7ecd4b42585cf607a28fc2902b517c43df8bf8d4e5990e68061270edbb7ae2",
+        "gasUsed": "117248",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.additional.refundReactionReceipt.result"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x6ae3d03eceba4224ee93dd230a475de8ae5efd2c6caf2151e32edb52bed21680",
+        "chainId": "5318007",
+        "blockHash": "0x10105c36ba7ab98e74c8a27cb25d244cb14c9c1632fa5f5f5f0ffcdf017c6b26",
+        "gasUsed": "117248",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.releaseReaction.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x77a59afba07fdca0115eef2c961c3b23f0eecfaa13ba047413c1961902e83507",
+        "chainId": "5318007",
+        "blockHash": "0xd10620ac21b213730ede086edc0151980de9d5377ca0596f775eaaff41c9e420",
+        "gasUsed": "117248",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.additional.refundReactionReceipt.result"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x7d10c2c23838bee56bb8becb2558ffacf4ed96f7bbb160da614e842f5ac0514d",
+        "chainId": "84532",
+        "blockHash": "0x4896c9c45a87c65d75ffb5c1293fa1d61c08efa38537f7021e153fe87b31c998",
+        "gasUsed": "194024",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "21334",
+        "from": "0xc066ac5d385419b1a8c43a0e146fa439837a8b8c",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.cancellation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1164144194024",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x7f382d7194594201d476139169e38fd5726d21ea07f3c2b230f3e3009625118b",
+        "chainId": "84532",
+        "blockHash": "0x1dbf535c339a1e4d155973c5d4ae049067bcd46ada10f3ea1c441fbffc7dd225",
+        "gasUsed": "273809",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "2615",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.deposit.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1642854273809",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x80e72e14b40270466409884920a052a5bd32ee1a686169745217532f16ba5773",
+        "chainId": "84532",
+        "blockHash": "0x2b0ea2d5d3d8e8d31405f65617c24b4777b0430805ef2d9250259fbba5ab26cf",
+        "gasUsed": "90354",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "186661480941",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.callback"
+          }
+        ],
+        "envelopeExecutionWei": "542124000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x8681c10cea33fa36c0a906cc9195590d9fa3f71b8030296f8a624bb051c94422",
+        "chainId": "84532",
+        "blockHash": "0x33976caf1948943de091fa54d4c5875f67c501d1be990e0a972c4a99eef941f9",
+        "gasUsed": "71130",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "1481",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.confirmation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "426780000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x9113708fad9ad2e5ed405f1ec6b80f3d0b656c9909ca3508b3d847f270d9af6f",
+        "chainId": "5318007",
+        "blockHash": "0x91609856de1eaf3a34846f8100576056d8f54a6dc0909ce9bd92c957173fc64e",
+        "gasUsed": "48574",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0xfa1f509e21040bb4fe266b79e9583073914dfe6e",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.control.resume.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0x97a4980d213b96e5cd9e3c354d70062bd1fa025e0efafbbe6f288d0729f3fa6c",
+        "chainId": "84532",
+        "blockHash": "0x0a41493cb9e0879e5251cded6dcd73d955c6430eb74e965a1185633bf79362b0",
+        "gasUsed": "193722",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "5041",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.cancellation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1162332193722",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xa8a4309466d72d7cd985825475ec24245c6466821c3898227d022a9f975c45d4",
+        "chainId": null,
+        "blockHash": "0x8135e1ac854c5468818a2650dc2e412a66dcbf07d01b8a95c62d03ea15317155",
+        "gasUsed": "25425",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xac55f94d6ad0a08058aa9211e93a14af58e721d22de26044b4903c7b3dae1fe7",
+        "chainId": "84532",
+        "blockHash": "0xa062f1fa60d0766b631b219f8cf211a7398b765532296257c0ed14f8bee0f09a",
+        "gasUsed": "41415",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "801",
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0x935ef09f57b68d08fd9fd315755b7daf49871486",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.grant.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "248490000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xad31dc37dda52adc0e65e0bc0622e8a0f8823a21ef3150716591fd4361e0c470",
+        "chainId": "84532",
+        "blockHash": "0x5cd6e93a26432b65caa1d29c8380e7f2c874e51049b8ed70ee8fa253b33a16be",
+        "gasUsed": "41415",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "19411",
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0x935ef09f57b68d08fd9fd315755b7daf49871486",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+            "location": "$.bundle.grant.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "248490000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xaf8ec945edeedd33a19d8477c79ec0762da5f8a54086d33802e13fd8d39cb2f5",
+        "chainId": null,
+        "blockHash": "0x7b5e9cfb19c747b4d040a3deabe65a48ae752cfec998f19096fd0cd713a4b2f9",
+        "gasUsed": "25425",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.authentication.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xc0525b7d0c4c47adcd4059427aa39118bb085812d911e88c093feacd7b370314",
+        "chainId": "84532",
+        "blockHash": "0xe1ad3111ed61c1bf4469295c6004fecafc2b5d7c0ad099ac86b3aa61287f7765",
+        "gasUsed": "130201",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "465",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.release.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "781206000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xc0fb11a8fa8c8bcbbeb86bdbd1bbac56af8771e5d86d5943f03a6c8ef209f587",
+        "chainId": "5318007",
+        "blockHash": "0xebaf132679a270affdefef240976069e4a61d5752f26c5bf354d475e9acc5948",
+        "gasUsed": "101884",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.confirmationReaction.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xc82350b3056adcd4ef5a449bb7692dfb162a7393033815f4316749b6637fd913",
+        "chainId": "5318007",
+        "blockHash": "0x6215da5b7fd18fd1c12c3cc5ce1ddf502d4cf417559481260573ab70c7e223d3",
+        "gasUsed": "101872",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.additional.confirmationReactionReceipt.result"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xc842c94e1036a3d1190108b7c9205c1986035129a64e6b63231261cac7bd31a2",
+        "chainId": "84532",
+        "blockHash": "0x6edc94cef089913d2fd90dbfb3281db0772baabe83930ff8e58ffcdf2ccba098",
+        "gasUsed": "497366",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "4791",
+        "from": "0xb42f812a44c22cc6b861478900401ee759ebead6",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.creation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "2984196497366",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xd083d363fd6cdfe40c187483f7b5d53e4c9656b14afc3169a1d2a719623dd205",
+        "chainId": "84532",
+        "blockHash": "0x011976ffa0114e98ba4535ccbd2fa76fec675b4d2e24284192837589af64a4aa",
+        "gasUsed": "41415",
+        "status": "1",
+        "effectiveGasPrice": "6005162",
+        "l1Fee": "3367",
+        "from": "0xbf6301d7bca9f23a63a2d1ed513d5120dbb2288e",
+        "to": "0x935ef09f57b68d08fd9fd315755b7daf49871486",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.grant.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "248703784230",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xdc5717617ee33a21c6c28f148a4b01c7a04e542a3253f7421f027839bcafc1cd",
+        "chainId": "5318007",
+        "blockHash": "0x9f5f914ce698e1672199839e910124753a2eb72f65eccf1434e7c4586dd84bb5",
+        "gasUsed": "117236",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+            "location": "$.bundle.reaction"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xdc68ff6e8e966e275c96bb9d3c103fadfbd728651a2ed300508c56ca153793f7",
+        "chainId": "5318007",
+        "blockHash": "0x9f8267a5271e294d2a20db609b9186636fc893bbb7606cd50b8a28954dcd6612",
+        "gasUsed": "117248",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.releaseReaction.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xdeb16540981772b9f9993c2527bff85fcefc029b98ce444c309aae24825c4a7a",
+        "chainId": "84532",
+        "blockHash": "0x15aa0442faac3921df603682a5dbf3120f995bf6e52a6a48fbec3a1e98c33378",
+        "gasUsed": "71130",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "762",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.confirmation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "426780000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xdf474974bab7427efe7db3dc4d774f7f0fe78f59ca9ce01c130c91fa763f89a6",
+        "chainId": "84532",
+        "blockHash": "0xe828c72668c3bedeb80118af22510b6062f5914ac2c7e17795ae44456fba1876",
+        "gasUsed": "571540",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "17963",
+        "from": "0xc066ac5d385419b1a8c43a0e146fa439837a8b8c",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-4-refund-verified.json",
+            "location": "$.bundle.creation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "3429240571540",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe015e59aa98c8956a158bab3ac669b8313087da7f787e66a8e018bad6797c5a0",
+        "chainId": "84532",
+        "blockHash": "0x2100f3f39f06a31a3aed8b79efeb4e21dc6b82a8d4274675da1b9b858a2b880f",
+        "gasUsed": "571214",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "1418",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.creation.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "3427284571214",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe543824cf95ec195efc92a93ba6272cbe37cc2e2577c2b1205e2a3f2a23e8cb3",
+        "chainId": "84532",
+        "blockHash": "0xff0c1831b42021f9182ae69706c2eb63b6a2c8c54a18d995c6b5156f4acb3a97",
+        "gasUsed": "477430",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "59670",
+        "from": "0xb42f812a44c22cc6b861478900401ee759ebead6",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-5-expiry-verified.json",
+            "location": "$.bundle.creation"
+          }
+        ],
+        "envelopeExecutionWei": "2864580477430",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe5d07c0371dcad4787f19e1e86d859e3fd195dded3797745366459ec8e429737",
+        "chainId": null,
+        "blockHash": "0xc055294df3536b544c5671a29b259d0a607b9d660f73bacc18ac3d2955d56b61",
+        "gasUsed": "25425",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x0000000000000000000000000000000000ffffff",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.cron"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe6339117ced8e8cef31e30fc55c51b148eb3b1f75f61c2700a9a9bbc96f7a2bf",
+        "chainId": "84532",
+        "blockHash": "0x4f96677a69bba267b0a6efe714c96b5940acb3b94d475b96fdf5ad6bb9523a98",
+        "gasUsed": "198111",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "1174",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.approval.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1188666198111",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe7341713307ec88417614b23a2fa6b5d4b74c98556719a28b9d9ce3360edc90d",
+        "chainId": "5318007",
+        "blockHash": "0x5d86877180717fe738c26bb6ddc4e02efecfe493039ce484f4131ffff8de316f",
+        "gasUsed": "101860",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.confirmationReaction.receipt"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xe97dbaef558927bfed00690711838bb7c2ad543af241be46b796334fd4bab2f8",
+        "chainId": "84532",
+        "blockHash": "0xbea71429e8d2a3926e9f3cb9ecf0e805c6bca5dbef5556154051415937bfd84e",
+        "gasUsed": "110512",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "1898",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.refund.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "663072000000",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xeba96a0c27bfaef6c23f345800cdd853a2dc85fbdd413233fbed6591a7d75159",
+        "chainId": "84532",
+        "blockHash": "0xc2ba1ee90aff96cee840f719dec2a424b40ba0b82d7e07e4597b78a68844a274",
+        "gasUsed": "318962",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "1214",
+        "from": "0xc066ac5d385419b1a8c43a0e146fa439837a8b8c",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-2-release-verified.json",
+            "location": "$.bundle.deposit.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1913772318962",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xf3114a704f13dbbb9743bcbdad1fa179d6450ac063fa50423b9e146679765d5f",
+        "chainId": "5318007",
+        "blockHash": "0xafe8f1a5973465e42beaae758af88932cac15726acde80a34081c23f6b386c0b",
+        "gasUsed": "101896",
+        "status": "1",
+        "effectiveGasPrice": null,
+        "l1Fee": null,
+        "from": "0x038e06667e42782e571eab20432b9237f9bd6b82",
+        "to": "0x8888888888888888888888888888888888888888",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-3-refund-verified.json",
+            "location": "$.bundle.additional.confirmationReactionReceipt.result"
+          }
+        ],
+        "envelopeExecutionWei": null,
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xf550fc2dbf043fb5664565f5e03b7444afc950a8da84036890ab5a32d12cf3cc",
+        "chainId": "84532",
+        "blockHash": "0xbbde3a4cdfc7a9c585d0685dd1e83729685d03621dddf0484b71b78b34b7306d",
+        "gasUsed": "208594",
+        "status": "1",
+        "effectiveGasPrice": "6000001",
+        "l1Fee": "457299125309",
+        "from": "0xb01caea8c6c47bbf4f4b4c5080ca642043359c2e",
+        "to": "0xdb9b1e94b5b69df7e401ddbede43491141047db3",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-6-recovery-verified.json",
+            "location": "$.bundle.control.retry.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "1251564208594",
+        "serviceChargeWei": null
+      },
+      {
+        "hash": "0xfae5751d4ada0e304910114e04686fbb0d7d5c27cfea19402ddcced7b21ffff4",
+        "chainId": "84532",
+        "blockHash": "0x0e91831945a11f0cdde8e656ca3b3cc2379c92b7c96f98837e5a14fb8a57ebcf",
+        "gasUsed": "114112",
+        "status": "1",
+        "effectiveGasPrice": "6000000",
+        "l1Fee": "554",
+        "from": "0xf9f61c1d3325e2d4abb55dd9e0db84f7a0d914b0",
+        "to": "0x476f44b11f5c942c58f4c8e3d0300e5710743585",
+        "references": [
+          {
+            "file": "deployments/evidence/v4/quote-1-release-verified.json",
+            "location": "$.bundle.release.receipt"
+          }
+        ],
+        "envelopeExecutionWei": "684672000000",
+        "serviceChargeWei": null
+      }
+    ],
+    "summary": {
+      "uniqueReceipts": 48,
+      "selectedBaseReceiptsWithEffectivePrice": 30,
+      "selectedBaseEnvelopeExecutionWei": "39822303309830",
+      "selectedBaseReportedL1FeeWei": "1193545481487",
+      "selectedSourceReceipts": 12,
+      "selectedSourceGasUnits": "1204707",
+      "sourceReceiptsMissingEffectiveGasPrice": 12,
+      "unknownOrUnpricedOtherReceipts": 6,
+      "scope": "Selected transaction-envelope observations only; not customer charges, protocol service billing, total project costs or a complete per-booking average."
+    }
+  },
+  "scenarioAnalysis": {
+    "scope": "Partial hypothetical sensitivity only. Not a complete reserve requirement or an admission decision.",
+    "recordedMinimumCronSeconds": "106",
+    "modeledTickSeconds": "53",
+    "sourceMaximumGasStressUnitWei": "200000000000000000",
+    "destinationCallbackGasLimitStressUnitWei": "14256000000000",
+    "acknowledgementRequestCap": "9",
+    "acceptedAcknowledgementRequestCap": "3",
+    "acknowledgementSinglePassDestinationAllowanceWei": "42768000000000",
+    "profiles": [
+      {
+        "label": "15 minutes",
+        "horizonSeconds": "900",
+        "hypotheticalAlwaysSubscribedTicks": "17",
+        "timerOnlyMaximumGasStressWei": "3400000000000000000"
+      },
+      {
+        "label": "24 hours",
+        "horizonSeconds": "86400",
+        "hypotheticalAlwaysSubscribedTicks": "1631",
+        "timerOnlyMaximumGasStressWei": "326200000000000000000"
+      },
+      {
+        "label": "7 days",
+        "horizonSeconds": "604800",
+        "hypotheticalAlwaysSubscribedTicks": "11412",
+        "timerOnlyMaximumGasStressWei": "2282400000000000000000"
+      }
+    ],
+    "assumptions": [
+      "Doubles the archived fee prices and sampled cadence; uses maximum source execution gas rather than measured idle gas.",
+      "One continuously active timer subscription during the stated horizon. Concurrent jobs share a subscription; do not multiply these ticks blindly by concurrency.",
+      "Acknowledgement delivery allowance assumes one billed destination attempt per accepted request. Protocol redelivery and changing prices can invalidate it.",
+      "No deployment, configuration, ordinary policy/confirmation traffic, full retry/backoff/drain tail, origin observations or reserve contingency is included in these partial numbers.",
+      "No V5 funding observation exists. Old V4 reserves are not available credit for another contract. Prices/cadence are historical, not current quotations."
+    ]
+  },
+  "unresolved": [
+    "No complete application service-charge ledger or reliable normal-booking average is established.",
+    "No full renewable commitment, fee-backlog or long-horizon funding admission model is implemented by this report.",
+    "No new public integration evidence, reserve transferability or future delivery guarantee is established."
+  ]
+}

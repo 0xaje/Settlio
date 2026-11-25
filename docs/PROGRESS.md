@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Offline renewable funding review — 25 November 2026
+
+[Cost and duration review](RENEWABLE_COST_REVIEW.md) and its reproducible report inventory 48 archived receipts and explicitly separate transaction-envelope amounts from unknown application service charges. Timer-only scenarios compare 15 minutes/day/week using stale recorded price/cadence, not funding recommendations. New offline-tool tests passed 4/4; normal npm output matches the saved report; all nine inputs match current repository blobs. No new full-suite claim (last full: 287/287), blockchain RPC, contract change or spending. Funding readiness is NOT established; M2 remains OPEN. Next: local timer/profile optimization and commitment accounting before any renewable funding/admission decision. Deployment preparation remains cancelled.
+
 ## Authenticated V5 closure protocol — 25 November 2026
 
 [Closure acceptance](RENEWABLE_CLOSURE_ACCEPTANCE.md): actual V5 receiver and Reactive closure path are implemented locally with proxy/source/domain/epoch/profile checks, terminal tombstones and finite recovery. Accepted acknowledgement requests leave autonomous source work; Base keeps backing reserved until actual delivery. Final `npm test`: 287/287 passed, zero failures/skips/cancellations; `npm run build:renewable` passed for all four contracts. These are isolated local fixtures, not new public integration evidence. No V4/public deployment, funding or frontend change. M2 remains OPEN. Next: read-only renewable fee/admission reconciliation and horizon review, including acknowledgement costs; no token spend or deployment preparation authorized.
