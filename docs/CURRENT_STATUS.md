@@ -1,5 +1,9 @@
 # Settlio current status
 
+## Authenticated V5 closure protocol — 25 November 2026
+
+[Closure acceptance](RENEWABLE_CLOSURE_ACCEPTANCE.md): actual V5 receiver and Reactive closure path are implemented locally with proxy/source/domain/epoch/profile checks, terminal tombstones and finite recovery. Accepted acknowledgement requests leave autonomous source work; Base keeps backing reserved until actual delivery. Final `npm test`: 287/287 passed, zero failures/skips/cancellations; `npm run build:renewable` passed for all four contracts. These are isolated local fixtures, not new public integration evidence. No V4/public deployment, funding or frontend change. M2 remains OPEN. Next: read-only renewable fee/admission reconciliation and horizon review, including acknowledgement costs; no token spend or deployment preparation authorized.
+
 ## Local renewable escrow integration — 25 November 2026
 
 [Escrow acceptance](RENEWABLE_ESCROW_ACCEPTANCE.md): separate V5 escrow now consumes ledger grants atomically and closes active capacity only with successful terminal transitions. Refund claims bypass closed admission/retry exhaustion; missing source acknowledgement retains work capacity, not customer principal. Final `npm test`: 272/272 passed, zero failures/skips/cancellations; new ledger/escrow compilation and size checks passed. These are isolated local checks, not new public evidence. V4 source/deployment, web ABI and six proofs remain unchanged. M2 stays open. Next: authenticated versioned receiver and source closure with bounded acknowledgement recovery; economics and production settings remain pending. No deployment or spending authorized.

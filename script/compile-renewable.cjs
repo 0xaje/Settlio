@@ -7,7 +7,7 @@ module.exports=function compile(name='SettlioEscrowV5',extraSources={}){
  }
  return legacy(name,sources);
 };
-if(require.main===module)for(const name of ['SettlioWorkLedger','SettlioEscrowV5']){
+if(require.main===module)for(const name of ['SettlioWorkLedger','SettlioEscrowV5','SettlioCallbackV5','SettlioReactiveV5']){
  const a=module.exports(name),runtime=a.evm.deployedBytecode.object.length/2,init=a.evm.bytecode.object.length/2;
  if(runtime>24576||init>49152)throw Error(name+' exceeds EVM size limit');
  console.log(name+' compiled locally: runtime '+runtime+' bytes, initcode '+init+' bytes. Not deployed.');

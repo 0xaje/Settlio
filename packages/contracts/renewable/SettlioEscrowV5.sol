@@ -48,6 +48,10 @@ contract SettlioEscrowV5 {
     uint32 public immutable maxRetries;
     mapping(uint256 => uint32) public retryCount;
     mapping(uint256 => uint64) public retryAfter;
+    uint8 public constant MAX_CLOSURE_RECOVERIES = 2;
+    mapping(uint256 => uint8) public closureRecoveryCount;
+    mapping(uint256 => uint64) public closureRetryAfter;
+    event ClosureAcknowledgementRequested(uint256 indexed quoteId, uint64 epoch, bytes32 profile, uint8 recovery);
     event WorkRegistered(uint256 indexed quoteId, uint64 epoch, bytes32 profile);
     mapping(uint256 => bool) public automaticRelease;
 
@@ -293,6 +297,20 @@ contract SettlioEscrowV5 {
         _sendPrincipal(quote, quote.merchant);
         admission.close(id);
         emit Released(id, quote.deposit);
+    }
+
+    /// @notice Finite terminal acknowledgement recovery, never a principal transfer.
+    function requestClosureAcknowledgement(uint256 id) external {
+        Quote storage quote = quotes[id];
+        if (msg.sender != quote.customer && msg.sender != quote.merchant) revert Unauthorized();
+        if (quote.status != Status.Refunded && quote.status != Status.Expired && quote.status != Status.Released) revert WrongState();
+        (, uint64 epoch, bytes32 profile, , , bool settled) = admission.jobs(id);
+        if (settled || closureRecoveryCount[id] >= MAX_CLOSURE_RECOVERIES || block.timestamp < closureRetryAfter[id]) revert WrongState();
+        uint256 next = block.timestamp + retryInterval;
+        if (next > type(uint64).max) revert InvalidQuote();
+        closureRetryAfter[id] = uint64(next);
+        uint8 recovery = ++closureRecoveryCount[id];
+        emit ClosureAcknowledgementRequested(id, epoch, profile, recovery);
     }
 
     /// @notice Destination state and timestamps override stale scheduler requests.
