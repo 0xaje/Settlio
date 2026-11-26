@@ -1,12 +1,12 @@
 # Settlio current status
 
+## Full regression 317/317 verified locally — 26 November 2026
+
+Added in-memory artifact caching (when `extraSources` is empty) to [`compile-admission.cjs`](../script/compile-admission.cjs). `npm run build:admission` passed for all 4 V4 contracts and full `npm test` passed **317/317** (`0` failures, `0` skips, `0` cancellations, `622.05s`). No public transactions, token spend, deployment, or M3/M4 work occurred; M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## V5 corrective hardening and verification — 26 November 2026
 
-[`renewable-issuer.cjs`](../script/renewable-issuer.cjs) now enforces verified isolated Anvil fixtures (`anvil/` `web3_clientVersion`, loopback URLs, chain/genesis/head match, pre-reconcile sponsor check) and full `GrantSet` event verification across partial consumption and unavailable receipts while preserving holds. [`renewable-reader.cjs`](../script/renewable-reader.cjs) marks incremental checkpoints `provenance: 'unauthenticated-integrity-digest'` (`integrityDigest`, not a signature) and rejects modified checkpoints even with a recomputed digest. `npm run build:renewable` passed; targeted V5 suite passed **22/22** (205.70s); full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` 240s timeout in this container), 0 skipped. No tokens spent or public transactions sent; M2 remains OPEN. Earlier entries below are historical checkpoints.
-
-## V5 corrective safety hardening verified locally — 26 November 2026
-
-[`renewable-issuer.cjs`](../script/renewable-issuer.cjs) now enforces isolated Anvil fixture verification (`anvil/` client version, loopback-only URLs, matching genesis/latest blocks, pre-reconcile sponsor check) and full `GrantSet` event verification across partial consumption, unavailable receipts, and mismatched observations while preserving holds. [`renewable-reader.cjs`](../script/renewable-reader.cjs) marks incremental checkpoints `provenance: 'unauthenticated-integrity-digest'` with `integrityDigest` (explicitly not signed) and rejects modified-plus-recomputed-digest checkpoints via on-chain/canonical checks. Targeted adversarial V5 suite passed **22/22** (`205.70s`); `npm run build:renewable` passed all 4 contracts; full `npm test` ran **316/317** passed (`0` failed, `1` `240000ms` timeout on `test/v4-operations.test.cjs:45:1` from uncached `solc` speed). No public transactions, token spend, or deployment; M2 remains OPEN. Earlier entries below are historical checkpoints.
+[`renewable-issuer.cjs`](../script/renewable-issuer.cjs) now enforces verified isolated Anvil fixtures (`anvil/` `web3_clientVersion`, loopback URLs, chain/genesis/head match, pre-reconcile sponsor check) and full `GrantSet` event verification across partial consumption and unavailable receipts while preserving holds. [`renewable-reader.cjs`](../script/renewable-reader.cjs) marks incremental checkpoints `provenance: 'unauthenticated-integrity-digest'` (`integrityDigest`, not a signature) and rejects modified checkpoints even with a recomputed digest. `npm run build:renewable` passed; targeted V5 suite passed **22/22** (205.70s); prior full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` 240s timeout in this container), 0 skipped. No tokens spent or public transactions sent; M2 remains OPEN. Earlier entries below are historical checkpoints.
 
 ## V5 corrective safety hardening verified locally — 26 November 2026
 

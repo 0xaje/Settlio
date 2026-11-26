@@ -1,13 +1,18 @@
 // Builds the separate, not-yet-deployed V4 admission contracts. Never changes V3 artifacts.
 const fs=require('node:fs'),path=require('node:path');
 const compileLegacy=require('./compile.cjs');
+const cache=new Map();
 function compile(name='SettlioEscrowV4',extraSources={}){
+ const noExtra=Object.keys(extraSources).length===0;
+ if(noExtra&&cache.has(name))return cache.get(name);
  const sources={...extraSources};
  const sourceDirectory=path.join(__dirname,'../packages/contracts/admission');
  for(const file of fs.readdirSync(sourceDirectory)){
   if(file.endsWith('.sol'))sources['packages/contracts/admission/'+file]={content:fs.readFileSync(path.join(sourceDirectory,file),'utf8')};
  }
- return compileLegacy(name,sources);
+ const artifact=compileLegacy(name,sources);
+ if(noExtra)cache.set(name,artifact);
+ return artifact;
 }
 module.exports=compile;
 if(require.main===module){
