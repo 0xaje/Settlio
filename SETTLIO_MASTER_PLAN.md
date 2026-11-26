@@ -1,5 +1,14 @@
 # Settlio master build plan
 
+## V5 corrective hardening and verification — 26 November 2026
+
+Applied three corrective engineering hardenings without spending tokens or modifying V4 contracts/evidence:
+1. [`renewable-issuer.cjs`](script/renewable-issuer.cjs): enforces `localOnly: true`, loopback-only provider URLs, `anvil/` `web3_clientVersion`, chain/genesis/latest-block match between `signer.provider` and `base`, and pre-reconcile sponsor identity check before any journal/chain mutation.
+2. [`renewable-reader.cjs`](script/renewable-reader.cjs): labels incremental checkpoints with `provenance: 'unauthenticated-integrity-digest'` and `integrityDigest` (explicitly an unkeyed SHA-256 digest requiring trusted local persistence, not a signature); retains on-chain counter/view and canonical-block reorg checks even if digest is recomputed. Corrected [operating profile spec](docs/V5_OPERATING_PROFILE_SPEC.md) wording.
+3. Grant reuse/recovery: [`renewable-issuer.cjs`](script/renewable-issuer.cjs) persists expected `observation` commitments and verifies the full `GrantSet` event (`merchant`, `epoch`, `credits`, `expires`, `profile`, `observation`), allowing legitimate partial consumption while rejecting mismatched grants and preserving holds on unavailable receipts.
+
+Checks: `npm run build:renewable` passed (all 4 V5 contracts below EVM limits); targeted V5 suite (`renewable-issuer`, `renewable-reader`, `renewable-commitments`) passed **22/22** (0 failures/skips/cancellations, 205.70s); full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` timed out at 240000ms due to uncached `solc` compile speed in this container), 0 skipped (839.28s). M2 remains formally OPEN; M3/M4 have not started. Earlier entries below are historical checkpoints.
+
 ## Local-only V5 issuer orchestrator verified — 26 November 2026
 
 [`renewable-issuer.cjs`](script/renewable-issuer.cjs) (restricted to `localOnly: true` with an explicit injected signer; zero env/key reading or public broadcast) now orchestrates `reader.collect` → `accounting.transact` → `SettlioWorkLedger.setGrant` → `reconcile` → renewable epoch 2 on isolated Anvil chains. Targeted `node --test test/renewable-issuer.test.cjs test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **21/21** (zero failures/skips/cancellations, 155.92s). No tokens spent, no public deployment/grant authorized, and M2 remains OPEN. Next: user review of [V5 readiness review](docs/V5_READINESS_REVIEW.md) and [candidate operating profile spec](docs/V5_OPERATING_PROFILE_SPEC.md) before any V5 profile, deployment, or M3 UI authorization. Earlier entries below are historical checkpoints.

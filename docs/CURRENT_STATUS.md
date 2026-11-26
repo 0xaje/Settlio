@@ -1,5 +1,9 @@
 # Settlio current status
 
+## V5 corrective hardening and verification — 26 November 2026
+
+[`renewable-issuer.cjs`](../script/renewable-issuer.cjs) now enforces verified isolated Anvil fixtures (`anvil/` `web3_clientVersion`, loopback URLs, chain/genesis/head match, pre-reconcile sponsor check) and full `GrantSet` event verification across partial consumption and unavailable receipts while preserving holds. [`renewable-reader.cjs`](../script/renewable-reader.cjs) marks incremental checkpoints `provenance: 'unauthenticated-integrity-digest'` (`integrityDigest`, not a signature) and rejects modified checkpoints even with a recomputed digest. `npm run build:renewable` passed; targeted V5 suite passed **22/22** (205.70s); full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` 240s timeout in this container), 0 skipped. No tokens spent or public transactions sent; M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## Local-only V5 issuer orchestrator verified — 26 November 2026
 
 [`renewable-issuer.cjs`](../script/renewable-issuer.cjs) (`localOnly: true`, injected local signer only) now orchestrates `reader` → revisioned `commitments` journal → `SettlioWorkLedger.setGrant` → `reconcile` → epoch-2 renewal on isolated Anvil chains. Targeted `node --test test/renewable-issuer.test.cjs test/renewable-reader.test.cjs test/renewable-commitments.test.cjs` passed **21/21** (155.92s); no live keys, public transactions, or token spend. M2 remains OPEN pending operating-profile/economic approval and remaining mobile/browser-closed gates. Earlier entries below are historical checkpoints.

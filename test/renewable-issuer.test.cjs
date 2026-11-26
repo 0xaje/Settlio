@@ -171,6 +171,7 @@ test('V5 local issuer orchestrator reserves journal intent, issues grant, reconc
 
   await f.mineFinality();
   const t0 = await f.now();
+  const revBeforeRejects = accounting.read(journalFile).revision;
   await assert.rejects(
     issuer.issueGrant({
       journalFile,
@@ -190,12 +191,53 @@ test('V5 local issuer orchestrator reserves journal intent, issues grant, reconc
       source: f.sourceRPC,
       manifest: f.manifest,
       proposal: { id: 'g1', merchant: f.identity.sponsor, epoch: '1', credits: '1', expiresAt: String(t0 + 500) },
+      signer: { getAddress: () => f.base.signers[0].getAddress(), provider: { send: async (m, p) => m === 'web3_clientVersion' ? 'Geth/v1.14.0' : f.baseRPC.send(m, p) } },
+      now: t0,
+      localOnly: true
+    }),
+    /Anvil/
+  );
+  await assert.rejects(
+    issuer.issueGrant({
+      journalFile,
+      base: f.baseRPC,
+      source: f.sourceRPC,
+      manifest: f.manifest,
+      proposal: { id: 'g1', merchant: f.identity.sponsor, epoch: '1', credits: '1', expiresAt: String(t0 + 500) },
+      signer: { getAddress: () => f.base.signers[0].getAddress(), provider: { connection: { url: 'https://base-sepolia-rpc.publicnode.com' }, send: f.baseRPC.send } },
+      now: t0,
+      localOnly: true
+    }),
+    /non-loopback/
+  );
+  await assert.rejects(
+    issuer.issueGrant({
+      journalFile,
+      base: f.baseRPC,
+      source: f.sourceRPC,
+      manifest: f.manifest,
+      proposal: { id: 'g1', merchant: f.identity.sponsor, epoch: '1', credits: '1', expiresAt: String(t0 + 500) },
+      signer: { getAddress: () => f.base.signers[0].getAddress(), provider: { send: async (m, p) => m === 'eth_getBlockByNumber' ? { ...(await f.baseRPC.send(m, p)), hash: keccak256('0x9999') } : f.baseRPC.send(m, p) } },
+      now: t0,
+      localOnly: true
+    }),
+    /does not match/
+  );
+  await assert.rejects(
+    issuer.issueGrant({
+      journalFile,
+      base: f.baseRPC,
+      source: f.sourceRPC,
+      manifest: f.manifest,
+      proposal: { id: 'g1', merchant: f.identity.sponsor, epoch: '1', credits: '1', expiresAt: String(t0 + 500) },
       signer: f.base.signers[1],
       now: t0,
       localOnly: true
     }),
     /sponsor/
   );
+  assert.equal(accounting.read(journalFile).revision, revBeforeRejects);
+  assert.equal(await f.gate.open(), false);
 
   const g1 = await issuer.issueGrant({
     journalFile,
@@ -254,4 +296,121 @@ test('V5 local issuer orchestrator reserves journal intent, issues grant, reconc
   });
   assert.equal(g2.reusedExistingGrant, false);
   assert.equal(accounting.totals(g2.state).unusedCredits, '1');
+});
+
+test('V5 issuer verifies GrantSet terms across partial consumption, unavailable receipts and rejects mismatched grants', async t => {
+  const f = await setup(t);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'settlio-issuer-adv-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const journalFile = path.join(dir, 'renewable-commitments.local.json');
+  accounting.initialize(journalFile, accounting.create(f.identity, f.profile));
+
+  await (await f.gate.setOpen(true)).wait();
+  await f.mineFinality();
+  const t0 = await f.now();
+  // Simulate a broadcast where setGrant mines on-chain, but receipt lookup fails / is unavailable.
+  const realSigner = f.base.signers[0];
+  let dropReceipt = false;
+  const dropReceiptProvider = new Proxy(realSigner.provider, {
+    get(target, prop) {
+      if (prop === 'send') {
+        return async (method, params) => {
+          if (dropReceipt && method === 'eth_getTransactionReceipt') throw Error('Local setGrant receipt unavailable');
+          return target.send(method, params);
+        };
+      }
+      if (prop === 'getTransactionReceipt') {
+        return async (...args) => {
+          if (dropReceipt) throw Error('Local setGrant receipt unavailable');
+          return target.getTransactionReceipt(...args);
+        };
+      }
+      const val = target[prop];
+      return typeof val === 'function' ? val.bind(target) : val;
+    }
+  });
+  const dropReceiptSigner = {
+    provider: dropReceiptProvider,
+    getAddress: () => realSigner.getAddress(),
+    connect: p => realSigner.connect(p),
+    sendTransaction: async tx => {
+      const sent = await realSigner.sendTransaction(tx);
+      await sent.wait();
+      dropReceipt = true;
+      return { hash: sent.hash, wait: async () => { throw Error('Local setGrant receipt unavailable'); } };
+    }
+  };
+  await assert.rejects(
+    issuer.issueGrant({
+      journalFile,
+      base: f.baseRPC,
+      source: f.sourceRPC,
+      manifest: f.manifest,
+      proposal: { id: 'g-drop', merchant: f.identity.sponsor, epoch: '1', credits: '2', expiresAt: String(t0 + 500) },
+      signer: dropReceiptSigner,
+      now: t0,
+      localOnly: true
+    }),
+    /receipt unavailable/
+  );
+  // Financial hold MUST remain reserved on uncertain receipt outcome.
+  assert.equal(accounting.totals(accounting.read(journalFile)).unusedCredits, '2');
+  assert.notEqual(accounting.totals(accounting.read(journalFile)).sourceHeldWei, '0');
+
+  // Legitimately consume 1 of the 2 issued credits before retrying issueGrant.
+  await f.forward(await (await f.escrow.createQuote(await f.base.signers[1].getAddress(), 300, 100, t0 + 100, t0 + 200, keccak256('0x1234'))).wait());
+  assert.equal((await f.gate.grants(f.identity.sponsor))[0], 1n);
+  await f.mineFinality();
+
+  // Retry succeeds by verifying original GrantSet event (issued credits = 2) despite remaining = 1.
+  const recovered = await issuer.issueGrant({
+    journalFile,
+    base: f.baseRPC,
+    source: f.sourceRPC,
+    manifest: f.manifest,
+    proposal: { id: 'g-drop', merchant: f.identity.sponsor, epoch: '1', credits: '2', expiresAt: String(t0 + 500) },
+    signer: realSigner,
+    now: await f.now(),
+    localOnly: true
+  });
+  assert.equal(recovered.reusedExistingGrant, true);
+  assert.equal(recovered.txHash, null);
+
+  // Mismatched on-chain observation commitment must be rejected by verifyExistingGrantEvent and preserve holds.
+  await f.mineFinality();
+  const t1 = await f.now();
+  const badProp = { id: 'g-bad', merchant: f.identity.sponsor, epoch: '2', credits: '1', expiresAt: String(t1 + 500) };
+  // Expire/settle quote 1 or test mismatched observation directly on epoch 2 after closing epoch 1's unused credit.
+  for (const c of [f.base, f.source]) {
+    await c.provider.send('evm_setNextBlockTimestamp', [t0 + 100]);
+    await c.provider.send('evm_mine', []);
+  }
+  await f.forward(await f.deliver(await f.tick()));
+  await f.forward(await f.deliver(await f.tick()));
+  for (const c of [f.base, f.source]) {
+    await c.provider.send('evm_setNextBlockTimestamp', [t0 + 500]);
+    await c.provider.send('evm_mine', []);
+  }
+  await (await f.gate.expireGrant(f.identity.sponsor)).wait();
+  await f.mineFinality();
+  const synced = await issuer.reconcile({ journalFile, base: f.baseRPC, source: f.sourceRPC, manifest: f.manifest, now: await f.now() });
+  const t2 = await f.now();
+  badProp.expiresAt = String(t2 + 500);
+  accounting.transact(journalFile, synced.state.revision, { type: 'reserve', payload: badProp }, t2);
+  await (await f.gate.setGrant(f.identity.sponsor, 2, 1, t2 + 500, accounting.profileHash(f.identity, f.profile), keccak256('0xdeadbeef'))).wait();
+  await f.mineFinality();
+  await assert.rejects(
+    issuer.issueGrant({
+      journalFile,
+      base: f.baseRPC,
+      source: f.sourceRPC,
+      manifest: f.manifest,
+      proposal: badProp,
+      signer: realSigner,
+      now: await f.now(),
+      localOnly: true
+    }),
+    /observation commitment mismatch/
+  );
+  assert.equal(accounting.totals(accounting.read(journalFile)).unusedCredits, '1');
 });

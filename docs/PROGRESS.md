@@ -1,5 +1,9 @@
 # Settlio progress
 
+## V5 corrective hardening and verification — 26 November 2026
+
+Hardened [`renewable-issuer.cjs`](../script/renewable-issuer.cjs) (isolated Anvil fixture checks, pre-reconcile sponsor check, full `GrantSet` event verification across partial consumption/unavailable receipts, hold preservation) and [`renewable-reader.cjs`](../script/renewable-reader.cjs) (`provenance: 'unauthenticated-integrity-digest'`, `integrityDigest`, recomputed-digest adversarial tests, and corrected [operating profile spec](V5_OPERATING_PROFILE_SPEC.md)). `npm run build:renewable` passed for all 4 V5 contracts; targeted V5 suite passed **22/22** (205.70s); full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` 240s timeout in this container), 0 skipped. Zero tokens spent; M2 remains OPEN. Earlier entries below are historical checkpoints.
+
 ## V5 readiness review and M2 gates consolidated — 25 November 2026
 
 [V5 readiness review](V5_READINESS_REVIEW.md) consolidates V4 public proofs and preserved qualifications, local-only V5 components (`canGrant: false`), remaining native protocol compatibility checks, unapproved economic/profile parameters, issuer/signing/checkpoint/recovery gaps, minimum future public delta if separately authorized, and no-spend engineering tasks. Documentation consolidation only; no tokens spent, no deployment authorized, and no new full-suite/build pass claimed (last full `npm test` remains 313/313 before the 5th reader case; expanded focused reader/accounting checks 19/19). M2 remains OPEN. Earlier entries below are historical checkpoints.

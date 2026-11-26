@@ -1,6 +1,6 @@
 # V5 read-only reader — local acceptance
 
-25 November 2026. **Read-only collection/reconciliation implemented and tested locally (including `finalized > latest` skew hardening and `settlio-renewable-checkpoint/v1` incremental resumption). No public V5 deployment, funding or grant readiness is established. M2 remains open.**
+26 November 2026. **Read-only collection/reconciliation implemented and tested locally (including `finalized > latest` skew hardening and `settlio-renewable-checkpoint/v1` unauthenticated-integrity-digest incremental resumption). No public V5 deployment, funding or grant readiness is established. M2 remains open.**
 
 ## Implemented
 

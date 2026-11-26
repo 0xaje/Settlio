@@ -130,7 +130,17 @@ test('V5 reader resumes incrementally from a verified finalized checkpoint and r
  for(const command of reader.reconciliationCommands(state,cp2))state=accounting.apply(state,command,await f.now());
  assert.equal(accounting.totals(state).sourceHeldWei,'0');
  const tampered=structuredClone(cp1.checkpoint);tampered.open=!tampered.open;
- await assert.rejects(f.observe(state,{previousCheckpoint:tampered}),/integrity hash/);
+ await assert.rejects(f.observe(state,{previousCheckpoint:tampered}),/integrity digest/);
+ const {createHash}=require('node:crypto');
+ const canonicalJson=v=>Array.isArray(v)?'['+v.map(canonicalJson).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonicalJson(v[k])).join(',')+'}':JSON.stringify(v);
+ const recompute=cp=>{const {integrityDigest,...b}=cp;return{...b,integrityDigest:'0x'+createHash('sha256').update(JSON.stringify(b)).digest('hex')};};
+ assert.equal(cp1.checkpoint.provenance,'unauthenticated-integrity-digest');
+ const forgedOpen=recompute({...structuredClone(cp1.checkpoint),open:!cp1.checkpoint.open});
+ await assert.rejects(f.observe(state,{previousCheckpoint:forgedOpen}),/counter mismatch/);
+ const forgedGrant=structuredClone(cp1.checkpoint);forgedGrant.grants[0].remaining='9';
+ await assert.rejects(f.observe(state,{previousCheckpoint:recompute(forgedGrant)}),/counter mismatch|Grant view/);
+ const forgedReorg=structuredClone(cp1.checkpoint);forgedReorg.base.hash=keccak256('0xbeef');
+ await assert.rejects(f.observe(state,{previousCheckpoint:recompute(forgedReorg)}),/block hash mismatch/);
  const reorged={send:async(m,p)=>{const res=await f.baseRPC.send(m,p);if(m==='eth_getBlockByNumber'&&p[0]!=='latest'&&p[0]!=='finalized'&&BigInt(p[0])===BigInt(cp1.checkpoint.base.number))return{...res,hash:keccak256('0xbeef')};return res;}};
  await assert.rejects(f.observe(state,{base:reorged,previousCheckpoint:cp1.checkpoint}),/block hash mismatch/);
 });

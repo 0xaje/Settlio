@@ -85,10 +85,10 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages,
  const sourceStart=await creation('source',manifest.sourceCreationHash,id.reactive,a.SettlioReactiveV5,[84532,p.adaptiveTimers],cfg.sourceConstructorWei);
  const manifestHash=digest(manifest);
  if(previousCheckpoint!==null){
-  check(previousCheckpoint&&typeof previousCheckpoint==='object'&&previousCheckpoint.schema==='settlio-renewable-checkpoint/v1','Invalid incremental checkpoint schema');
+  check(previousCheckpoint&&typeof previousCheckpoint==='object'&&previousCheckpoint.schema==='settlio-renewable-checkpoint/v1'&&previousCheckpoint.provenance==='unauthenticated-integrity-digest','Invalid incremental checkpoint schema');
   check(JSON.stringify(plain(previousCheckpoint.identity))===JSON.stringify(plain(id))&&same(previousCheckpoint.profileHash,state.profileHash)&&same(previousCheckpoint.manifestHash,manifestHash),'Checkpoint identity or profile mismatch');
-  const {checkpointHash,...body}=previousCheckpoint;
-  check(same(checkpointHash,digest(body)),'Checkpoint integrity hash mismatch');
+  const {integrityDigest,...body}=previousCheckpoint;
+  check(same(integrityDigest,digest(body)),'Checkpoint integrity digest mismatch');
   check(BigInt(previousCheckpoint.base.number)>=BigInt(baseStart.number)&&BigInt(previousCheckpoint.source.number)>=BigInt(sourceStart.number),'Checkpoint precedes contract creation');
   check(BigInt(previousCheckpoint.base.number)<=BigInt(finalized.base.number)&&BigInt(previousCheckpoint.source.number)<=BigInt(finalized.source.number),'Checkpoint ahead of finalized head');
   const [cb,cs]=await Promise.all([canonicalBlock('base',previousCheckpoint.base.number),canonicalBlock('source',previousCheckpoint.source.number)]);
@@ -125,7 +125,7 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages,
   if(e.name==='OpenChanged'){open=v.open;continue;}
   if(e.name==='GrantSet'){
    for(const old of grants.filter(g=>same(g.merchant,v.merchant))){check(BigInt(old.epoch)<v.epoch,'Nonmonotonic grant history');old.remaining='0';}
-   grants.push({merchant:v.merchant.toLowerCase(),epoch:v.epoch.toString(),credits:v.credits.toString(),remaining:v.credits.toString(),expiresAt:v.expires.toString(),profileHash:v.profile,transactionHash:l.transactionHash,evidence:eventEvidence});continue;
+   grants.push({merchant:v.merchant.toLowerCase(),epoch:v.epoch.toString(),credits:v.credits.toString(),remaining:v.credits.toString(),expiresAt:v.expires.toString(),profileHash:v.profile,observation:v.observation,transactionHash:l.transactionHash,evidence:eventEvidence});continue;
   }
   if(e.name==='GrantExpired'){const g=grants.find(g=>same(g.merchant,v.merchant)&&BigInt(g.epoch)===v.epoch);check(g&&BigInt(g.remaining)===v.unused,'Grant expiry history mismatch');g.remaining='0';continue;}
   const q=v.id.toString();
@@ -217,9 +217,9 @@ async function collectChecked({base,source,state,manifest,now,pageSize,maxPages,
  const observedAt=now??Math.floor(Date.now()/1000);
  const snapshot={identity:id,observedAt:String(observedAt),base:heads.base,source:heads.source,runtimeHashes,configuration:{maxHorizonSeconds:p.maxHorizonSeconds,maxWork:p.maxWork,adaptiveTimers:p.adaptiveTimers},sourceFees,destinationFees,evidenceHash:digest({heads,finalized,runtimeHashes,sourceFees,destinationFees,subscriptions})};
  accounting.observe(state,snapshot,observedAt); // Validate freshness/schema without changing the caller's state.
- const checkpointBody=plain({schema:'settlio-renewable-checkpoint/v1',identity:id,profileHash:state.profileHash,manifestHash,base:finalized.base,source:finalized.source,open,grants,jobs:[...jobs.values()],unresolvedOrigins,unresolvedRequests,successfulClosure:[...successfulClosure]});
- const checkpoint={...checkpointBody,checkpointHash:digest(checkpointBody)};
- return plain({readOnly:true,canGrant:false,profileHash:state.profileHash,manifestHash,scope:'RPC-backed pinned/finalized-prefix V5 reconciliation; trusted RPC completeness, not a light-client proof',snapshot,finalized,checkpoint,subscriptions,grants,jobs:[...jobs.values()],requests,history:{ledgerLogs:ledgerLogs.length,originLogs:originLogs.length,callbackRequests:callbackLogs.length,incremental:Boolean(previousCheckpoint)},limits:['No journal writes, signing or grant authorization.','Empty callback reports remain pending; unsupported report schemas or delivery envelopes stop collection.','Native report index/codec compatibility and live coarse timer shape still require public validation.','This reader relies on honest RPC data and its finalized tag; it is not a consensus proof.']});
+ const checkpointBody=plain({schema:'settlio-renewable-checkpoint/v1',provenance:'unauthenticated-integrity-digest',identity:id,profileHash:state.profileHash,manifestHash,base:finalized.base,source:finalized.source,open,grants,jobs:[...jobs.values()],unresolvedOrigins,unresolvedRequests,successfulClosure:[...successfulClosure]});
+ const checkpoint={...checkpointBody,integrityDigest:digest(checkpointBody)};
+ return plain({readOnly:true,canGrant:false,profileHash:state.profileHash,manifestHash,scope:'RPC-backed pinned/finalized-prefix V5 reconciliation; trusted RPC completeness, not a light-client proof',snapshot,finalized,checkpoint,subscriptions,grants,jobs:[...jobs.values()],requests,history:{ledgerLogs:ledgerLogs.length,originLogs:originLogs.length,callbackRequests:callbackLogs.length,incremental:Boolean(previousCheckpoint)},limits:['No journal writes, signing or grant authorization.','Checkpoint integrityDigest is an unkeyed SHA-256 digest requiring trusted local persistence, not a cryptographic signature.','Empty callback reports remain pending; unsupported report schemas or delivery envelopes stop collection.','Native report index/codec compatibility and live coarse timer shape still require public validation.','This reader relies on honest RPC data and its finalized tag; it is not a consensus proof.']});
 }
 function reconciliationCommands(state,report){
  accounting.validateState(state);check(collectedReports.has(report),'Reconciliation requires an original immutable reader result');check(report?.readOnly===true&&report.canGrant===false&&report.profileHash===state.profileHash&&Object.keys(state.identity).every(k=>report.snapshot.identity[k]===state.identity[k]),'Invalid reader report identity');
