@@ -13,6 +13,7 @@ apps/web/dist/
 deployments/.deploy-m2.lock
 
 deployments/.deploy-v4.lock
+deployments/.deploy-v5.lock
 
 # Private, single-writer sponsor accounting (not deployment evidence).
 **/renewable-commitments.local.json*

@@ -13,7 +13,7 @@ declare global {
     };
   }
 }
-const rawAddress = import.meta.env.VITE_ESCROW_ADDRESS || '';
+const rawAddress = import.meta.env.VITE_ESCROW_ADDRESS || '0xD9732CD7f9b52E3ea36aB187be4Da399A8259810';
 export const escrowAddress = isAddress(rawAddress) ? getAddress(rawAddress) : '';
 export const configured = !!escrowAddress && escrowAddress !== '0x0000000000000000000000000000000000000000';
 const request = new FetchRequest(import.meta.env.VITE_BASE_SEPOLIA_RPC || 'https://sepolia.base.org');
@@ -85,7 +85,7 @@ export async function readPolicyDeployment(contract: Contract): Promise<
       scheduler.originChain(), scheduler.originEscrow(), scheduler.callbackReceiver(), scheduler._SERVICE_PROVIDER()]);
   assertPolicyWiring({ baseChainId: BigInt(baseId), reactiveChainId: BigInt(reactiveId), schedulerVersion, escrowVersion: version,
     escrow: escrowAddress, receiver: receiverAddress, proxy, receiverEscrow, originChain, originEscrow, callbackReceiver, reactiveProvider });
-  if (version === 4) {
+  if (version === 4 || version === 5) {
     const block = await reader.getBlock('latest');
     if (!block) throw new Error('Base Sepolia block is unavailable.');
     await admissionContract(reader, contract, block.number);
