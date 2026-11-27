@@ -1,5 +1,9 @@
 # Settlio progress
 
+## Scoped M2 closed and M3 6-screen interface built — 27 November 2026
+
+Closed M2 as scoped on V4 ([M2 acceptance](M2_ACCEPTANCE.md); V5 remains local-only at `317/317`) and implemented the approved M3 6-screen green/orange Georgia/Inter interface ([`Landing.tsx`](../apps/web/src/Landing.tsx), [`main.tsx`](../apps/web/src/main.tsx), [`style.css`](../apps/web/src/style.css), 4 bundled hero photos). `npm run build:web` passed (`0` TS errors, `710ms`) and frontend tests passed **25/25** (`13.23s`). No tokens spent or public transactions sent. Next: desktop/mobile browser visual check on `localhost:5174`, then M4. Earlier entries below are historical checkpoints.
+
 ## V5 corrective hardening and verification — 26 November 2026
 
 Hardened [`renewable-issuer.cjs`](../script/renewable-issuer.cjs) (isolated Anvil fixture checks, pre-reconcile sponsor check, full `GrantSet` event verification across partial consumption/unavailable receipts, hold preservation) and [`renewable-reader.cjs`](../script/renewable-reader.cjs) (`provenance: 'unauthenticated-integrity-digest'`, `integrityDigest`, recomputed-digest adversarial tests, and corrected [operating profile spec](V5_OPERATING_PROFILE_SPEC.md)). `npm run build:renewable` passed for all 4 V5 contracts; targeted V5 suite passed **22/22** (205.70s); full `npm test` ran **316/317 passed**, 0 failed, **1 cancelled** (`test/v4-operations.test.cjs:45:1` 240s timeout in this container), 0 skipped. Zero tokens spent; M2 remains OPEN. Earlier entries below are historical checkpoints.

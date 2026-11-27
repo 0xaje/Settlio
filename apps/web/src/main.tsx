@@ -14,6 +14,7 @@ import { ensureBaseSepolia } from './wallet';
 import { decodePending, pendingReceipt, recoverPendingTransaction } from './pending';
 import { assets, knownAsset, displayAmount as amount } from './assets';
 import { decodeTerms, encodeTerms, matchesQuote, readQuoteTerms, termsHash, type Quote, type Terms } from './terms';
+import { Landing } from './Landing';
 
 const statuses = ['Missing', 'Awaiting deposit', 'Confirming booking', 'Confirmed', 'Refund pending', 'Refunded', 'Expired', 'Released'];
 const statusLabel = (quote: Quote, now: number) =>
@@ -53,6 +54,8 @@ function App() {
   const quoteParam = params.get('quote');
   const quoteId = quoteParam && /^[1-9]\d{0,17}$/.test(quoteParam) ? BigInt(quoteParam) : null;
   const creating = params.get('screen') === 'new';
+  const viewingQuotes = params.get('screen') === 'quotes';
+  const isLanding = !quoteParam && !creating && !viewingQuotes;
   const pauseReceiptCheck = import.meta.env.DEV && creating && !quoteParam && params.get('receipt-check') === 'pause';
   function navigate(search: string) {
     // Keep the explicitly selected development check when opening the editor.
@@ -201,13 +204,21 @@ function App() {
     try { localStorage.removeItem(pendingKey()); } catch {}
     setMessage('Local tracking stopped. This does not cancel the transaction. Check your wallet and quote before submitting another action.');
   }
+  if (isLanding) {
+    return <Landing account={account} busy={busy} short={short} connect={connect} navigate={navigate} />;
+  }
   return <div className="app">
     {!quoteParam && <aside className="sidebar"><a className="wordmark" href={location.pathname} onClick={event => { event.preventDefault(); navigate(''); }}>Settlio</a>
-      <nav aria-label="Workspace"><button className={!creating ? 'selected' : ''} onClick={() => navigate('')}>Quotes</button><button className={creating ? 'selected' : ''} onClick={() => navigate('?screen=new')}>Create quote</button></nav>
-      <div className="sidebar-note">Your quotes.<br/>A clearer way to book work.</div><span className="test-badge">Base Sepolia testnet</span>
+      <nav aria-label="Workspace">
+        <button type="button" onClick={() => navigate('')}>Home</button>
+        <button type="button" className={viewingQuotes ? 'selected' : ''} onClick={() => navigate('?screen=quotes')}>Quotes</button>
+        <button type="button" className={creating ? 'selected' : ''} onClick={() => navigate('?screen=new')}>Create quote</button>
+      </nav>
+      <div className="sidebar-note">Your quotes.<br/>A clearer way to book work.</div>
+      <span className="test-badge">{account ? short(account) + ' · ' : ''}Base Sepolia testnet</span>
     </aside>}
     <main className={quoteParam ? 'customer-main' : ''}>
-      <header className="topbar"><span>{quoteParam ? 'Settlio / Shared quote' : 'Your workspace'}</span><button className="secondary" disabled={busy} onClick={connect}>{account ? short(account) : 'Connect wallet'}</button></header>
+      <header className="topbar"><span>{quoteParam ? 'Settlio / Shared quote' : creating ? 'Workspace / Create quote' : 'Workspace / Quotes'}</span><button className="secondary" disabled={busy} onClick={connect}>{account ? short(account) : 'Connect wallet'}</button></header>
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       {pauseReceiptCheck && <p className="notice" role="status"><strong>Development receipt recovery check</strong><br/>This development mode pauses receipt processing after quote creation. It does not pause the blockchain or send a deposit. Only create a quote when a new test has been arranged.</p>}
       {pauseReceiptCheck && configured && !pending && <p className="notice" role="status"><strong>No saved transaction to check</strong><br/>There is no valid saved transaction for this escrow in this browser. The Check saved transaction button appears only while one is saved. Opening a quote or viewing its contract does not create a saved transaction. To reopen a known quote, use Recover a created quote below; do not create another quote just to find a button.</p>}
@@ -237,6 +248,7 @@ function QuoteList({ account, refresh, navigate, connect }: { account: string; r
   const [error, setError] = useState('');
   const [page, setPage] = useState(0);
   const [count, setCount] = useState(0n);
+  const [filter, setFilter] = useState<'all' | 'awaiting' | 'confirmed' | 'expired' | 'settled'>('all');
   useEffect(() => { setPage(0); }, [account, refresh]);
   useEffect(() => {
     let active = true;
@@ -263,17 +275,29 @@ function QuoteList({ account, refresh, navigate, connect }: { account: string; r
     const terms = loadTerms(quote.id);
     navigate(terms ? '?quote=' + quote.id + '#terms=' + encodeTerms(terms) : '?quote=' + quote.id);
   }
+  const filteredQuotes = quotes.filter(quote => {
+    if (filter === 'awaiting') return quote.status === 1 && BigInt(now) < quote.expiresAt;
+    if (filter === 'confirmed') return quote.status === 2 || quote.status === 3;
+    if (filter === 'expired') return quote.status === 6 || (quote.status === 1 && BigInt(now) >= quote.expiresAt);
+    if (filter === 'settled') return quote.status === 4 || quote.status === 5 || quote.status === 7;
+    return true;
+  });
   return <section>
-    <div className="page-heading"><div><p className="eyebrow">A place for every quote</p><h1>Quotes</h1><p>See who has paid and which bookings need your attention.</p></div><button className="primary" onClick={() => navigate('?screen=new')}>New quote</button></div>
+    <div className="page-heading"><div><p className="eyebrow">A place for every quote</p><h1>Quotes</h1><p>Create and manage quotes for your clients.</p></div><button className="primary" onClick={() => navigate('?screen=new')}>New quote</button></div>
+    <div className="filter-tabs" role="tablist" aria-label="Filter quotes">
+      {([['all', 'All'], ['awaiting', 'Awaiting deposit'], ['confirmed', 'Confirmed'], ['expired', 'Expired'], ['settled', 'Refunded / Released']] as const).map(([key, label]) => (
+        <button key={key} type="button" role="tab" aria-selected={filter === key} className={`filter-tab${filter === key ? ' is-active' : ''}`} onClick={() => setFilter(key)}>{label}</button>
+      ))}
+    </div>
     <div className="list-panel">
       <div className="list-header"><h2>Your recent quotes</h2><span>Newest first</span></div>
       {!account ? <div className="empty"><h2>Start with your first quote</h2><p>Connect your wallet to see the quotes you have created.</p><button className="primary" onClick={connect}>Connect wallet</button></div> :
       !configured ? <div className="empty"><h2>Waiting for deployment</h2><p>Your quote history will appear here once the escrow is configured.</p></div> :
       loading ? <p role="status" className="empty">Reading your quote history…</p> :
       error ? <p role="alert" className="error">{error}</p> :
-      <><div className="mobile-quotes" aria-label="Your quotes">{quotes.map(quote => <article className="mobile-quote" key={quote.id.toString()}><div className="mobile-quote-heading"><h3>Quote #{quote.id.toString()}</h3><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div><dl><dt>Customer</dt><dd className="address">{quote.customer}</dd><dt>Deposit</dt><dd>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</dd><dt>Payment deadline</dt><dd>{date(quote.expiresAt)}</dd></dl><button className="secondary wide" onClick={() => openQuote(quote)}>Open quote #{quote.id.toString()}</button></article>)}</div><div className="table-scroll quote-table"><table><thead><tr><th>Quote / Customer</th><th>Deposit</th><th>Status</th><th>Payment deadline</th><th><span className="sr-only">Open</span></th></tr></thead><tbody>
-      {quotes.map(quote => <tr key={quote.id.toString()}><td><strong>Quote #{quote.id.toString()}</strong><small>{short(quote.customer)}</small></td><td>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</td><td><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></td><td>{date(quote.expiresAt)}</td><td><button className="text-button" onClick={() => openQuote(quote)}>Open quote</button></td></tr>)}
-      </tbody></table></div>{!quotes.length && <div className="empty">No quotes created by this wallet in this range. Connect the merchant wallet to see its quotes.</div>}
+      <><div className="mobile-quotes" aria-label="Your quotes">{filteredQuotes.map(quote => <article className="mobile-quote" key={quote.id.toString()}><div className="mobile-quote-heading"><h3>Quote #{quote.id.toString()}</h3><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div><dl><dt>Customer</dt><dd className="address">{quote.customer}</dd><dt>Deposit</dt><dd>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</dd><dt>Payment deadline</dt><dd>{date(quote.expiresAt)}</dd></dl><button className="secondary wide" onClick={() => openQuote(quote)}>Open quote #{quote.id.toString()}</button></article>)}</div><div className="table-scroll quote-table"><table><thead><tr><th>Quote / Customer</th><th>Deposit</th><th>Status</th><th>Payment deadline</th><th><span className="sr-only">Open</span></th></tr></thead><tbody>
+      {filteredQuotes.map(quote => <tr key={quote.id.toString()}><td><strong>Quote #{quote.id.toString()}</strong><small>{short(quote.customer)}</small></td><td>{quote.status === 1 ? 'Customer chooses' : amount(quote.deposit, quote.asset)}</td><td><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></td><td>{date(quote.expiresAt)}</td><td><button className="text-button" onClick={() => openQuote(quote)}>Open quote</button></td></tr>)}
+      </tbody></table></div>{!filteredQuotes.length && <div className="empty">No matching quotes in this range for the connected wallet.</div>}
       <div className="pagination"><span>Scanning up to 20 recent on-chain quotes per page.</span><button className="secondary" disabled={page === 0} onClick={() => setPage(value => value - 1)}>Newer</button><button className="secondary" disabled={count <= BigInt((page + 1) * 20)} onClick={() => setPage(value => value + 1)}>Older</button></div></>}
     </div>
   </section>;
@@ -418,6 +442,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   const knownAllowance = allowance ?? 0n;
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState('');
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
   const sequence = useRef(0);
   const [admission, setAdmission] = useState<AdmissionState | null>(null);
@@ -481,30 +506,45 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   const merchant = account && getAddress(account) === getAddress(quote.merchant);
   const participant = account && (customer || merchant);
   const expired = BigInt(now) >= quote.expiresAt;
+  const checkoutStep = quote.status === 1 && !expired && checkoutOpen;
+  const isReceiptScreen = quote.status === 3 || quote.status === 5 || quote.status === 7;
   async function copy() {
     try { await navigator.clipboard.writeText(shareLink(id, terms!)); setCopied(true); }
     catch { setCopyError('Copy failed. Select and copy the full link from your browser address bar.'); }
   }
-  return <article className="quote-document">
-    <div className="document-header"><a className="wordmark" href={location.pathname}>Settlio</a><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div>
-    <p className="eyebrow">Quote #{id.toString()}</p><h1>{verified ? terms.service : 'Service quote'}</h1>
-    <p className="address">From {quote.merchant}</p><p className="address">For {quote.customer}</p>
-    {!verified && <p role="alert" className="error">The service terms are missing or do not match this quote. Ask the merchant for the complete original share link. Payment is disabled.</p>}
-    {quote.status === 3 && <div className="confirmation"><h2>Booking confirmed</h2><p>Your deposit was received and the booking confirmation is recorded on-chain.</p></div>}
-    {quote.status === 4 && <div className="notice"><h2>Refund pending</h2><p>Your cancellation is recorded and the deposit is reserved for refund. It has not yet been returned.</p></div>}
-    {quote.status === 5 && <div className="confirmation"><h2>Deposit refunded</h2><p>The refund is recorded on-chain in the deposited asset.</p></div>}
-    {quote.status === 6 && <div className="notice"><h2>Quote expired</h2><p>Expiry is recorded on-chain. This quote cannot accept payment.</p></div>}
-    {quote.status === 7 && <div className="confirmation"><h2>Deposit released</h2><p>The deposited amount was released to the merchant on-chain. This is not proof of service delivery.</p></div>}
-    {quote.status === 2 && <div className="notice"><strong>Deposit received · confirming booking</strong><p>This page checks for confirmation every ten seconds. If delivery stalls, a participant can request it again below.</p></div>}
-    <div className="quote-columns"><div><h2>Service details</h2><p className="description">{verified ? terms.description || terms.service : 'Waiting for verified service terms.'}</p>
-      <h2>Payment and cancellation</h2><p className="helper">Times use your device’s time zone: {timeZone}.</p><dl><dt>Pay before</dt><dd>{date(quote.expiresAt)}</dd><dt>Cancel before for a full deposit refund</dt><dd>{date(quote.refundCutoff)}</dd></dl>
-      {(quote.policyVersion === 3 || quote.policyVersion === 4) ? <><p className="helper"><strong>Deposit release:</strong> {quote.automaticRelease ? 'Automatic after the refund cutoff if the booking is confirmed and no eligible cancellation reserved a refund.' : 'The merchant must claim an eligible confirmed deposit after the refund cutoff.'} These rules do not verify service delivery. Remaining-balance collection is not enabled.</p><AutomationStatus id={id} refresh={refresh}/></> : <p className="helper">Refund routing is not enabled on this deployment. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>}
-      <details><summary>Contract details</summary><p className="address">Terms fingerprint {quote.termsHash}</p><a href={explorer + '/address/' + escrowAddress} target="_blank" rel="noreferrer">View escrow on Base Sepolia</a></details>
-    </div><aside className="payment-summary"><span>{quote.status === 1 && !expired ? 'Deposit due today' : 'Deposit amount'}</span>{quote.status === 1 && <label>Payment currency<select value={selected} disabled={busy} onChange={event => setSelected(Number(event.target.value))}>{quote.options?.map((option, index) => <option key={option.asset} value={index}>{knownAsset(option.asset)?.symbol ?? 'Unverified token'}</option>)}<option value="usdt-coming-soon" disabled>USDT — Coming soon</option></select></label>}
+  if (checkoutStep) {
+    return <article className="quote-document checkout-document">
+      <div className="document-header"><a className="wordmark" href={location.pathname}>Settlio</a><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div>
+      <div className="checkout-stepper" aria-label="Checkout progress">
+        <span className="step-pill is-active">1. Pay deposit</span>
+        <span className="step-line" aria-hidden="true"></span>
+        <span className="step-pill">2. Confirming booking</span>
+      </div>
+      <p className="eyebrow">Quote #{id.toString()} · {verified ? terms.service : 'Service quote'}</p>
+      <h1>Pay your deposit</h1>
+      <p className="helper">Pay the deposit to secure your booking with {short(quote.merchant)}.</p>
+      {!verified && <p role="alert" className="error">The service terms are missing or do not match this quote. Payment is disabled.</p>}
+      <div className="checkout-grid">
+        <div className="checkout-summary-box">
+          <dl>
+            <dt>Total</dt><dd>{amount(total, asset)}</dd>
+            <dt>Deposit due today</dt><dd><strong>{amount(deposit, asset)}</strong></dd>
+            <dt>Remaining balance</dt><dd>{amount(total - deposit, asset)}</dd>
+          </dl>
+        </div>
+        <div className="checkout-method-box">
+          <span className="method-label">Payment method</span>
+          <div className="method-card is-selected">
+            <span className="method-radio" aria-hidden="true">●</span>
+            <div><strong>Wallet</strong><small>Base Sepolia wallet transfer</small></div>
+          </div>
+          <label>Network<input readOnly value="Base Sepolia - Testnet"/></label>
+          <label>Payment currency<select value={selected} disabled={busy} onChange={event => setSelected(Number(event.target.value))}>{quote.options?.map((option, index) => <option key={option.asset} value={index}>{knownAsset(option.asset)?.symbol ?? 'Unverified token'}</option>)}<option value="usdt-coming-soon" disabled>USDT — Coming soon</option></select></label>
+        </div>
+      </div>
       {!supported && <p role="alert" className="error">This token is not verified for this interface. Payment is disabled.</p>}
-      <strong>{amount(deposit, asset)}</strong><dl><dt>Total</dt><dd>{amount(total, asset)}</dd><dt>Remaining balance</dt><dd>{amount(total - deposit, asset)}</dd></dl>
-      {quote.status === 1 && !expired && (!account ? <button className="primary wide" onClick={connect}>Connect wallet</button> :
-      <><p className="helper">Paying accepts the service terms and refund cutoff above.</p>{asset !== ZeroAddress && allowance === null ? <><p role={approvalError ? 'alert' : 'status'} className="helper">{approvalError || 'Reading token approval…'}</p><button className="primary wide" disabled>Checking token approval…</button>{approvalError && <button className="secondary wide" disabled={busy} onClick={() => setApprovalRefresh(value => value + 1)}>Retry approval check</button>}</> : needsApproval ? <><p className="helper">First approve only this deposit amount. Then return here to pay. Approval alone does not pay your deposit. Test ETH is still needed for gas.</p><button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
+      {!account ? <button className="primary wide" onClick={connect}>Connect wallet</button> :
+      <>{asset !== ZeroAddress && allowance === null ? <><p role={approvalError ? 'alert' : 'status'} className="helper">{approvalError || 'Reading token approval…'}</p><button className="primary wide" disabled>Checking token approval…</button>{approvalError && <button className="secondary wide" disabled={busy} onClick={() => setApprovalRefresh(value => value + 1)}>Retry approval check</button>}</> : needsApproval ? <><p className="helper">First approve only this deposit amount. Then return here to pay. Approval alone does not pay your deposit. Test ETH is still needed for gas.</p><button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
         const contract = await walletContract(account);
         const token = new Contract(asset, ['function allowance(address,address) view returns(uint256)', 'function approve(address,uint256) returns(bool)'], contract.runner);
         const prepared = await prepareDepositApproval<TransactionResponse>({
@@ -518,7 +558,43 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
         const contract = await walletContract(account);
         const payment = { value: asset === ZeroAddress ? deposit : 0n };
         return (terms?.version === 3 || terms?.version === 4) ? contract.payDepositWithPolicy(id, selected, quote.termsHash, terms.automaticRelease, payment) : contract.payDepositOption(id, selected, quote.termsHash, payment);
-      })}>Accept terms & pay deposit</button>}{!customer && <p className="helper">Connect the customer wallet shown on this quote to pay.</p>}</>)}
+      }, () => setCheckoutOpen(false))}>Accept terms & pay deposit</button>}{!customer && <p className="helper">Connect the customer wallet shown on this quote to pay.</p>}</>}
+      <p className="helper checkout-footnote">After payment, Reactive Network verifies your deposit and confirms your booking on-chain.</p>
+      <button type="button" className="text-button" onClick={() => setCheckoutOpen(false)}>← Back to quote details</button>
+    </article>;
+  }
+  return <article className="quote-document">
+    <div className="document-header"><a className="wordmark" href={location.pathname}>Settlio</a><span className={'status status-' + quote.status}>{statusLabel(quote, now)}</span></div>
+    {isReceiptScreen && <div className="receipt-hero">
+      <div className="receipt-check" aria-hidden="true">✓</div>
+      <p className="eyebrow">Quote #{id.toString()}</p>
+      <h1>{quote.status === 3 ? 'Booking confirmed' : quote.status === 5 ? 'Deposit refunded' : 'Deposit released'}</h1>
+      <p className="helper">{quote.status === 3 ? `Your booking with ${short(quote.merchant)} is confirmed on Base Sepolia.` : quote.status === 5 ? 'Your deposit was returned on-chain in the original asset.' : 'The deposited amount was released to the merchant on-chain. This is not proof of service delivery.'}</p>
+    </div>}
+    {!isReceiptScreen && <>
+      <div className="quote-title-row"><div><p className="eyebrow">Quote #{id.toString()}</p><h1>{verified ? terms.service : 'Service quote'}</h1></div><div className="quote-expiry-meta"><span>Quote expires</span><strong>{date(quote.expiresAt)}</strong></div></div>
+      <p className="address">From {quote.merchant}</p><p className="address">For {quote.customer}</p>
+    </>}
+    {!verified && <p role="alert" className="error">The service terms are missing or do not match this quote. Ask the merchant for the complete original share link. Payment is disabled.</p>}
+    {quote.status === 4 && <div className="notice"><h2>Refund pending</h2><p>Your cancellation is recorded and the deposit is reserved for refund. It has not yet been returned.</p></div>}
+    {quote.status === 6 && <div className="notice"><h2>Quote expired</h2><p>Expiry is recorded on-chain. This quote cannot accept payment.</p></div>}
+    {quote.status === 2 && <div className="notice">
+      <div className="checkout-stepper" aria-label="Confirmation progress">
+        <span className="step-pill is-done">✓ Deposit received</span>
+        <span className="step-line" aria-hidden="true"></span>
+        <span className="step-pill is-active">Confirming booking</span>
+      </div>
+      <strong>Deposit received · confirming booking</strong><p>This page checks for confirmation every ten seconds. If delivery stalls, a participant can request it again below.</p>
+    </div>}
+    <div className="quote-columns"><div><h2>Service details</h2><p className="description">{verified ? terms.description || terms.service : 'Waiting for verified service terms.'}</p>
+      <h2>Payment and cancellation</h2><p className="helper">Times use your device’s time zone: {timeZone}.</p><dl><dt>Pay before</dt><dd>{date(quote.expiresAt)}</dd><dt>Cancel before for a full deposit refund</dt><dd>{date(quote.refundCutoff)}</dd></dl>
+      {(quote.policyVersion === 3 || quote.policyVersion === 4) ? <><p className="helper"><strong>Deposit release:</strong> {quote.automaticRelease ? 'Automatic after the refund cutoff if the booking is confirmed and no eligible cancellation reserved a refund.' : 'The merchant must claim an eligible confirmed deposit after the refund cutoff.'} These rules do not verify service delivery. Remaining-balance collection is not enabled.</p><AutomationStatus id={id} refresh={refresh}/></> : <p className="helper">Refund routing is not enabled on this deployment. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>}
+      <details><summary>Contract details</summary><p className="address">Terms fingerprint {quote.termsHash}</p><a href={explorer + '/address/' + escrowAddress} target="_blank" rel="noreferrer">View escrow on Base Sepolia</a></details>
+    </div><aside className="payment-summary"><span>{quote.status === 1 && !expired ? 'Deposit due today' : quote.status === 3 ? 'Deposit (paid)' : 'Deposit amount'}</span>{quote.status === 1 && <label>Payment currency<select value={selected} disabled={busy} onChange={event => setSelected(Number(event.target.value))}>{quote.options?.map((option, index) => <option key={option.asset} value={index}>{knownAsset(option.asset)?.symbol ?? 'Unverified token'}</option>)}<option value="usdt-coming-soon" disabled>USDT — Coming soon</option></select></label>}
+      {!supported && <p role="alert" className="error">This token is not verified for this interface. Payment is disabled.</p>}
+      <strong>{amount(deposit, asset)}</strong><dl><dt>Total</dt><dd>{amount(total, asset)}</dd><dt>Remaining balance</dt><dd>{amount(total - deposit, asset)}</dd></dl>
+      {quote.status === 1 && !expired && (!account ? <button className="primary wide" onClick={connect}>Connect wallet</button> :
+      <button className="primary wide" disabled={busy || !verified || !supported} onClick={() => setCheckoutOpen(true)}>Continue to wallet checkout</button>)}
       {quote.status === 2 && quote.policyVersion === 0 && participant && <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestConfirmation(id))}>Request confirmation again</button>}
       {(quote.policyVersion === 3 || quote.policyVersion === 4) && customer && (quote.status === 2 || quote.status === 3) && BigInt(now) < quote.refundCutoff && <>
         <p className="helper">Cancellation reserves a full deposit refund now. The money returns when the refund transaction executes.</p>

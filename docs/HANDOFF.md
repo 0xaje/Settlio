@@ -1,5 +1,9 @@
 # Settlio continuation handoff
 
+## Scoped M2 closed and M3 6-screen interface built — 27 November 2026
+
+Per user approval (27 November 2026), **M2 is closed for its scoped V4 public deliverable** ([M2 acceptance](M2_ACCEPTANCE.md)) and **M3** 6-screen interface is implemented (`apps/web/src/Landing.tsx`, `apps/web/src/main.tsx`, `apps/web/src/style.css`, `apps/web/src/assets/hero/*.jpg`). `npm run build:web` passed and frontend tests passed **25/25** (`13.23s`). Next: inspect M3 visually on desktop & mobile (`localhost:5174`), then complete **M4** (public frontend hosting + `<3 min` submission video). Earlier entries below are historical checkpoints.
+
 ## Full regression 317/317 verified locally — 26 November 2026
 
 Added in-memory artifact caching (when `extraSources` is empty) to [`compile-admission.cjs`](../script/compile-admission.cjs). `npm run build:admission` passed and full `npm test` passed **317/317** (`0` failures, `0` skips, `0` cancellations, `622.05s`). No public transactions, token spend, deployment, or M3/M4 work occurred; M2 remains OPEN. Submit for independent review before proceeding. Earlier entries below are historical checkpoints.

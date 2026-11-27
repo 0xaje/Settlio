@@ -1,5 +1,9 @@
 # Settlio master build plan
 
+## Scoped M2 closed and M3 6-screen interface built — 27 November 2026
+
+Per explicit user approval (27 November 2026), **M2 is closed for its scoped V4 public deliverable** ([M2 acceptance](docs/M2_ACCEPTANCE.md), retaining all six verified V4 public journeys, preserved browser-closure/mobile qualifications, and V5's local-only status at `317/317` passing tests in `e571391`). **M3 (approved 6-screen green/orange Georgia/Inter interface)** is now implemented locally across [`Landing.tsx`](apps/web/src/Landing.tsx), [`main.tsx`](apps/web/src/main.tsx), [`style.css`](apps/web/src/style.css), and four bundled hero photographs (`photographer.jpg`, `baker.jpg`, `tailor.jpg`, `decorator.jpg`): Landing (rotating 5s hero with pause/manual controls, reduced-motion support, and explicitly illustrative outcomes), Merchant Quotes Dashboard with filter tabs, Create Quote with live Customer preview, Customer Quote, Wallet Checkout (`Wallet` + `Base Sepolia - Testnet`, no Card/Apple Pay/Google Pay), and Booking Confirmed / Receipt. `npm run build:web` passed (`0` TS errors, `710ms`) and frontend unit/policy tests passed **25/25** (`13.23s`). No tokens spent or public transactions sent. Next: browser/mobile visual check on `localhost:5174`, then M4 (public frontend hosting + `<3 min` demo video). Earlier entries below are historical checkpoints.
+
 ## V5 corrective hardening and verification — 26 November 2026
 
 Applied three corrective engineering hardenings without spending tokens or modifying V4 contracts/evidence:

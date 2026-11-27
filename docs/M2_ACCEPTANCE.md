@@ -1,5 +1,12 @@
 # M2 unattended policies — acceptance ledger
 
+## Scoped M2 closure and M3 authorization — 27 November 2026
+
+Per explicit user authorization on 27 November 2026, **M2 is closed for its scoped V4 public deliverable** so M3 (the approved 6-screen interface) and M4 (public release and `<3 min` demo video) can proceed before the December 5 deadline without spending scarce test tokens:
+- **V4 public proof retained:** Six verified Base Sepolia / Reactive Lasna journeys and user CLI reproductions (ETH/USDC automatic release, ETH/USDC cancellation/refund, unpaid expiry, controlled owner pause/retry/restore expiry; `6/6` immutable lifetime admissions consumed, `0` residual customer principal).
+- **Preserved qualifications (not waived):** Continuous browser-closed interval recording, quote-2 open-tab release, unique retry-delivery attribution, physical-mobile wallet testing, and user-reported clean-console / clipboard-copy checks remain explicitly qualified.
+- **V5 status:** V5 renewable contracts, adaptive timers, commitment accounting, read-only reader (`finalized`-skew hardening + `settlio-renewable-checkpoint/v1`), and local-only issuer orchestrator remain **verified local engineering only** (`317/317` full `npm test` pass at [`e571391`](https://github.com/0xaje/Settlio/commit/e571391f7b22ecc7fdf8985a49cf19887b383d96), `canGrant: false`, not publicly deployed or funded).
+
 ## Current scope — 25 November 2026
 
 [V5 readiness review](V5_READINESS_REVIEW.md) consolidates the boundary between verified V4 public journeys and local-only V5 renewable engineering (`canGrant: false`), listing remaining native protocol compatibility checks, unapproved operating-profile/economic assumptions, issuer/checkpoint/recovery gaps, remaining browser/mobile UI gates, and zero-spend next steps.

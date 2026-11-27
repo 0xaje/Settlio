@@ -1,5 +1,9 @@
 # Settlio current status
 
+## Scoped M2 closed and M3 6-screen interface built — 27 November 2026
+
+Per user approval (27 November 2026), **M2 is closed for its scoped V4 public deliverable** ([M2 acceptance](M2_ACCEPTANCE.md), retaining V4's six public proofs and qualifications, plus V5 local-only engineering at `317/317` tests in `e571391`). **M3** 6-screen green/orange Georgia/Inter interface is implemented (`apps/web/src/Landing.tsx`, `apps/web/src/main.tsx`, `apps/web/src/style.css`, 4 hero scene `.jpg` assets): Landing with rotating hero + pause/reduced-motion controls, Merchant Quotes with filter tabs, Create Quote + preview, Customer Quote, Wallet Checkout (`Wallet` + `Base Sepolia - Testnet`), and Booking Confirmed / Receipt. `npm run build:web` passed and frontend tests passed **25/25** (`13.23s`). Next: visual desktop/mobile review of M3 and **M4** (public frontend hosting + `<3 min` demo video). Earlier entries below are historical checkpoints.
+
 ## Full regression 317/317 verified locally — 26 November 2026
 
 Added in-memory artifact caching (when `extraSources` is empty) to [`compile-admission.cjs`](../script/compile-admission.cjs). `npm run build:admission` passed for all 4 V4 contracts and full `npm test` passed **317/317** (`0` failures, `0` skips, `0` cancellations, `622.05s`). No public transactions, token spend, deployment, or M3/M4 work occurred; M2 remains OPEN. Earlier entries below are historical checkpoints.
