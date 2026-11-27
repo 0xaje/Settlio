@@ -1,5 +1,9 @@
 # Settlio current status
 
+## M3 Quotes, Create Quote, and Mobile polish built — 27 November 2026
+
+Refined [`main.tsx`](../apps/web/src/main.tsx) and [`style.css`](../apps/web/src/style.css) to eliminate the `Booking capacity` layout jump on Create Quote, add live `Remaining balance` + merchant header in `Customer preview`, tighten Quotes/Create Quote top spacing, and stack the mobile hero caption cleanly below the photo (`<= 650px`). `npm run build:web` passed (`0` TS errors, `974ms`) and frontend tests passed **28/28** (`8.19s`). Live `browser` subagent inspection was blocked because Chrome remote debugging (`DevToolsActivePort`) is inactive. Earlier entries below are historical checkpoints.
+
 ## Scoped M2 closed and M3 6-screen interface built — 27 November 2026
 
 Per user approval (27 November 2026), **M2 is closed for its scoped V4 public deliverable** ([M2 acceptance](M2_ACCEPTANCE.md), retaining V4's six public proofs and qualifications, plus V5 local-only engineering at `317/317` tests in `e571391`). **M3** 6-screen green/orange Georgia/Inter interface is implemented (`apps/web/src/Landing.tsx`, `apps/web/src/main.tsx`, `apps/web/src/style.css`, 4 hero scene `.jpg` assets): Landing with rotating hero + pause/reduced-motion controls, Merchant Quotes with filter tabs, Create Quote + preview, Customer Quote, Wallet Checkout (`Wallet` + `Base Sepolia - Testnet`), and Booking Confirmed / Receipt. `npm run build:web` passed and frontend tests passed **25/25** (`13.23s`). Next: visual desktop/mobile review of M3 and **M4** (public frontend hosting + `<3 min` demo video). Earlier entries below are historical checkpoints.

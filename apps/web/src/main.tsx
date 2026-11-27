@@ -222,15 +222,15 @@ function App() {
       {!configured && <section className="setup" aria-label="Deployment setup"><strong>Deployment setup is pending</strong><p>The screens are ready to connect. A verified Base Sepolia escrow address is required to create, read, or pay quotes.</p><p>Set VITE_ESCROW_ADDRESS after deployment. Payments are disabled until then.</p></section>}
       {pauseReceiptCheck && <p className="notice" role="status"><strong>Development receipt recovery check</strong><br/>This development mode pauses receipt processing after quote creation. It does not pause the blockchain or send a deposit. Only create a quote when a new test has been arranged.</p>}
       {pauseReceiptCheck && configured && !pending && <p className="notice" role="status"><strong>No saved transaction to check</strong><br/>There is no valid saved transaction for this escrow in this browser. The Check saved transaction button appears only while one is saved. Opening a quote or viewing its contract does not create a saved transaction. To reopen a known quote, use Recover a created quote below; do not create another quote just to find a button.</p>}
-      <div className="build-note">Test funds only. Available actions follow the configured deployment. Automatic checks require compatible, funded contracts and network delivery.</div>
+      <div className="build-note">Test funds only · Base Sepolia &amp; Reactive Lasna. Automatic checks require compatible, funded contracts and network delivery.</div>
       {pending && <section className="notice" role="status"><strong>Your saved transaction is ready to check</strong><p>Use the button below to read its result. No wallet signature or new transaction is needed. Creating another quote or payment is paused until this check is resolved.</p><a href={explorer + '/tx/' + pending} target="_blank" rel="noreferrer">View pending transaction</a><button className="secondary wide" disabled={busy} onClick={() => void checkPending()}>Check saved transaction</button>{unresolved && <><p>Stopping local tracking does not cancel or undo a transaction. Use this only after checking its status in your wallet and explorer.</p><button className="secondary wide" disabled={busy} onClick={stopTracking}>Stop local tracking</button></>}</section>}
-      {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button>{pauseReceiptCheck && <><p className="helper">Development reload check: verify this existing successful receipt, save its hash, refresh, then check the saved transaction. This sends nothing and does not prove the original interruption.</p><button className="secondary" type="submit" name="recovery-mode" value="save-for-reload">Save existing transaction for reload check</button></>}</fieldset></form></details>}
       {error && <p role="alert" className="error">{error}</p>}
       {message && <p role="status" className="notice">{message}</p>}
       {transaction && <a className="tx-link" href={explorer + '/tx/' + transaction} target="_blank" rel="noreferrer">View submitted transaction</a>}
       {quoteParam ? quoteId ? <QuoteView key={route} id={quoteId} account={account} busy={busy || !!pending} refresh={refresh} transact={transact} connect={connect}/> : <section><h1>Invalid quote link</h1><p>Ask the merchant to send the complete quote link.</p></section> :
       creating ? <CreateQuote account={account} busy={busy || !!pending} transact={transact} navigate={navigate} connect={connect}/> :
       <QuoteList account={account} refresh={refresh} navigate={navigate} connect={connect}/>}
+      {configured && !pending && <details className="recovery"><summary>Recover a created quote</summary><p className="helper">Paste the quote-creation transaction hash to reopen the existing quote. This only reads its receipt and never creates a second quote or sends a payment.</p><form onSubmit={recoverCreatedQuote}><fieldset disabled={busy}><label>Quote-creation transaction hash<input value={recoveryHash} onChange={event => setRecoveryHash(event.target.value)} placeholder="0x…" autoComplete="off" required pattern="0x[a-fA-F0-9]{64}"/></label><button className="secondary" type="submit">Find existing quote</button>{pauseReceiptCheck && <><p className="helper">Development reload check: verify this existing successful receipt, save its hash, refresh, then check the saved transaction. This sends nothing and does not prove the original interruption.</p><button className="secondary" type="submit" name="recovery-mode" value="save-for-reload">Save existing transaction for reload check</button></>}</fieldset></form></details>}
       <footer>Settlio · Quotes and bookings · <a href="https://github.com/0xaje/Settlio" target="_blank" rel="noreferrer">View source</a></footer>
     </main>
   </div>;
@@ -382,21 +382,14 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
       });
     } catch (failure) { setValidation(errorMessage(failure)); }
   }
-  return <section><div className="page-heading"><div><p className="eyebrow">Make the details clear</p><h1>Create quote</h1><p>Set the price and terms, then share one link with your customer.</p></div></div>
-    {!account && <button className="primary" onClick={connect}>Connect wallet to create</button>}
-    {capabilityError ? <div className="error" role="alert"><p>{capabilityError}</p><button className="secondary" disabled={busy} onClick={() => setCapabilityRetry(value => value + 1)}>Retry deployment check</button></div> :
-      configured && policyVersion === null ? <p role="status">Checking which booking policies this deployment supports…</p> :
-      policyVersion === 0 ? <p className="notice">This deployment supports deposit confirmation. Automatic expiry, refund routing and release are not available here.</p> : null}
-    {policyVersion === 4 && <div className="notice" aria-label="Booking capacity"><h2>Booking capacity</h2>
-      {!account ? <p>Connect your merchant wallet to check its quote allowance.</p> : admissionError ? <p role="alert">Capacity unavailable: {admissionError}</p> : !admission ? <p role="status">Reading booking capacity…</p> : <>
-        <p>{creationUnavailable(admission) || 'Your wallet can create a quote.'}</p>
-        <p>Sponsored quotes remaining for this wallet: {admission.credits.toString()}. {admission.validUntil > 0n ? <>Allowance expires: {date(admission.validUntil)}.</> : 'No current allowance.'}</p>
-        <p>Active bookings: {admission.active.toString()} of {admission.maxActive.toString()}. Lifetime quotes used: {admission.admitted.toString()} of {admission.maxLifetime.toString()}.</p>
-        <p>Set both deadlines within {admission.maxHorizon.toString()} seconds of creation. Participant retries are limited; eligible cancellation and reserved-refund recovery remain available.</p>
-        <p className="helper">This is a finite testnet allowance. An available quote slot is not a guarantee of future automation funding.</p>
-      </>}
-      <button className="secondary" disabled={busy} onClick={() => setCapacityRetry(value => value + 1)}>Refresh booking capacity</button>
-    </div>}
+  const previewRemaining = (() => {
+    try {
+      const t = parseUnits(total || '0', 18), d = parseUnits(deposit || '0', 18);
+      if (t >= d && (total || deposit)) return amount(t - d, ZeroAddress);
+    } catch {}
+    return '—';
+  })();
+  return <section><div className="page-heading"><div><p className="eyebrow">Make the details clear</p><h1>Create quote</h1><p>Set the price and terms, then share one link with your customer.</p></div>{!account && <button className="primary" onClick={connect}>Connect wallet to create</button>}</div>
     <div className="editor-layout"><form className="form-panel" onSubmit={submit}><fieldset disabled={busy}>
       <label>Customer wallet<input name="customer" required placeholder="0x…" autoComplete="off"/></label>
       <label>Service<input name="service" required maxLength={120} value={service} onChange={event => setService(event.target.value)} placeholder="What are you booking?"/></label>
@@ -405,14 +398,37 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
       <label><span><input type="checkbox" checked={usdc} onChange={event => setUsdc(event.target.checked)}/> Also accept test USDC</span></label>
       {usdc && <div className="field-row"><label>Total · test USDC<input required inputMode="decimal" value={usdcTotal} onChange={event => setUsdcTotal(event.target.value)}/></label><label>Deposit · test USDC<input required inputMode="decimal" value={usdcDeposit} onChange={event => setUsdcDeposit(event.target.value)}/></label></div>}
       <p className="helper">Set a separate price for each currency. There is no automatic conversion. USDT · Coming soon. It is not available for quotes or payments yet.</p>
-      <label>Payment deadline<input name="expiry" type="datetime-local" required/></label>
-      <label>Full-refund cutoff<input name="cutoff" type="datetime-local" required/></label>
+      <div className="field-row"><label>Payment deadline<input name="expiry" type="datetime-local" required/></label><label>Full-refund cutoff<input name="cutoff" type="datetime-local" required/></label></div>
       {(policyVersion === 3 || policyVersion === 4) && <><label><span><input type="checkbox" checked={automaticRelease} onChange={event => setAutomaticRelease(event.target.checked)}/> Automatically release the deposit after the full-refund cutoff</span></label><p className="helper">{automaticRelease ? 'The deposit may be paid to you after the cutoff if no eligible cancellation has reserved a refund. This does not verify that the service was delivered.' : 'After the cutoff, you must claim an eligible confirmed deposit yourself. Eligible cancellations are still reserved for refund.'} This choice is fixed in the quote and shown to the customer before payment.</p></>}
       <p className="helper">Dates use your device’s time zone ({timeZone}). The customer must cancel before the cutoff for a full deposit refund. These terms are fixed when you create the quote.</p>
       <p className="helper">The share link contains your service description. Anyone with that link can read it. Avoid personal or confidential information.</p>
       {validation && <p role="alert" className="error">{validation}</p>}
       <button className="primary wide" type="submit" disabled={!account || !configured || policyVersion === null || (policyVersion === 4 && !!creationUnavailable(admission))}>{busy ? 'Waiting for transaction…' : 'Create share link'}</button>
-    </fieldset></form><aside className="preview"><span className="eyebrow">Customer preview</span><h2>{service || 'Your service'}</h2><p>{description || 'Your service details will appear here.'}</p><div className="preview-amount"><span>Deposit due today</span><strong>{deposit || '—'} <small>test ETH</small></strong></div><p>Total {total || '—'} test ETH</p>{usdc && <p>Or deposit {usdcDeposit || '—'} of {usdcTotal || '—'} test USDC</p>}{(policyVersion === 3 || policyVersion === 4) && <p className="helper">Deposit release: {automaticRelease ? 'Automatic after the agreed refund cutoff, unless a refund is reserved.' : 'Merchant must claim after the refund cutoff.'}</p>}<p className="helper">Payment confirms the deposit first. The booking is confirmed after Reactive delivers its callback.</p></aside></div>
+    </fieldset></form>
+    <div className="preview-column">
+      <aside className="preview">
+        <div className="preview-merchant"><span>Customer preview</span><small>{account ? short(account) : 'Connect merchant wallet'}</small></div>
+        <h2>{service || 'Your service'}</h2>
+        <p>{description || 'Your service details will appear here.'}</p>
+        <div className="preview-amount"><span>Deposit due today</span><strong>{deposit || '—'} <small>test ETH</small></strong></div>
+        <dl className="preview-totals"><dt>Total</dt><dd>{total ? total + ' test ETH' : '—'}</dd><dt>Remaining balance</dt><dd>{previewRemaining}</dd></dl>
+        {usdc && <p className="helper">Or deposit {usdcDeposit || '—'} of {usdcTotal || '—'} test USDC</p>}
+        {(policyVersion === 3 || policyVersion === 4) && <p className="helper">Deposit release: {automaticRelease ? 'Automatic after the agreed refund cutoff, unless a refund is reserved.' : 'Merchant must claim after the refund cutoff.'}</p>}
+        <p className="helper">Payment confirms the deposit first. The booking is confirmed after Reactive delivers its callback.</p>
+      </aside>
+      {capabilityError ? <div className="error" role="alert"><p>{capabilityError}</p><button className="secondary" disabled={busy} onClick={() => setCapabilityRetry(value => value + 1)}>Retry deployment check</button></div> :
+        configured && policyVersion === null ? <p className="notice" role="status">Checking which booking policies this deployment supports…</p> :
+        policyVersion === 0 ? <p className="notice">This deployment supports deposit confirmation. Automatic expiry, refund routing and release are not available here.</p> : null}
+      {policyVersion === 4 && <div className="notice capacity-card" aria-label="Booking capacity"><h3>Booking capacity</h3>
+        {!account ? <p>Connect your merchant wallet to check its quote allowance.</p> : admissionError ? <p role="alert">Capacity unavailable: {admissionError}</p> : !admission ? <p role="status">Reading booking capacity…</p> : <>
+          <p>{creationUnavailable(admission) || 'Your wallet can create a quote.'}</p>
+          <p>Sponsored quotes remaining: {admission.credits.toString()}. {admission.validUntil > 0n ? <>Expires: {date(admission.validUntil)}.</> : 'No current allowance.'}</p>
+          <p>Active: {admission.active.toString()} / {admission.maxActive.toString()} · Lifetime: {admission.admitted.toString()} / {admission.maxLifetime.toString()}.</p>
+          <p className="helper">Max deadline horizon: {admission.maxHorizon.toString()}s. Finite testnet allowance.</p>
+        </>}
+        <button className="secondary" disabled={busy} onClick={() => setCapacityRetry(value => value + 1)}>Refresh booking capacity</button>
+      </div>}
+    </div></div>
   </section>;
 }
 
