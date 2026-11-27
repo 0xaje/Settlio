@@ -40,12 +40,14 @@ export function Landing({
   busy,
   short,
   connect,
+  disconnect,
   navigate
 }: {
   account: string;
   busy: boolean;
   short: (address: string) => string;
   connect: () => void;
+  disconnect: () => void;
   navigate: (route: string) => void;
 }) {
   const [index, setIndex] = useState(0);
@@ -79,8 +81,14 @@ export function Landing({
           <button type="button" className="text-nav" onClick={() => navigate('?screen=quotes')}>Quotes</button>
         </nav>
         <div className="landing-actions">
-          <button type="button" className="secondary" disabled={busy} onClick={connect}>
-            {account ? short(account) : 'Connect wallet'}
+          <button
+            type="button"
+            className="secondary"
+            disabled={busy}
+            title={account ? 'Disconnect wallet' : 'Connect wallet'}
+            onClick={account ? disconnect : connect}
+          >
+            {account ? short(account) + ' · Disconnect' : 'Connect wallet'}
           </button>
           <button type="button" className="primary" onClick={() => navigate('?screen=new')}>
             Create a quote
@@ -93,11 +101,11 @@ export function Landing({
           <div className="hero-copy">
             <h1>Turn quotes into confirmed bookings</h1>
             <p className="hero-lead">
-              Quote, collect a deposit, and secure your next booking — built for independent service businesses.
+              Quote, collect a deposit, and secure your next booking. Built for independent service businesses.
             </p>
             <div className="hero-cta-row">
               <button type="button" className="primary hero-cta" onClick={() => navigate('?screen=new')}>
-                Create a quote →
+                Create a quote
               </button>
               <button type="button" className="secondary" onClick={() => navigate('?screen=quotes')}>
                 Open merchant workspace
