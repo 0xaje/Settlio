@@ -9,7 +9,8 @@ test('policy detection distinguishes legacy empty revert from unavailable or uns
     await assert.rejects(readPolicyVersion(async()=>{throw Object.assign(new Error('unavailable'),failure);}));
   }
   assert.equal(await readPolicyVersion(async()=>4n),4);
-  await assert.rejects(readPolicyVersion(async()=>5n),/not supported/);
+  assert.equal(await readPolicyVersion(async()=>5n),5);
+  await assert.rejects(readPolicyVersion(async()=>6n),/not supported/);
 });
 
 test('automatic policies require matching chains version and immutable receiver wiring',()=>{
@@ -19,6 +20,7 @@ test('automatic policies require matching chains version and immutable receiver 
     receiverEscrow:escrow,originChain:84532n,originEscrow:escrow,callbackReceiver:receiver,reactiveProvider:REACTIVE_SYSTEM};
   assert.doesNotThrow(()=>assertPolicyWiring(valid));
   assert.doesNotThrow(()=>assertPolicyWiring({...valid,escrowVersion:4,schedulerVersion:4}));
+  assert.doesNotThrow(()=>assertPolicyWiring({...valid,escrowVersion:5,schedulerVersion:5}));
   assert.throws(()=>assertPolicyWiring({...valid,escrowVersion:4,schedulerVersion:3}),/could not be verified/);
   assert.throws(()=>assertPolicyWiring({...valid,escrowVersion:3,schedulerVersion:4}),/could not be verified/);
   for(const change of [{baseChainId:1n},{reactiveChainId:84532n},{schedulerVersion:0},{proxy:escrow},

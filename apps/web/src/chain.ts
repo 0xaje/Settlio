@@ -62,7 +62,7 @@ reactiveRequest.timeout = 15000;
 const reactiveReader = new JsonRpcProvider(reactiveRequest, undefined, { cacheTimeout: -1 });
 
 export async function readPolicyDeployment(contract: Contract): Promise<
-  { version: 0 } | { version: 3 | 4; receiver: Contract; scheduler: Contract }
+  { version: 0 } | { version: 3 | 4 | 5; receiver: Contract; scheduler: Contract }
 > {
   const version = await readPolicyVersion(() => contract.POLICY_VERSION());
   if (version === 0) return { version };

@@ -326,7 +326,7 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
   const [usdcTotal, setUsdcTotal] = useState('');
   const [usdcDeposit, setUsdcDeposit] = useState('');
   const [automaticRelease, setAutomaticRelease] = useState(false);
-  const [policyVersion, setPolicyVersion] = useState<0 | 3 | 4 | null>(null);
+  const [policyVersion, setPolicyVersion] = useState<0 | 3 | 4 | 5 | null>(null);
   const [capabilityError, setCapabilityError] = useState('');
   const [capabilityRetry, setCapabilityRetry] = useState(0);
   const [admission, setAdmission] = useState<AdmissionState | null>(null);
@@ -335,7 +335,7 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
   useEffect(() => {
     let active = true, reading = false;
     setAdmission(null); setAdmissionError('');
-    if (policyVersion !== 4 || !account) return;
+    if ((policyVersion !== 4 && policyVersion !== 5) || !account) return;
     async function load() {
       if (reading) return;
       reading = true;
@@ -375,16 +375,16 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
         if (stableDeposit <= 0n || stableTotal < stableDeposit) throw new Error('Enter a positive USDC deposit no greater than its total.');
         options.push({ asset: assets[1].address, total: stableTotal.toString(), deposit: stableDeposit.toString() });
       }
-      if (policyVersion === 4) { if (!admission) throw new Error('Refresh booking capacity before creating a quote.'); assertCreationAllowed(admission, expiresAt, refundCutoff); }
-      const terms: Terms = { version: policyVersion === 4 ? 4 : policyVersion === 3 ? 3 : 2, ...((policyVersion === 3 || policyVersion === 4) ? { automaticRelease } : {}), options, service: service.trim(), description: description.trim(), merchant: getAddress(account), customer, total: totalWei.toString(), deposit: depositWei.toString(), expiresAt, refundCutoff };
+      if (policyVersion === 4 || policyVersion === 5) { if (!admission) throw new Error('Refresh booking capacity before creating a quote.'); assertCreationAllowed(admission, expiresAt, refundCutoff); }
+      const terms: Terms = { version: policyVersion === 5 ? 5 : policyVersion === 4 ? 4 : policyVersion === 3 ? 3 : 2, ...((policyVersion >= 3) ? { automaticRelease } : {}), options, service: service.trim(), description: description.trim(), merchant: getAddress(account), customer, total: totalWei.toString(), deposit: depositWei.toString(), expiresAt, refundCutoff };
       try { localStorage.setItem(draftKey(termsHash(terms)), encodeTerms(terms)); } catch { /* Existing share-link flow still works without local storage. */ }
       await transact(async () => {
         const current = await readContract();
         const checked = await readPolicyDeployment(current);
         if (checked.version !== policyVersion) throw new Error('The deployment check changed. Reload and review your quote.');
-        if (checked.version === 4) assertCreationAllowed(await readAdmissionState(reader, current, account), expiresAt, refundCutoff);
+        if (checked.version === 4 || checked.version === 5) assertCreationAllowed(await readAdmissionState(reader, current, account), expiresAt, refundCutoff);
         const contract = await walletContract(account);
-        return (policyVersion === 3 || policyVersion === 4)
+        return (policyVersion >= 3)
           ? contract.createQuoteWithPolicy(customer, options, expiresAt, refundCutoff, termsHash(terms), terms.automaticRelease)
           : contract.createQuoteWithOptions(customer, options, expiresAt, refundCutoff, termsHash(terms));
       }, receipt => {
@@ -412,11 +412,11 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
       {usdc && <div className="field-row"><label>Total · test USDC<input required inputMode="decimal" value={usdcTotal} onChange={event => setUsdcTotal(event.target.value)}/></label><label>Deposit · test USDC<input required inputMode="decimal" value={usdcDeposit} onChange={event => setUsdcDeposit(event.target.value)}/></label></div>}
       <p className="helper">Set a separate price for each currency. There is no automatic conversion. USDT · Coming soon. It is not available for quotes or payments yet.</p>
       <div className="field-row"><label>Payment deadline<input name="expiry" type="datetime-local" required/></label><label>Full-refund cutoff<input name="cutoff" type="datetime-local" required/></label></div>
-      {(policyVersion === 3 || policyVersion === 4) && <><label><span><input type="checkbox" checked={automaticRelease} onChange={event => setAutomaticRelease(event.target.checked)}/> Automatically release the deposit after the full-refund cutoff</span></label><p className="helper">{automaticRelease ? 'The deposit may be paid to you after the cutoff if no eligible cancellation has reserved a refund. This does not verify that the service was delivered.' : 'After the cutoff, you must claim an eligible confirmed deposit yourself. Eligible cancellations are still reserved for refund.'} This choice is fixed in the quote and shown to the customer before payment.</p></>}
+      {(policyVersion === 3 || policyVersion === 4 || policyVersion === 5) && <><label><span><input type="checkbox" checked={automaticRelease} onChange={event => setAutomaticRelease(event.target.checked)}/> Automatically release the deposit after the full-refund cutoff</span></label><p className="helper">{automaticRelease ? 'The deposit may be paid to you after the cutoff if no eligible cancellation has reserved a refund. This does not verify that the service was delivered.' : 'After the cutoff, you must claim an eligible confirmed deposit yourself. Eligible cancellations are still reserved for refund.'} This choice is fixed in the quote and shown to the customer before payment.</p></>}
       <p className="helper">Dates use your device’s time zone ({timeZone}). The customer must cancel before the cutoff for a full deposit refund. These terms are fixed when you create the quote.</p>
       <p className="helper">The share link contains your service description. Anyone with that link can read it. Avoid personal or confidential information.</p>
       {validation && <p role="alert" className="error">{validation}</p>}
-      <button className="primary wide" type="submit" disabled={!account || !configured || policyVersion === null || (policyVersion === 4 && !!creationUnavailable(admission))}>{busy ? 'Waiting for transaction…' : 'Create share link'}</button>
+      <button className="primary wide" type="submit" disabled={!account || !configured || policyVersion === null || ((policyVersion === 4 || policyVersion === 5) && !!creationUnavailable(admission))}>{busy ? 'Waiting for transaction…' : 'Create share link'}</button>
     </fieldset></form>
     <div className="preview-column">
       <aside className="preview">
@@ -426,17 +426,17 @@ function CreateQuote({ account, busy, transact, navigate, connect }: { account: 
         <div className="preview-amount"><span>Deposit due today</span><strong>{deposit || '—'} <small>test ETH</small></strong></div>
         <dl className="preview-totals"><dt>Total</dt><dd>{total ? total + ' test ETH' : '—'}</dd><dt>Remaining balance</dt><dd>{previewRemaining}</dd></dl>
         {usdc && <p className="helper">Or deposit {usdcDeposit || '—'} of {usdcTotal || '—'} test USDC</p>}
-        {(policyVersion === 3 || policyVersion === 4) && <p className="helper">Deposit release: {automaticRelease ? 'Automatic after the agreed refund cutoff, unless a refund is reserved.' : 'Merchant must claim after the refund cutoff.'}</p>}
+        {(policyVersion === 3 || policyVersion === 4 || policyVersion === 5) && <p className="helper">Deposit release: {automaticRelease ? 'Automatic after the agreed refund cutoff, unless a refund is reserved.' : 'Merchant must claim after the refund cutoff.'}</p>}
         <p className="helper">Payment confirms the deposit first. The booking is confirmed after Reactive delivers its callback.</p>
       </aside>
       {capabilityError ? <div className="error" role="alert"><p>{capabilityError}</p><button className="secondary" disabled={busy} onClick={() => setCapabilityRetry(value => value + 1)}>Retry deployment check</button></div> :
         configured && policyVersion === null ? <p className="notice" role="status">Checking which booking policies this deployment supports…</p> :
         policyVersion === 0 ? <p className="notice">This deployment supports deposit confirmation. Automatic expiry, refund routing and release are not available here.</p> : null}
-      {policyVersion === 4 && <div className="notice capacity-card" aria-label="Booking capacity"><h3>Booking capacity</h3>
+      {(policyVersion === 4 || policyVersion === 5) && <div className="notice capacity-card" aria-label="Booking capacity"><h3>Booking capacity</h3>
         {!account ? <p>Connect your merchant wallet to check its quote allowance.</p> : admissionError ? <p role="alert">Capacity unavailable: {admissionError}</p> : !admission ? <p role="status">Reading booking capacity…</p> : <>
           <p>{creationUnavailable(admission) || 'Your wallet can create a quote.'}</p>
           <p>Sponsored quotes remaining: {admission.credits.toString()}. {admission.validUntil > 0n ? <>Expires: {date(admission.validUntil)}.</> : 'No current allowance.'}</p>
-          <p>Active: {admission.active.toString()} / {admission.maxActive.toString()} · Lifetime: {admission.admitted.toString()} / {admission.maxLifetime.toString()}.</p>
+          <p>{policyVersion === 5 ? <>Active: {admission.active.toString()} / {admission.maxActive.toString()} · Unsettled: {(admission.unsettled ?? 0n).toString()} / {(admission.maxWork ?? 0n).toString()} · Total admitted: {admission.admitted.toString()} (renewable).</> : <>Active: {admission.active.toString()} / {admission.maxActive.toString()} · Lifetime: {admission.admitted.toString()} / {admission.maxLifetime.toString()}.</>}</p>
           <p className="helper">Max deadline horizon: {admission.maxHorizon.toString()}s. Finite testnet allowance.</p>
         </>}
         <button className="secondary" disabled={busy} onClick={() => setCapacityRetry(value => value + 1)}>Refresh booking capacity</button>
@@ -479,7 +479,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
   useEffect(() => {
     let active = true, reading = false;
     setAdmission(null); setAdmissionError('');
-    if (quote?.policyVersion !== 4) return;
+    if (quote?.policyVersion !== 4 && quote?.policyVersion !== 5) return;
     const merchant = quote.merchant;
     async function load() {
       if (reading) return;
@@ -504,7 +504,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
         value.options = choices.map((choice: { asset: string; total: bigint; deposit: bigint }) => ({ asset: choice.asset, total: choice.total.toString(), deposit: choice.deposit.toString() }));
         if (value.status === 0) throw new Error('This quote was not found.');
         value.policyVersion = await readPolicyVersion(() => contract.POLICY_VERSION());
-        value.automaticRelease = (value.policyVersion === 3 || value.policyVersion === 4) ? Boolean(await contract.automaticRelease(id)) : false;
+        value.automaticRelease = value.policyVersion >= 3 ? Boolean(await contract.automaticRelease(id)) : false;
         if (active && current === sequence.current) { setQuote(value); setError(''); }
       } catch (failure) { if (active && current === sequence.current) { setQuote(null); setError(errorMessage(failure)); } }
     }
@@ -586,7 +586,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
       <button className="primary wide" disabled={busy || !customer || !verified || !supported} onClick={() => void transact(async () => {
         const contract = await walletContract(account);
         const payment = { value: asset === ZeroAddress ? deposit : 0n };
-        return (terms?.version === 3 || terms?.version === 4) ? contract.payDepositWithPolicy(id, selected, quote.termsHash, terms.automaticRelease, payment) : contract.payDepositOption(id, selected, quote.termsHash, payment);
+        return terms && terms.version >= 3 ? contract.payDepositWithPolicy(id, selected, quote.termsHash, terms.automaticRelease, payment) : contract.payDepositOption(id, selected, quote.termsHash, payment);
       }, () => setCheckoutOpen(false))}>Accept terms & pay deposit</button>}{!customer && <p className="helper">Connect the customer wallet shown on this quote to pay.</p>}</>}
       <p className="helper checkout-footnote">After payment, Reactive Network verifies your deposit and confirms your booking on-chain.</p>
       <button type="button" className="text-button" onClick={() => setCheckoutOpen(false)}>← Back to quote details</button>
@@ -617,7 +617,7 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
     </div>}
     <div className="quote-columns"><div><h2>Service details</h2><p className="description">{verified ? terms.description || terms.service : 'Waiting for verified service terms.'}</p>
       <h2>Payment and cancellation</h2><p className="helper">Times use your device’s time zone: {timeZone}.</p><dl><dt>Pay before</dt><dd>{date(quote.expiresAt)}</dd><dt>Cancel before for a full deposit refund</dt><dd>{date(quote.refundCutoff)}</dd></dl>
-      {(quote.policyVersion === 3 || quote.policyVersion === 4) ? <><p className="helper"><strong>Deposit release:</strong> {quote.automaticRelease ? 'Automatic after the refund cutoff if the booking is confirmed and no eligible cancellation reserved a refund.' : 'The merchant must claim an eligible confirmed deposit after the refund cutoff.'} These rules do not verify service delivery. Remaining-balance collection is not enabled.</p><AutomationStatus id={id} refresh={refresh}/></> : <p className="helper">Refund routing is not enabled on this deployment. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>}
+      {(quote.policyVersion ?? 0) >= 3 ? <><p className="helper"><strong>Deposit release:</strong> {quote.automaticRelease ? 'Automatic after the refund cutoff if the booking is confirmed and no eligible cancellation reserved a refund.' : 'The merchant must claim an eligible confirmed deposit after the refund cutoff.'} These rules do not verify service delivery. Remaining-balance collection is not enabled.</p><AutomationStatus id={id} refresh={refresh}/></> : <p className="helper">Refund routing is not enabled on this deployment. The deposit is held in escrow through the refund period. Remaining-balance collection is not enabled in this build.</p>}
       <details><summary>Contract details</summary><p className="address">Terms fingerprint {quote.termsHash}</p><a href={explorer + '/address/' + escrowAddress} target="_blank" rel="noreferrer">View escrow on Base Sepolia</a></details>
     </div><aside className="payment-summary"><span>{quote.status === 1 && !expired ? 'Deposit due today' : quote.status === 3 ? 'Deposit (paid)' : 'Deposit amount'}</span>{quote.status === 1 && <label>Payment currency<select value={selected} disabled={busy} onChange={event => setSelected(Number(event.target.value))}>{quote.options?.map((option, index) => <option key={option.asset} value={index}>{knownAsset(option.asset)?.symbol ?? 'Unverified token'}</option>)}<option value="usdt-coming-soon" disabled>USDT (Coming soon)</option></select></label>}
       {!supported && <p role="alert" className="error">This token is not verified for this interface. Payment is disabled.</p>}
@@ -625,27 +625,28 @@ function QuoteView({ id, account, busy, refresh, transact, connect }: { id: bigi
       {quote.status === 1 && !expired && (!account ? <button className="primary wide" onClick={connect}>Connect wallet</button> :
       <button className="primary wide" disabled={busy || !verified || !supported} onClick={() => setCheckoutOpen(true)}>Continue to wallet checkout</button>)}
       {quote.status === 2 && quote.policyVersion === 0 && participant && <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestConfirmation(id))}>Request confirmation again</button>}
-      {(quote.policyVersion === 3 || quote.policyVersion === 4) && customer && (quote.status === 2 || quote.status === 3) && BigInt(now) < quote.refundCutoff && <>
+      {(quote.policyVersion ?? 0) >= 3 && customer && (quote.status === 2 || quote.status === 3) && BigInt(now) < quote.refundCutoff && <>
         <p className="helper">Cancellation reserves a full deposit refund now. The money returns when the refund transaction executes.</p>
         <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).requestCancellation(id))}>Cancel booking and request full refund</button>
       </>}
-      {(quote.policyVersion === 3 || quote.policyVersion === 4) && merchant && quote.status === 3 && BigInt(now) >= quote.refundCutoff &&
+      {(quote.policyVersion ?? 0) >= 3 && merchant && quote.status === 3 && BigInt(now) >= quote.refundCutoff &&
         <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => (await walletContract(account)).release(id))}>Claim eligible deposit</button>}
-      {(quote.policyVersion === 3 || quote.policyVersion === 4) && participant && (quote.status === 2 || quote.status === 4 || (quote.status === 1 && expired) || (quote.status === 3 && quote.automaticRelease && BigInt(now) >= quote.refundCutoff)) &&
-        <div>{quote.policyVersion === 4 && <p className="helper">{admissionError ? 'Retry status unavailable: ' + admissionError : retryUnavailable(admission, BigInt(now)) || 'A participant retry is available.'} {admission && <>Retries used: {admission.retries?.toString() ?? 'unknown'} of {admission.maxRetries.toString()}. {admission.retryAfter !== undefined && admission.retryAfter > 0n && <>Next retry time: {date(admission.retryAfter)}.</>}</>}</p>}
-        <button className="secondary wide" disabled={busy || (quote.policyVersion === 4 && !!retryUnavailable(admission, BigInt(now)))} onClick={() => void transact(async () => {
-          if (quote.policyVersion === 4) {
+      {(quote.policyVersion ?? 0) >= 3 && participant && (quote.status === 2 || quote.status === 4 || (quote.status === 1 && expired) || (quote.status === 3 && quote.automaticRelease && BigInt(now) >= quote.refundCutoff)) &&
+        <div>{(quote.policyVersion === 4 || quote.policyVersion === 5) && <p className="helper">{admissionError ? 'Retry status unavailable: ' + admissionError : retryUnavailable(admission, BigInt(now)) || 'A participant retry is available.'} {admission && <>Retries used: {admission.retries?.toString() ?? 'unknown'} of {admission.maxRetries.toString()}. {admission.retryAfter !== undefined && admission.retryAfter > 0n && <>Next retry time: {date(admission.retryAfter)}.</>}</>}</p>}
+        <button className="secondary wide" disabled={busy || ((quote.policyVersion === 4 || quote.policyVersion === 5) && !!retryUnavailable(admission, BigInt(now)))} onClick={() => void transact(async () => {
+          if (quote.policyVersion === 4 || quote.policyVersion === 5) {
             const current = await readContract();
             const blocked = retryUnavailable(await readAdmissionState(reader, current, quote.merchant, id));
             if (blocked) throw new Error(blocked);
           }
           return (await walletContract(account)).requestPolicy(id);
         })}>Retry automatic check</button></div>}
-      {quote.policyVersion === 4 && customer && quote.status === 4 && <>
+      {(quote.policyVersion === 4 || quote.policyVersion === 5) && customer && quote.status === 4 && <>
         <p className="helper">If automatic delivery is delayed, you can claim this reserved refund yourself. It returns the original deposit asset and amount to your customer wallet. No retry allowance or sponsor approval is needed.</p>
         <button className="secondary wide" disabled={busy} onClick={() => void transact(async () => {
           const current = await readContract(), fresh = asQuote(id, await current.getQuote(id));
-          if (await readPolicyVersion(() => current.POLICY_VERSION()) !== 4 || fresh.status !== 4 || getAddress(fresh.customer) !== getAddress(account)) throw new Error('Refresh the quote and connect its customer wallet before claiming the reserved refund.');
+          const version = await readPolicyVersion(() => current.POLICY_VERSION());
+          if ((version !== 4 && version !== 5) || fresh.status !== 4 || getAddress(fresh.customer) !== getAddress(account)) throw new Error('Refresh the quote and connect its customer wallet before claiming the reserved refund.');
           return (await walletContract(account)).claimRefund(id);
         })}>Claim reserved refund</button>
       </>}

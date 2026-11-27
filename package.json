@@ -69,6 +69,7 @@
     "resume:recovery:v4": "node script/v4-recovery.cjs resume",
     "verify:recovery:v4": "node script/verify-v4-recovery.cjs",
     "build:renewable": "node script/compile-renewable.cjs",
+    "plan:v5": "node script/v5-deploy.cjs plan",
     "review:costs:renewable": "node script/renewable-cost-review.cjs",
     "inspect:commitments:renewable": "node script/renewable-commitments.cjs inspect"
   },

@@ -3,7 +3,7 @@ import { getAddress, keccak256, toUtf8Bytes } from 'ethers';
 export type PaymentOption = { asset: string; total: string; deposit: string };
 
 export type Terms = {
-  version: 1 | 2 | 3 | 4;
+  version: 1 | 2 | 3 | 4 | 5;
   automaticRelease?: boolean;
   options?: PaymentOption[];
   service: string;
@@ -66,7 +66,7 @@ export function decodeTerms(encoded: string): Terms {
   const value: unknown = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
   if (typeof value !== 'object' || value === null) throw new Error('Invalid quote terms.');
   const terms = value as Terms;
-  if ((terms.version !== 1 && terms.version !== 2 && terms.version !== 3 && terms.version !== 4) || typeof terms.service !== 'string' || !terms.service.trim() ||
+  if ((terms.version !== 1 && terms.version !== 2 && terms.version !== 3 && terms.version !== 4 && terms.version !== 5) || typeof terms.service !== 'string' || !terms.service.trim() ||
       terms.service.length > 120 || typeof terms.description !== 'string' || terms.description.length > 2000 ||
       typeof terms.total !== 'string' || !/^\d+$/.test(terms.total) ||
       typeof terms.deposit !== 'string' || !/^\d+$/.test(terms.deposit) ||
@@ -92,7 +92,7 @@ export function decodeTerms(encoded: string): Terms {
 
 export function matchesQuote(terms: Terms, quote: Quote): boolean {
   try {
-    return (terms.version >= 3 ? quote.policyVersion === terms.version && terms.automaticRelease === quote.automaticRelease : quote.policyVersion !== 4 && quote.automaticRelease !== true) &&
+    return (terms.version >= 3 ? quote.policyVersion === terms.version && terms.automaticRelease === quote.automaticRelease : quote.policyVersion !== 4 && quote.policyVersion !== 5 && quote.automaticRelease !== true) &&
       termsHash(terms).toLowerCase() === quote.termsHash.toLowerCase() &&
       getAddress(terms.merchant) === getAddress(quote.merchant) &&
       getAddress(terms.customer) === getAddress(quote.customer) &&

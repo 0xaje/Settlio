@@ -5,7 +5,7 @@ import {ContractFactory,Contract,ZeroAddress} from 'ethers';
 import {readAdmissionState,creationUnavailable,assertCreationAllowed,retryUnavailable,ADMISSION_ESCROW_ABI} from '../apps/web/src/admission.ts';
 import {termsHash,encodeTerms,decodeTerms,matchesQuote} from '../apps/web/src/terms.ts';
 const require=createRequire(import.meta.url),compile=require('../script/compile-admission.cjs'),legacy=require('../script/compile.cjs'),start=require('./helpers/local-chain.cjs');
-const sample=()=>({address:'0x0000000000000000000000000000000000000001',sponsor:'0x0000000000000000000000000000000000000002',blockNumber:1,blockTime:1000n,open:true,active:0n,reserved:2n,admitted:0n,maxActive:2n,maxLifetime:3n,maxHorizon:1000n,maxRetries:2n,retryInterval:60n,credits:2n,validUntil:1100n,jobAdmitted:true,jobClosed:false,retries:0n,retryAfter:0n});
+const sample=()=>({policyVersion:4,address:'0x0000000000000000000000000000000000000001',sponsor:'0x0000000000000000000000000000000000000002',blockNumber:1,blockTime:1000n,open:true,active:0n,reserved:2n,admitted:0n,maxActive:2n,maxLifetime:3n,maxHorizon:1000n,maxRetries:2n,retryInterval:60n,credits:2n,validUntil:1100n,jobAdmitted:true,jobClosed:false,retries:0n,retryAfter:0n});
 test('creation UI refuses unknown, paused, exhausted, full, expired and missing allowances',()=>{
  assert.match(creationUnavailable(null),/not verified/);
  for(const change of [{open:false},{active:2n},{admitted:3n},{credits:0n},{validUntil:1000n}])assert.notEqual(creationUnavailable({...sample(),...change}),'');

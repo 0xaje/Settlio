@@ -1,5 +1,13 @@
 # Settlio current status
 
+## Part A: Vite bundle split, V5 frontend readiness, and read-only V5 planner — 27 November 2026
+
+Completed local-only Part A preparation with zero test tokens spent and no public deployment:
+- Added [`vite.config.ts`](../apps/web/vite.config.ts) (`manualChunks` splitting `ethers` and `react`); `npm run build:web` passed (`0` TS errors, `347ms`, largest JS chunk `258.19 kB`, zero `>500 kB` chunk warnings).
+- Added `POLICY_VERSION === 5` (`SettlioWorkLedger`) support across [`policy.ts`](../apps/web/src/policy.ts), [`admission.ts`](../apps/web/src/admission.ts), [`chain.ts`](../apps/web/src/chain.ts), [`terms.ts`](../apps/web/src/terms.ts), and [`main.tsx`](../apps/web/src/main.tsx) while preserving V4 (`POLICY_VERSION === 4`) backward compatibility.
+- Added strictly read-only [`v5-deploy.cjs`](../script/v5-deploy.cjs) (`npm run plan:v5`) and [`v5-plan.test.mjs`](../test/v5-plan.test.mjs).
+- Verified `node --test test/v5-plan.test.mjs test/admission-ui.test.mjs test/approval.test.mjs test/policy-ui.test.mjs test/recovery.test.mjs test/terms.test.mjs test/wallet.test.mjs` (**31/31** in the prior combined run + **2/2** in `test/v5-plan.test.mjs`, **33/33** total). Next: Part B public V5 deployment, M4 public hosting, and `<3 min` demo video when authorized. Earlier entries below are historical checkpoints.
+
 ## M3 Quotes, Create Quote, and Mobile polish built — 27 November 2026
 
 Refined [`main.tsx`](../apps/web/src/main.tsx) and [`style.css`](../apps/web/src/style.css) to eliminate the `Booking capacity` layout jump on Create Quote, add live `Remaining balance` + merchant header in `Customer preview`, tighten Quotes/Create Quote top spacing, and stack the mobile hero caption cleanly below the photo (`<= 650px`). `npm run build:web` passed (`0` TS errors, `974ms`) and frontend tests passed **28/28** (`8.19s`). Live `browser` subagent inspection was blocked because Chrome remote debugging (`DevToolsActivePort`) is inactive. Earlier entries below are historical checkpoints.
