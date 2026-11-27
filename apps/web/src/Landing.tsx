@@ -88,7 +88,7 @@ export function Landing({
             title={account ? 'Disconnect wallet' : 'Connect wallet'}
             onClick={account ? disconnect : connect}
           >
-            {account ? short(account) + ' · Disconnect' : 'Connect wallet'}
+            {account ? short(account) : 'Connect wallet'}
           </button>
           <button type="button" className="primary" onClick={() => navigate('?screen=new')}>
             Create a quote
