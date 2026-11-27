@@ -1,0 +1,14 @@
+{
+  "admission": {
+    "workLimit": "25",
+    "activeLimit": "10",
+    "horizon": "604800",
+    "cooldown": "60",
+    "retries": "2"
+  },
+  "adaptiveTimers": true,
+  "constructorFunding": {
+    "reactive": "500000000000000000",
+    "callback": "5000000000000000"
+  }
+}

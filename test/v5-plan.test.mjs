@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { Contract, ContractFactory, ZeroAddress, parseEther } from 'ethers';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { AbiCoder, Contract, ContractFactory, ZeroAddress, keccak256, parseEther } from 'ethers';
 import {
   ADMISSION_ESCROW_ABI,
   assertCreationAllowed,
@@ -15,7 +18,10 @@ import { decodeTerms, encodeTerms, matchesQuote, termsHash } from '../apps/web/s
 const require = createRequire(import.meta.url);
 const start = require('./helpers/local-chain.cjs');
 const compileLegacy = require('../script/compile.cjs');
+const compileAdmission = require('../script/compile-admission.cjs');
 const compileRenewable = require('../script/compile-renewable.cjs');
+const { SYSTEM, PROXY, USDC } = require('../script/m2-network.cjs');
+const v5State = require('../script/v5-state.cjs');
 const v5 = require('../script/v5-deploy.cjs');
 
 const config = {
@@ -158,4 +164,130 @@ test('V5 interface reader, policy wiring, and renewable work-ledger limits opera
   await (await escrow.connect(customer).claimRefund(1)).wait();
   assert.equal((await escrow.getQuote(1)).status, 5n);
   assert.equal(await escrow.totalLiability(), 0n);
+});
+
+test('V5 deploy, verify, open, grant, and status execute cleanly on isolated local chains', async t => {
+  const baseChain = await start(t, { chainId: 84532 });
+  const lasnaChain = await start(t, { chainId: 5318007 });
+  const directoryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'v5-deploy-'));
+  t.after(() => fs.rmSync(directoryRoot, { recursive: true, force: true }));
+
+  const key = baseChain.signers[0].signer.privateKey;
+  const owner = await baseChain.signers[0].getAddress();
+  await lasnaChain.provider.send('anvil_setBalance', [owner, '0x21e19e0c9bab2400000']);
+
+  const mockSource = {
+    'test/V5MockProtocol.sol': {
+      content: `// SPDX-License-Identifier: MIT
+pragma solidity 0.8.29;
+contract V5MockProtocol {
+  mapping(bytes32 => bool) public subscriptions;
+  mapping(address => uint256) public reserves;
+  function debt(address) external pure returns (uint256) { return 0; }
+  function depositTo(address target) external payable { reserves[target] += msg.value; }
+  function balanceOf(address) external pure returns (uint256) { return 0; }
+  function subscribe(uint256 chain, address target, uint256 t0, uint256 t1, uint256 t2, uint256 t3) external {
+    subscriptions[keccak256(abi.encode(msg.sender, chain, target, t0, t1, t2, t3))] = true;
+  }
+  function unsubscribe(uint256 chain, address target, uint256 t0, uint256 t1, uint256 t2, uint256 t3) external {
+    subscriptions[keccak256(abi.encode(msg.sender, chain, target, t0, t1, t2, t3))] = false;
+  }
+}`
+    }
+  };
+  const mockArtifact = compileAdmission('V5MockProtocol', mockSource);
+  const proto = await new ContractFactory(mockArtifact.abi, mockArtifact.evm.bytecode.object, lasnaChain.signers[1]).deploy();
+  await proto.waitForDeployment();
+  const code = await lasnaChain.provider.getCode(proto.target);
+  await lasnaChain.provider.send('anvil_setCode', [SYSTEM, code]);
+  await baseChain.provider.send('anvil_setCode', [PROXY, code]);
+  await baseChain.provider.send('anvil_setCode', [USDC, code]);
+
+  const system = new Contract(SYSTEM, mockArtifact.abi, lasnaChain.provider);
+  const reactiveAbi = compileRenewable('SettlioReactiveV5').abi;
+  const lasnaProxy = new Proxy(lasnaChain.provider, {
+    get(target, prop) {
+      if (prop !== 'send') {
+        const val = target[prop];
+        return typeof val === 'function' ? val.bind(target) : val;
+      }
+      return async (method, args) => {
+        if (method !== 'rnk_getFilters') return target.send(method, args);
+        const j = v5State.read(directoryRoot);
+        const r = new Contract(j.contracts.SettlioReactiveV5.address, reactiveAbi, lasnaChain.provider);
+        const ignore = BigInt('0xa65f96fc951c35ead38878e0f0b7a3c744a6f5ccc1476b313353ce31712313ad');
+        const filters = [];
+        for (const name of [
+          'WORK_TOPIC', 'CLOSURE_RETRY_TOPIC', 'DEPOSIT_TOPIC', 'RETRY_TOPIC', 'POLICY_TOPIC',
+          'POLICY_RETRY_TOPIC', 'CANCEL_TOPIC', 'CONFIRMED_TOPIC', 'CHECKED_TOPIC', 'REFUNDED_TOPIC',
+          'EXPIRED_TOPIC', 'RELEASED_TOPIC'
+        ]) {
+          const topic = await r[name]();
+          const lookup = keccak256(
+            AbiCoder.defaultAbiCoder().encode(
+              ['address', 'uint256', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+              [r.target, 84532, j.escrow, topic, ignore, ignore, ignore]
+            )
+          );
+          filters.push({
+            ChainId: 84532,
+            Contract: j.escrow,
+            Topics: ['0x' + topic.toString(16).padStart(64, '0'), null, null, null],
+            Configs: [{ Contract: r.target, Active: await system.subscriptions(lookup) }]
+          });
+        }
+        const st = await r.SETTLED_TOPIC();
+        const sk = keccak256(
+          AbiCoder.defaultAbiCoder().encode(
+            ['address', 'uint256', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+            [r.target, 84532, j.workLedger, st, ignore, ignore, ignore]
+          )
+        );
+        filters.push({
+          ChainId: 84532,
+          Contract: j.workLedger,
+          Topics: ['0x' + st.toString(16).padStart(64, '0'), null, null, null],
+          Configs: [{ Contract: r.target, Active: await system.subscriptions(sk) }]
+        });
+        return { Version: 1, TopicFilters: filters };
+      };
+    }
+  });
+
+  const deployed = await v5.deploy({
+    config,
+    base: baseChain.provider,
+    lasna: lasnaProxy,
+    env: { DEPLOYER_PRIVATE_KEY: key },
+    directoryRoot,
+    networkCheck: async () => ({ baseChainId: 84532, reactiveChainId: 5318007 })
+  });
+  assert.equal(deployed.observation.wiringVerified, true);
+  assert.equal(deployed.observation.adaptiveTimers, true);
+
+  const opened = await v5.open({
+    base: baseChain.provider,
+    lasna: lasnaProxy,
+    env: { DEPLOYER_PRIVATE_KEY: key },
+    directoryRoot
+  });
+  assert.equal(opened.open, true);
+
+  const granted = await v5.grant({
+    merchant: owner,
+    credits: '5',
+    validSeconds: '86400',
+    base: baseChain.provider,
+    lasna: lasnaProxy,
+    env: { DEPLOYER_PRIVATE_KEY: key },
+    directoryRoot,
+    clock: async () => BigInt((await baseChain.provider.getBlock('latest')).timestamp)
+  });
+  assert.equal(granted.remaining, 5n);
+  assert.equal(granted.epoch, 1n);
+
+  const stat = await v5.status({ base: baseChain.provider, lasna: lasnaProxy, directoryRoot });
+  assert.equal(stat.journalExists, true);
+  assert.equal(stat.operations.length, 5);
+  assert.ok(stat.operations.every(op => op.state === 'succeeded'));
 });
